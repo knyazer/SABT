@@ -4,8 +4,12 @@
 
 #include <iostream>
 
+#include <ConnectedStack.h>
+
 using namespace std;
 
 int main() {
+    ConnectedStack<int> stack;
+
     std::cout << "Hello world" << std::endl;
 }
