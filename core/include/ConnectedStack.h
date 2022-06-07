@@ -89,6 +89,9 @@ public:
 
     ///< Connect the stack to some place at other one
     void connect(std::shared_ptr<ConnectedStack<T>> root, size_t ptr) {
+        if (root->empty())
+            throw std::runtime_error("Not allowed connect one stack to other empty stack - bad practice.");
+
         parent.root = root;
         parent.size = ptr + 1;
     }

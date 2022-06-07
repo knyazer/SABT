@@ -159,6 +159,30 @@ TEST(Stack, SequentialPushPopConnectionTest) {
         for (size_t j = 0; j < M; j++) {
             ASSERT_EQ(current->pop(), 42 * i * (M - j - 1));
         }
+    }
+}
 
+TEST(Stack, OneRootManyNodesConnectionTest) {
+    auto root = new ConnectedStack<size_t>();
+    root->push(42);
+
+    ConnectedStack<size_t> nodes[N];
+
+    for (size_t i = 0; i < N; i++) {
+        for (size_t j = 0; j < M; j++) {
+            nodes[i].push((i + 1) * (j + 1));
+        }
+
+        nodes[i].connect(std::make_shared<ConnectedStack<size_t>>(*root), 0);
+    }
+
+    for (size_t i = 0; i < N; i++) {
+        for (size_t j = 0; j < M; j++) {
+            ASSERT_EQ(nodes[i].pop(), (i + 1) * (M - j));
+        }
+
+        ASSERT_EQ(nodes[i].pop(), 42);
+
+        ASSERT_ANY_THROW(nodes[i].pop());
     }
 }
