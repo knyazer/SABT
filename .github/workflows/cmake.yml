@@ -15,16 +15,18 @@ jobs:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
+    runs-on: ubuntu:jammy
 
     steps:
     - uses: actions/checkout@v3
     
     - name: Install clang
       run: |
+          sudo apt-add-repository http://apt.llvm.org/jammy/ llvm-toolchain-jammy-14 main
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
           sudo apt-get update
           sudo apt-get install clang-format clang-tidy clang-tools clang clangd libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb llvm-dev llvm-runtime llvm python3-clang
+          sudo apt-get install llvm-14
           sudo apt-get install clang-14 lldb-14 lld-14
 
     - name: Configure CMake
