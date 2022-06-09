@@ -15,3 +15,4 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(tests ExampleTest.cpp StackTest.cpp TripletTest.cpp OctreeTest.cpp)
 target_link_libraries(tests gtest_main gtest core)
+set_property(TARGET tests PROPERTY CXX_STANDARD 20)
