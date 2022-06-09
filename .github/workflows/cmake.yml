@@ -25,9 +25,9 @@ jobs:
           sudo apt-add-repository http://apt.llvm.org/jammy/ llvm-toolchain-jammy-14 main
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
           sudo apt-get update
-          sudo apt-get install clang-format clang-tidy clang-tools clang clangd libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb llvm-dev llvm-runtime llvm python3-clang
-          sudo apt-get install llvm-14
-          sudo apt-get install clang-14 lldb-14 lld-14
+          sudo apt-get install -y clang-format clang-tidy clang-tools clang clangd libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb llvm-dev llvm-runtime llvm python3-clang
+          sudo apt-get install -y llvm-14
+          sudo apt-get install -y clang-14 lldb-14 lld-14
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
