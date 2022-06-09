@@ -20,13 +20,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Install llvm 14
+    - name: Install latest stable llvm
       run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-add-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-14 main"
-          sudo apt-get update
-          sudo apt-get install aptitude
-          sudo aptitude install -y llvm-14 llvm-14-dev clang-14 llvm-14-tools
+          bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
