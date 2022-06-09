@@ -34,8 +34,8 @@ jobs:
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
       shell: bash
       env:
-       CC:   clang
-       CXX:  clang++
+       CC:   clang-14
+       CXX:  clang++-14
 
     - name: Build
       # Build your program with the given configuration
