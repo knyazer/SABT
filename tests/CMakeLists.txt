@@ -11,5 +11,7 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(tests example.cpp stack.cpp)
+# set(CMAKE_CXX_FLAGS "--coverage")
+
+add_executable(tests ExampleTest.cpp StackTest.cpp TripletTest.cpp OctreeTest.cpp)
 target_link_libraries(tests gtest_main gtest core)

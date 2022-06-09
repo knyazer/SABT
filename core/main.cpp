@@ -5,11 +5,13 @@
 #include <iostream>
 
 #include <ConnectedStack.h>
+#include <OctreeRoot.h>
 
 using namespace std;
 
 int main() {
     ConnectedStack<int> stack;
+    OctreeRoot octree;
 
     std::cout << "Hello world" << std::endl;
 }

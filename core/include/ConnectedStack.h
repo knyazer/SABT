@@ -26,7 +26,7 @@ private:
             size = 0;
         }
 
-        StackPointer(const StackPointer& other) {
+        StackPointer(const StackPointer &other) {
             root = other.root;
             size = other.size;
         }
@@ -77,7 +77,7 @@ public:
         currentSize = 0;
     }
 
-    ConnectedStack(const ConnectedStack<T>& stack) {
+    ConnectedStack(const ConnectedStack<T> &stack) {
         allocated = stack.allocated;
         currentSize = stack.currentSize;
 

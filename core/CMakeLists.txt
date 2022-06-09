@@ -4,8 +4,8 @@ project(exe)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_library(core SHARED
-        source/Beam.cpp)
+add_library(core STATIC
+        include/Triplet.h include/Filling.h include/Octree.h source/Octree.cpp source/OctreeRoot.cpp include/OctreeRoot.h source/Vec3i.cpp include/Vec3i.h)
 target_include_directories(core PUBLIC include)
 
 add_executable(application main.cpp)
