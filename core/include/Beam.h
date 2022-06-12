@@ -1,19 +1,19 @@
 //
-// Created by knyaz on 6/4/2022.
+// Created by knyaz on 6/11/2022.
 //
 
 #ifndef SABT_BEAM_H
 #define SABT_BEAM_H
 
-#include <memory>
+#include <Vec3f.h>
+#include <Geometry.h>
 
-#include <Octree.h>
-#include <ConnectedStack.h>
+class Beam {
+protected:
+    Vec3f origin;
 
-//class Beam {
-//    std::unique_ptr<Beam> children[4];
-//
-//    ConnectedStack stack;
-//};
+    Rect passThrough;
+};
+
 
 #endif //SABT_BEAM_H

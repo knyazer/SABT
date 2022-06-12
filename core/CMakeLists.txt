@@ -5,7 +5,14 @@ project(exe)
 set(CMAKE_CXX_STANDARD 20)
 
 add_library(core STATIC
-        include/Triplet.h include/Filling.h include/Octree.h source/Octree.cpp source/OctreeRoot.cpp include/OctreeRoot.h source/Vec3i.cpp include/Vec3i.h)
+        source/Octree.cpp
+        source/OctreeRoot.cpp
+        source/Vec3i.cpp
+        source/Beam.cpp
+        source/Vec3f.cpp
+        source/Geometry.cpp
+        source/Vec2f.cpp)
+
 target_include_directories(core PUBLIC include)
 
 add_executable(application main.cpp)
