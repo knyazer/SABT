@@ -8,10 +8,13 @@ add_library(core STATIC
         source/Octree.cpp
         source/OctreeRoot.cpp
         source/Vec3i.cpp
-        source/Beam.cpp
         source/Vec3f.cpp
-        source/Geometry.cpp
-        source/Vec2f.cpp)
+        source/Vec2f.cpp
+        source/Cube.cpp
+        source/AlignedRect.cpp
+        source/Polygon.cpp
+        include/GJK.h
+        )
 
 target_include_directories(core PUBLIC include)
 

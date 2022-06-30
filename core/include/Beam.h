@@ -6,14 +6,12 @@
 #define SABT_BEAM_H
 
 #include <Vec3f.h>
-#include <Geometry.h>
+#include <Cube.h>
+#include <AlignedRect.h>
 
-class Beam {
-protected:
-    Vec3f origin;
-
-    Rect passThrough;
+class Beam
+{
+    Rect rect;
 };
-
 
 #endif //SABT_BEAM_H

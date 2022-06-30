@@ -32,11 +32,11 @@ public:
     Triplet(Vec3i pos) { set(pos); }
 
     // Such a strange construct needed to avoid excessive computation (subtraction costs a lot)
-    inline int x() { return ((data & X_MASK) << 1) - 1; }
-    inline int y() { return ((data & Y_MASK)) - 1; }
-    inline int z() { return ((data & Z_MASK) >> 1) - 1; }
+    [[nodiscard]] inline int x() const { return ((data & X_MASK) << 1) - 1; }
+    [[nodiscard]] inline int y() const { return ((data & Y_MASK)) - 1; }
+    [[nodiscard]] inline int z() const { return ((data & Z_MASK) >> 1) - 1; }
 
-    inline int index() { return data & INDEX_MASK; }
+    [[nodiscard]] inline int index() const { return data & INDEX_MASK; }
 
     inline void set(int x, int y, int z) {
         data =  ((x >= 0 ? 1 : 0) << X_INDEX) +
@@ -54,7 +54,7 @@ public:
         data = index;
     }
 
-    inline Triplet reverse() {
+    [[nodiscard]] inline Triplet reverse() const {
         return {-x(), -y(), -z()};
     }
 
