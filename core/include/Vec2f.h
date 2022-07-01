@@ -15,11 +15,11 @@ public:
 
     Vec2f(double newX, double newY);
 
-    Vec2f operator+(Vec2f other) const;
+    [[nodiscard]] Vec2f operator+(Vec2f other) const;
 
-    Vec2f operator-(Vec2f other) const;
+    [[nodiscard]] Vec2f operator-(Vec2f other) const;
 
-    Vec2f operator*(double other) const;
+    [[nodiscard]] Vec2f operator*(double other) const;
 
     [[nodiscard]] double size() const;
 
@@ -29,9 +29,9 @@ public:
 
     [[nodiscard]] Vec2f negate() const;
 
-    static double dot(Vec2f a, Vec2f b);
+    [[nodiscard]] static double dot(Vec2f a, Vec2f b);
 
-    static Vec2f tripleProduct(Vec2f a, Vec2f b, Vec2f c);
+    [[nodiscard]] static Vec2f tripleProduct(Vec2f a, Vec2f b, Vec2f c);
 };
 
 

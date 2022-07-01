@@ -36,7 +36,7 @@ Vec3f Vec3f::operator+(Vec3f other) {
     return {x + other.x, y + other.y, z + other.z};
 }
 
-double Vec3f::size() {
+double Vec3f::size() const {
     return sqrt(x * x + y * y + z * z);
 }
 

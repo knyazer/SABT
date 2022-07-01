@@ -39,7 +39,6 @@ TEST(Stack, BasicThrowTest) {
                          stack.front();
                      }
                      catch (const std::exception &e) {
-                         // and this tests that it has the correct message
                          EXPECT_STREQ("Parent is nullptr and the stack is empty. Can't use 'front'.", e.what());
                          throw;
                      }
@@ -50,7 +49,6 @@ TEST(Stack, BasicThrowTest) {
                          stack.at(5);
                      }
                      catch (const std::exception &e) {
-                         // and this tests that it has the correct message
                          EXPECT_STREQ("Attempt to access not available memory via 'at' operation.", e.what());
                          throw;
                      }
@@ -61,7 +59,6 @@ TEST(Stack, BasicThrowTest) {
                          stack.at(30);
                      }
                      catch (const std::exception &e) {
-                         // and this tests that it has the correct message
                          EXPECT_STREQ("Attempt to access not available memory via 'at' operation.", e.what());
                          throw;
                      }

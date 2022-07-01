@@ -25,7 +25,7 @@ public:
     Vec3f operator*(double other);
 
     ///< Returns size of the vector
-    double size();
+    [[nodiscard]] double size() const;
 
     ///< Divides vector by it's size; Normalization
     Vec3f norm();
