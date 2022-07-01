@@ -13,7 +13,6 @@ add_library(core STATIC
         source/Cube.cpp
         source/AlignedRect.cpp
         source/Polygon.cpp
-        include/GJK.h
         )
 
 target_include_directories(core PUBLIC include)
