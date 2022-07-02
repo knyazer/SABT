@@ -10,9 +10,11 @@ add_library(core STATIC
         source/Vec3i.cpp
         source/Vec3f.cpp
         source/Vec2f.cpp
+        source/Angle.cpp
         source/Cube.cpp
         source/AlignedRect.cpp
         source/Polygon.cpp
+        source/Camera.cpp
         )
 
 target_include_directories(core PUBLIC include)

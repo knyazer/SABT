@@ -10,8 +10,9 @@
 #define SABT_MAT_H
 
 #include <vector>
+#include <stdexcept>
 
-template<auto R, auto C>
+template<size_t R, size_t C>
 class Mat {
 private:
     double data[R][C]{};
@@ -74,7 +75,7 @@ public:
     }
 
     // The overload of all other matrix sizes - instantly throw an error
-    template<auto oR, auto oC>
+    template<size_t oR, size_t oC>
     Mat operator+(Mat<oR, oC> other) {
         throw std::runtime_error("Matrices to be add should be exactly the same size.");
     }
@@ -105,14 +106,14 @@ public:
     }
 
     // The overload of all other matrix sizes - instantly throw an error
-    template<auto oW, auto oH>
+    template<size_t oW, size_t oH>
     Mat operator-(Mat<oW, oH> other) {
         throw std::runtime_error("Matrices to be subtracted should be exactly the same size.");
     }
 
     // The correct operation - number of columns of A equals to number of rows of B
     // RxC * CxN = RxN
-    template<auto N>
+    template<size_t N>
     Mat<R, N> operator*(Mat<C, N> other) {
         Mat<R, N> result;
         for (size_t i = 0; i < R; i++) {
@@ -130,7 +131,7 @@ public:
     }
 
     // Overload of a wrong shapes operation
-    template<auto M, auto N>
+    template<size_t M, size_t N>
     Mat operator*(Mat<M, N> other) {
         throw std::runtime_error(
                 "Number of columns of first matrix should be equal to number of rows of second matrix, "
@@ -153,6 +154,20 @@ public:
     template<typename T>
     bool operator==(T other) {
         return false;
+    }
+
+    // Identity matrix builder
+    Mat<R, C> I() {
+        if (R != C) {
+            throw std::runtime_error("Cannot build not squared identity matrix.");
+        }
+
+        Mat<R, C> res;
+        for (size_t i = 0; i < R; i++) {
+            res.at(i, i) = 1;
+        }
+
+        return res;
     }
 
     ~Mat() = default;
