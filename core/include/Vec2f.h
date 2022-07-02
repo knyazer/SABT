@@ -6,6 +6,7 @@
 #define SABT_VEC2F_H
 
 #include <cmath>
+#include <iostream>
 
 class Vec2f {
 public:
@@ -32,6 +33,8 @@ public:
     [[nodiscard]] static double dot(Vec2f a, Vec2f b);
 
     [[nodiscard]] static Vec2f tripleProduct(Vec2f a, Vec2f b, Vec2f c);
+
+    friend std::ostream& operator<<(std::ostream& os, const Vec2f& val);
 };
 
 

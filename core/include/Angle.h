@@ -8,13 +8,13 @@
 #include <cmath>
 
 class Angle {
-private:
+protected:
 
     // Angle in radians, from -PI to PI
     double value{};
 
     // Called from specific ::deg or ::rad constructors
-    constexpr explicit Angle(double radians);
+    explicit Angle(double radians);
 
 public:
 
@@ -28,9 +28,9 @@ public:
 
     // Custom constructors
 
-    constexpr static Angle deg(double x);
+    static Angle deg(double x);
 
-    constexpr static Angle rad(double x);
+    static Angle rad(double x);
 
     // Default constructor
 
@@ -38,32 +38,34 @@ public:
 
     // Maths
 
-    constexpr Angle operator+(Angle other) const;
+    Angle operator+(Angle other) const;
 
-    constexpr Angle operator-(Angle other) const;
+    Angle operator-(Angle other) const;
 
-    constexpr Angle operator*(double factor) const;
+    Angle operator*(double factor) const;
 
-    constexpr Angle operator/(double factor) const;
+    Angle operator/(double factor) const;
+
+    Angle& operator=(Angle other);
 
     // Get the angle value
 
-    [[nodiscard]] constexpr double deg() const;
+    [[nodiscard]] double deg() const;
 
-    [[nodiscard]] constexpr double rad() const;
+    [[nodiscard]] double rad() const;
 
     // Trigonometry
 
-    [[nodiscard]] constexpr double cos() const;
+    [[nodiscard]] double cos() const;
 
-    [[nodiscard]] constexpr double sin() const;
+    [[nodiscard]] double sin() const;
 
-    [[nodiscard]] constexpr double tan() const;
+    [[nodiscard]] double tan() const;
 
 
     // Makes the angle saved value range correct.
     // It is not always required, so it is just an option.
-    constexpr void norm();
+    void norm();
 };
 
 

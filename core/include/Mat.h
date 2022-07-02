@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <stdexcept>
+#include <iostream>
 
 template<size_t R, size_t C>
 class Mat {
@@ -46,6 +47,9 @@ public:
     }
 
     inline double &at(size_t i, size_t j) {
+        if (i < 0 || i >= R || j < 0 || j >= C)
+            throw std::runtime_error("Out of bounds of matrix.");
+
         return data[i][j];
     }
 
@@ -168,6 +172,21 @@ public:
         }
 
         return res;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Mat<R, C>& val) {
+        os << "Mat<" << R << ", " << C << ">" << std::endl;
+        for (size_t i = 0; i < R; i++) {
+            os << "[";
+            for (size_t j = 0; j < C; j++) {
+                os << val.data[i][j];
+                if (j != C - 1)
+                    os << "\t";
+            }
+            os << "]" << std::endl;
+        }
+
+        return os;
     }
 
     ~Mat() = default;

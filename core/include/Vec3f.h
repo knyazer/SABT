@@ -6,6 +6,7 @@
 #define SABT_VEC3F_H
 
 #include <cmath>
+#include <iostream>
 
 class Vec3f {
 public:
@@ -15,26 +16,28 @@ public:
 
     Vec3f(double x, double y, double z);
 
-    ///< Subtract vectors elementwise
+    // Subtract vectors elementwise
     Vec3f operator-(Vec3f other);
 
-    ///< Sum vectors elementwise
+    // Sum vectors elementwise
     Vec3f operator+(Vec3f other);
 
-    ///< Scale
+    // Scale
     Vec3f operator*(double other);
 
-    ///< Returns size of the vector
+    // Returns size of the vector
     [[nodiscard]] double size() const;
 
-    ///< Divides vector by it's size; Normalization
+    // Divides vector by its size; Normalization
     Vec3f norm();
 
-    ///< Cross product of two given vectors
+    // Cross product of two given vectors
     static Vec3f cross(Vec3f a, Vec3f b);
 
-    ///< Dot product of two given vectors
+    // Dot product of two given vectors
     static double dot(Vec3f a, Vec3f b);
+
+    friend std::ostream& operator<<(std::ostream& os, const Vec3f& val);
 };
 
 

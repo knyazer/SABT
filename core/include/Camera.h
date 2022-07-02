@@ -10,12 +10,17 @@
 #include <Mat.h>
 #include <Angle.h>
 #include <Vec3f.h>
+#include <Vec2f.h>
 
 class Camera {
-public:
-    Mat<4, 4> projM, posM, xRotM, yRotM, zRotM;
+protected:
 
-    const Angle fov = Angle::deg(90);
+    Mat<4, 4> projM, posM, xRotM, yRotM, zRotM, perspM;
+    Angle fov;
+
+public:
+
+    Camera();
 
     void setPosition(Vec3f pos);
 
@@ -26,6 +31,10 @@ public:
     void setRotationByZ(Angle theta);
 
     void updateProjectionMatrix();
+
+    void setFOV(Angle angle);
+
+    Vec2f project(Vec3f point);
 };
 
 #endif //SABT_CAMERA_H

@@ -16,5 +16,13 @@ FetchContent_MakeAvailable(googletest)
 
 # set(CMAKE_CXX_FLAGS "--coverage")
 
-add_executable(tests ExampleTest.cpp StackTest.cpp TripletTest.cpp OctreeTest.cpp GJKTest.cpp MatTest.cpp)
+add_executable(tests
+        ExampleTest.cpp
+        StackTest.cpp
+        TripletTest.cpp
+        OctreeTest.cpp
+        GJKTest.cpp
+        MatTest.cpp
+        CameraTest.cpp
+        )
 target_link_libraries(tests gtest_main gtest core)

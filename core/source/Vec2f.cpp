@@ -49,3 +49,9 @@ Vec2f Vec2f::negate() const {
 Vec2f Vec2f::perp() const {
     return {-y, x};
 }
+
+std::ostream& operator<<(std::ostream& os, const Vec2f& val)
+{
+    os << "[Vec2f](" << val.x << ", " << val.y << ")";
+    return os;
+}
