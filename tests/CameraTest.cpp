@@ -42,8 +42,6 @@ TEST(Camera, CameraTranslationTest) {
     double error = 0;
     for (size_t i = 0; i < N; i++) {
         error += (avg - results[i]).size();
-
-        cout << results[i] << endl;
     }
     error /= N;
 
