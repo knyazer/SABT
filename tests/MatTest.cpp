@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 
 #include <Mat.h>
+#include <cmath>
 
 TEST(Mat, ReadWriteTest) {
     Mat<10, 10> mat;
@@ -54,7 +55,7 @@ TEST(Mat, MatOperationsTest) {
                 res += af(i, k) * bf(k, j);
             }
 
-            ASSERT_EQ(ans.at(i, j), res);
+            ASSERT_LT(std::abs(ans.at(i, j) - res), 10e-9);
         }
     }
 }
