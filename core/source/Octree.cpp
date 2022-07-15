@@ -8,7 +8,7 @@
 Octree::Octree() {
     filling = EMPTY;
     parent = nullptr;
-    children = nullptr;
+    children.clear();
 }
 
 Octree &Octree::getChild(Triplet tri) {
@@ -16,7 +16,7 @@ Octree &Octree::getChild(Triplet tri) {
 }
 
 void Octree::makeChildren() {
-    children = std::make_shared<Octree[]>(8);
+    children = std::vector<Octree>(8);
 
     for (size_t i = 0; i < 8; i++) {
         children[i].foster(this);
@@ -28,7 +28,7 @@ void Octree::foster(Octree* newParent) {
 }
 
 bool Octree::hasChildren() {
-    return children != nullptr;
+    return !children.empty();
 }
 
 bool Octree::isEmpty() {
@@ -121,7 +121,7 @@ void Octree::deleteChildren() {
         }
     }
 
-    children = nullptr;
+    children.clear();
 }
 
 void Octree::setFilling(Filling given) {

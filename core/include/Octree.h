@@ -15,11 +15,15 @@
 #include <Filling.h>
 #include <Vec3i.h>
 #include <memory>
+#include <cstddef>
+#include <vector>
+
+using std::size_t;
 
 ///< Main class for the octree administration
 class Octree : public std::enable_shared_from_this<Octree> {
 protected:
-    std::shared_ptr<Octree[]> children;
+    std::vector<Octree> children;
     Octree* parent;
 
     Filling filling;

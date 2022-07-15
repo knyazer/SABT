@@ -8,6 +8,7 @@
 #define SABT_OCTREE_ROOT_H
 
 #include <Octree.h>
+#include <vector>
 
 class OctreeRoot : public Octree {
 protected:

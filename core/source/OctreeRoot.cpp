@@ -16,7 +16,7 @@ void OctreeRoot::grow() {
 
     filling = SEMI;
 
-    auto newChildren = std::make_shared<Octree[]>(8);
+    auto newChildren = std::vector<Octree>(8);
 
     for (size_t i = 0; i < 8; i++) {
         if (!children[i].isEmpty()) {

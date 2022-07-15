@@ -45,5 +45,5 @@ TEST(Camera, CameraTranslationTest) {
     }
     error /= N;
 
-    ASSERT_LT(error, 10e-9);
+    ASSERT_LT(error, 10e-6);
 }
