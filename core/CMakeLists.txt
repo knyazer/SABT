@@ -17,4 +17,4 @@ add_library(core STATIC
         source/Camera.cpp
         )
 
-target_include_directories(core PUBLIC include)
+target_include_directories(core PUBLIC include .)

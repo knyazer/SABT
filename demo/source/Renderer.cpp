@@ -7,16 +7,14 @@
 graphics::Renderer::Renderer() {
     window = nullptr;
     surface = nullptr;
-}
 
-void graphics::Renderer::init() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
         throw std::runtime_error("Failed to initialize sdl2");
     }
 }
 
-void graphics::Renderer::createWindow(const string& name, graphics::Rect rect) {
+void graphics::Renderer::createWindow(const string &name, graphics::Rect rect) {
     window = SDL_CreateWindow(
             name.c_str(),
             rect.x, rect.y,
@@ -52,5 +50,6 @@ graphics::Renderer::~Renderer() {
 
 bool graphics::Renderer::isStopped() {
     SDL_Event e;
-    return SDL_PollEvent(&e) && e.type == SDL_QUIT;
+    return SDL_PollEvent(&e) && (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.scancode ==
+                                                                                         SDL_SCANCODE_ESCAPE));
 }

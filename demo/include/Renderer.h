@@ -25,8 +25,6 @@ namespace graphics {
     public:
         Renderer();
 
-        void init();
-
         void createWindow(const string& name, Rect rect);
 
         void drawRect(Rect rect, Color color);
