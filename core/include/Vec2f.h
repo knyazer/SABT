@@ -16,6 +16,8 @@ public:
 
     Vec2f(double newX, double newY);
 
+    [[nodiscard]] bool operator==(Vec2f other) const;
+
     [[nodiscard]] Vec2f operator+(Vec2f other) const;
 
     [[nodiscard]] Vec2f operator-(Vec2f other) const;
@@ -33,6 +35,8 @@ public:
     [[nodiscard]] static double dot(Vec2f a, Vec2f b);
 
     [[nodiscard]] static Vec2f tripleProduct(Vec2f a, Vec2f b, Vec2f c);
+
+    [[nodiscard]] double size_1() const;
 
     friend std::ostream& operator<<(std::ostream& os, const Vec2f& val);
 };

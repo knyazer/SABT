@@ -70,5 +70,9 @@ Vec2f Camera::project(Vec3f point) {
     for (size_t i = 0; i < 3; i++)
         res.at(i, 0) /= res.at(3, 0);
 
+    // if out of clipping space
+    if (std::abs(res.at(2, 0)) >= 1)
+        return {42, 42};
+
     return {res.at(0, 0), res.at(1, 0)};
 }

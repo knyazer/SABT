@@ -50,8 +50,16 @@ Vec2f Vec2f::perp() const {
     return {-y, x};
 }
 
+double Vec2f::size_1() const {
+    return std::abs(x) + std::abs(y);
+};
+
 std::ostream& operator<<(std::ostream& os, const Vec2f& val)
 {
     os << "[Vec2f](" << val.x << ", " << val.y << ")";
     return os;
+}
+
+bool Vec2f::operator==(Vec2f other) const {
+    return x == other.x && y == other.y;
 }

@@ -50,13 +50,10 @@ public:
     bool isSemi();
 
     ///< Sets the parent of the octree
-    void foster(Octree* parent);
+    void fosterBy(Octree* parent);
 
     ///< Fill the octree; recursively fills (sets filling to FULL) all the children
     void fill();
-
-    ///< Recursively fill a particular node at a given position
-    void fill(Vec3i nextPos, unsigned long long size);
 
     ///< Empty (or clear) the octree; recursively sets the filling to EMPTY
     void clear();
@@ -64,8 +61,10 @@ public:
     ///< Recursively deletes all the children of the octree
     void deleteChildren();
 
-    ///< Sets the filling of the only current node. Better not to use, kept it for the simplicity of development
+    ///< Sets the filling of the only current node. Better not to use, kept it for the backwards compatibility
     void setFilling(Filling given);
+
+    Octree copy();
 };
 
 #endif //SABT_OCTREE_H

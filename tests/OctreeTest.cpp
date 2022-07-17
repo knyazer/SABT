@@ -30,7 +30,7 @@ TEST(Octree, SingleFillTest) {
     octree.grow();
     octree.grow();
 
-    octree.fill(Vec3i(0, 0, 0), 4);
+    octree.fill(Vec3i(0, 0, 0), 0);
 
     ASSERT_EQ(octree.isEmpty(), false);
     ASSERT_EQ(octree.isFull(), false);
@@ -51,23 +51,23 @@ TEST(Octree, SingleGrowthTest) {
     octree.grow();
     octree.grow();
 
-    octree.fill(Vec3i(0, 0, 0), 4);
+    octree.fill(Vec3i(0, 0, 0), 0);
 
     octree.grow();
     octree.grow();
 
-    Octree child = octree;
+    Octree* child = &octree;
     for (int i = 1; i <= 16; i *= 2) {
         if (i != 16) {
-            ASSERT_EQ(child.isSemi(), true);
+            ASSERT_EQ(child->isSemi(), true);
         } else {
-            ASSERT_EQ(child.isFull(), true);
+            ASSERT_EQ(child->isFull(), true);
         }
 
         if (i == 1) {
-            child = child.getChild({1, 1, 1});
+            child = &child->getChild({1, 1, 1});
         } else if (i != 16) {
-            child = child.getChild({-1, -1, -1});
+            child = &child->getChild({-1, -1, -1});
         }
     }
 }

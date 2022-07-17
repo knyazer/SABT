@@ -5,35 +5,89 @@
 #include "OctreeRoot.h"
 
 OctreeRoot::OctreeRoot() {
-    size = 1;
+    logSize = 0;
+    filling = EMPTY;
 }
 
 void OctreeRoot::grow() {
-    size *= 2;
+    logSize += 1;
 
     if (!hasChildren())
         return;
 
-    filling = SEMI;
+    if (isEmpty())
+        return;
+
+    setFilling(SEMI);
 
     auto newChildren = std::vector<Octree>(8);
 
     for (size_t i = 0; i < 8; i++) {
-        if (!children[i].isEmpty()) {
-            newChildren[i].makeChildren();
+        if (children[i].isEmpty()) {
+            newChildren[i].setFilling(EMPTY);
         }
-    }
-
-    for (size_t i = 0; i < 8; i++) {
-        if (newChildren[i].hasChildren()) {
-            newChildren[i].getChild(Triplet(i).reverse().index()) = children[i];
+        else {
             newChildren[i].setFilling(SEMI);
+            newChildren[i].makeChildren();
+            newChildren[i].getChild(Triplet(i).reverse().index()) = children[i];
         }
     }
 
     children = newChildren;
 }
+// TODO: SEMI filling could be FULL actually
+void OctreeRoot::fill(Vec3i pos, unsigned level) {
 
-unsigned long long OctreeRoot::getSize() {
-    return size;
+    if (level == logSize) {
+        Octree::fill();
+        return;
+    }
+
+    filling = SEMI;
+    if (!hasChildren())
+        makeChildren();
+
+    Octree* node = &children[Triplet(pos).index()];
+    Vec3i nextPos = pos;
+
+    unsigned long long cubeSize = size();
+
+    for (int i = 1; i < (logSize - level); i++) {
+        unsigned long long half = cubeSize >> 1;
+
+        // TODO: Make a special Vec3i functions like sign and +/-/etc implementations
+        if (nextPos.x < 0)
+            nextPos.x += half;
+        if (nextPos.x >= 0)
+            nextPos.x -= half; // TODO: check Vec sizeof
+        if (nextPos.y < 0)
+            nextPos.y += half;
+        if (nextPos.y >= 0)
+            nextPos.y -= half;
+        if (nextPos.z < 0)
+            nextPos.z += half;
+        if (nextPos.z >= 0)
+            nextPos.z -= half;
+
+        if (!hasChildren())
+            makeChildren();
+
+        if (node->isEmpty())
+            node->setFilling(SEMI);
+
+        if (!node->hasChildren())
+            node->makeChildren();
+
+        std::cout << node->isSemi() << std::endl;
+
+        node = &node->getChild(Triplet(nextPos).index());
+
+        cubeSize = half;
+    }
+
+    node->fill();
+}
+
+unsigned long long OctreeRoot::size() const {
+    return 1 << logSize;
 }

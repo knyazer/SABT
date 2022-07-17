@@ -14,7 +14,7 @@ using namespace std;
 
 #define N 10000
 
-TEST(Camera, CameraTranslationTest) {
+TEST(Camera, TranslationTest) {
     Camera cam;
 
     cam.setPosition({0, 0, 0});
@@ -46,4 +46,22 @@ TEST(Camera, CameraTranslationTest) {
     error /= N;
 
     ASSERT_LT(error, 10e-6);
+}
+
+TEST(Camera, OutOfBoundsTest) {
+    Camera cam;
+
+    cam.setPosition({10, 5, -3});
+    cam.setRotationByX(Angle::deg(0));
+    cam.setRotationByY(Angle::deg(0));
+    cam.setRotationByZ(Angle::deg(0));
+    cam.setFOV(Angle::deg(90));
+    cam.updateProjectionMatrix();
+    for (size_t i = 0; i < N; i++) {
+        Vec3f point(rand() - RAND_MAX / 2, rand() - RAND_MAX / 2, rand() - RAND_MAX / 2);
+        Vec2f proj = cam.project(point);
+
+        if (point.z > -3)
+            EXPECT_TRUE(Vec2f(42, 42) == proj);
+    }
 }
