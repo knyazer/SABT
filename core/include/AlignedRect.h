@@ -19,7 +19,7 @@ public:
 
     [[nodiscard]] bool contains(Vec2f other) const;
 
-    [[nodiscard]] bool intersects(AlignedRect other) const;
+    [[nodiscard]] bool intersects(const AlignedRect& other) const;
 
     [[nodiscard]] Vec2f getFarthestPointInDirection(Vec2f direction) const override;
 

@@ -13,7 +13,7 @@ bool AlignedRect::contains(Vec2f other) const {
     return other.x >= min.x and other.x <= max.x and other.y >= min.y and other.y <= max.y;
 }
 
-bool AlignedRect::intersects(AlignedRect other) const {
+bool AlignedRect::intersects(const AlignedRect& other) const {
     return !((max.x < other.min.x) ||
              (max.y < other.min.y) ||
              (min.x > other.max.x) ||

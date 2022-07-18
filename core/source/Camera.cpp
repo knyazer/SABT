@@ -11,9 +11,11 @@ Camera::Camera() {
 void Camera::setPosition(Vec3f position) {
     posM = posM.I();
 
-    posM.at(0, 3) = -position.x;
-    posM.at(1, 3) = -position.y;
-    posM.at(2, 3) = -position.z;
+    posM.at(0, 3) = position.x;
+    posM.at(1, 3) = position.y;
+    posM.at(2, 3) = position.z;
+
+    lazyUpdate();
 }
 
 void Camera::setRotationByX(Angle theta) {
@@ -23,6 +25,8 @@ void Camera::setRotationByX(Angle theta) {
     xRotM.at(2, 1) = theta.sin();
     xRotM.at(1, 2) = -theta.sin();
     xRotM.at(2, 2) = theta.cos();
+
+    lazyUpdate();
 }
 
 void Camera::setRotationByY(Angle theta) {
@@ -32,6 +36,8 @@ void Camera::setRotationByY(Angle theta) {
     yRotM.at(0, 2) = theta.sin();
     yRotM.at(2, 0) = -theta.sin();
     yRotM.at(2, 2) = theta.cos();
+
+    lazyUpdate();
 }
 
 void Camera::setRotationByZ(Angle theta) {
@@ -41,6 +47,8 @@ void Camera::setRotationByZ(Angle theta) {
     zRotM.at(1, 0) = theta.sin();
     zRotM.at(0, 1) = -theta.sin();
     zRotM.at(1, 1) = theta.cos();
+
+    lazyUpdate();
 }
 
 void Camera::setFOV(Angle angle) {
@@ -56,6 +64,8 @@ void Camera::setFOV(Angle angle) {
     perspM.at(3, 2) = -1;
     perspM.at(2, 3) = -2 * (zFar * zNear) / (zFar - zNear);
     perspM.at(3, 3) = 0;
+
+    lazyUpdate();
 }
 
 void Camera::updateProjectionMatrix() {
@@ -63,6 +73,8 @@ void Camera::updateProjectionMatrix() {
 }
 
 Vec2f Camera::project(Vec3f point) {
+    doLazyUpdate();
+
     Mat<4, 1> pointV({{point.x}, {point.y}, {point.z}, {1}});
 
     auto res = projM * pointV;
@@ -75,4 +87,45 @@ Vec2f Camera::project(Vec3f point) {
         return {42, 42};
 
     return {res.at(0, 0), res.at(1, 0)};
+}
+
+void Camera::lazyUpdate() {
+    needUpdate = true;
+}
+
+void Camera::doLazyUpdate() {
+    updateProjectionMatrix();
+    needUpdate = false;
+}
+
+void Camera::move(Vec3f delta) {
+    posM.at(0, 3) += delta.x;
+    posM.at(1, 3) += delta.y;
+    posM.at(2, 3) += delta.z;
+
+    lazyUpdate();
+}
+
+void Camera::rotateByX(Angle theta) {
+    Mat<4, 4> rot;
+    rot = rot.I();
+
+    rot.at(1, 1) = theta.cos();
+    rot.at(2, 1) = theta.sin();
+    rot.at(1, 2) = -theta.sin();
+    rot.at(2, 2) = theta.cos();
+
+    xRotM = xRotM * rot;
+}
+
+void Camera::rotateByY(Angle theta) {
+    Mat<4, 4> rot;
+    rot = rot.I();
+
+    rot.at(0, 0) = theta.cos();
+    rot.at(0, 2) = theta.sin();
+    rot.at(2, 0) = -theta.sin();
+    rot.at(2, 2) = theta.cos();
+
+    yRotM = yRotM * rot;
 }

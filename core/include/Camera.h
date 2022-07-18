@@ -18,6 +18,8 @@ protected:
     Mat<4, 4> projM, posM, xRotM, yRotM, zRotM, perspM;
     Angle fov;
 
+    bool needUpdate;
+
 public:
 
     Camera();
@@ -34,7 +36,17 @@ public:
 
     void setFOV(Angle angle);
 
+    void move(Vec3f delta);
+
     Vec2f project(Vec3f point);
+
+    void lazyUpdate();
+
+    void doLazyUpdate();
+
+    void rotateByX(Angle theta);
+
+    void rotateByY(Angle theta);
 };
 
 #endif //SABT_CAMERA_H

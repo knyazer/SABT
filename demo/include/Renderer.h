@@ -23,6 +23,16 @@ namespace graphics {
         SDL_Surface* surface;
 
     public:
+
+        struct Pos2 {
+            int x, y;
+        };
+
+        Pos2 mouse, center;
+
+        static const size_t KEY_ARR_SIZE = 128;
+        bool pressed[KEY_ARR_SIZE];
+
         Renderer();
 
         void createWindow(const string& name, Rect rect);
@@ -31,11 +41,11 @@ namespace graphics {
 
         void clear(Color color);
 
-        bool isStopped();
-
-        void update();
+        bool update();
 
         ~Renderer();
+
+        Pos2 getMouseDelta();
     };
 }
 

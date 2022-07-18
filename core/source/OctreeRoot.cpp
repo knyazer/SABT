@@ -12,10 +12,7 @@ OctreeRoot::OctreeRoot() {
 void OctreeRoot::grow() {
     logSize += 1;
 
-    if (!hasChildren())
-        return;
-
-    if (isEmpty())
+    if (!hasChildren() || isEmpty())
         return;
 
     setFilling(SEMI);
