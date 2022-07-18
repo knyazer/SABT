@@ -24,7 +24,6 @@ using std::size_t;
 class Octree : public std::enable_shared_from_this<Octree> {
 protected:
     std::vector<Octree> children;
-    Octree* parent;
 
     Filling filling;
 
@@ -65,6 +64,8 @@ public:
     void setFilling(Filling given);
 
     Octree copy();
+
+    Octree* parent;
 };
 
 #endif //SABT_OCTREE_H

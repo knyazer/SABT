@@ -3,7 +3,6 @@
 //
 
 #include <Octree.h>
-#include <iostream>
 
 Octree::Octree() {
     filling = EMPTY;
@@ -12,6 +11,8 @@ Octree::Octree() {
 }
 
 Octree &Octree::getChild(Triplet tri) {
+    if (!hasChildren())
+        throw std::runtime_error("Unable to access not initialized children of octree");
     return children[tri.index()];
 }
 

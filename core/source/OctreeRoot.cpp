@@ -36,11 +36,11 @@ void OctreeRoot::grow() {
     children = newChildren;
 }
 // TODO: SEMI filling could be FULL actually
-void OctreeRoot::fill(Vec3i pos, unsigned level) {
+Octree* OctreeRoot::fill(Vec3i pos, unsigned level) {
 
     if (level == logSize) {
         Octree::fill();
-        return;
+        return this;
     }
 
     filling = SEMI;
@@ -84,6 +84,8 @@ void OctreeRoot::fill(Vec3i pos, unsigned level) {
     }
 
     node->fill();
+
+    return node;
 }
 
 unsigned long long OctreeRoot::size() const {

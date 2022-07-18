@@ -12,6 +12,7 @@ using std::cout, std::endl;
 
 int main(int argc, char* args[]) {
     Renderer renderer;
+
     Camera cam;
     cam.setPosition({0, 0, 0});
     cam.setRotationByX(Angle::deg(0));
@@ -20,18 +21,50 @@ int main(int argc, char* args[]) {
     cam.setFOV(Angle::deg(90));
     cam.updateProjectionMatrix();
 
-    Vec3f point(0, -5, 0.01);
-    cout << cam.project(point) << endl;
+    std::vector<Vec3f> pointCloud;
+
+    for (size_t i = 0; i < 30000; i++) {
+        Vec3f point(double(2 * rand()) / RAND_MAX - 1,
+                    double(2 * rand()) / RAND_MAX - 1,
+                    double(2 * rand()) / RAND_MAX - 1);
+
+        if (point.size() <= 1) {
+            pointCloud.push_back(point);
+        }
+    }
 
     renderer.createWindow("SABT", Rect(500, 500, 800, 800));
 
-    for (int i = 0; i < 1000; i++) {
+    // Main render cycle
+    while (!renderer.isStopped()) {
         renderer.clear(GRAY);
-        renderer.drawRect(Rect(100 + i, 100, 100, 100), BLUE);
-        renderer.update();
 
-        if (renderer.isStopped())
-            break;
+        for (auto point : pointCloud) {
+            auto pos = cam.project(point);
+
+            if (std::abs(pos.x) < 1 && std::abs(pos.y) < 1) {
+                pos.x = (pos.x + 1) * 400;
+                pos.y = (pos.y + 1) * 400;
+
+                renderer.drawRect(Rect(pos.x - 2, pos.y - 2, 5.0, 5.0), BLACK);
+            }
+        }
+
+        if (renderer.pressed('j'))
+            cam.move({0, 0, -0.1});
+        if (renderer.pressed('k'))
+            cam.move({0, 0, 0.1});
+        if (renderer.pressed('h'))
+            cam.move({0.1, 0, 0});
+        if (renderer.pressed('l'))
+            cam.move({-0.1, 0, 0});
+        if (renderer.pressed('i'))
+            cam.move({0, 0.1, 0});
+        if (renderer.pressed('m'))
+            cam.move({0, -0.1, 0});
+
+
+        renderer.update();
     }
 
     return 0;

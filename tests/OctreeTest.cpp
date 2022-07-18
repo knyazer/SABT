@@ -4,6 +4,8 @@
 
 #include "gtest/gtest.h"
 
+#include <stack>
+#include <vector>
 #include <Octree.h>
 #include <OctreeRoot.h>
 
@@ -69,5 +71,52 @@ TEST(Octree, SingleGrowthTest) {
         } else if (i != 16) {
             child = &child->getChild({-1, -1, -1});
         }
+    }
+}
+
+TEST(Octree, ParentalTest) {
+    OctreeRoot octree;
+
+    for (size_t i = 0; i < 8; i++)
+        octree.grow();
+
+    for (size_t i = 0; i < 100; i++) {
+        int x = rand() % 7 - 4, y = rand() % 9 - 5, z = rand() % 11 - 3;
+        int level = rand() % 3;
+
+        for (size_t j = 0; j < level; j++) {
+            x = (x / 2) * 2;
+            y = (y / 2) * 2;
+            z = (z / 2) * 2;
+        }
+
+        Octree* bottom = octree.fill({x, y, z}, level);
+        Octree* top = &octree;
+
+        // Test that ancestors with top->bottom are the same as with bottom->top
+        Octree* ptr = bottom;
+        std::stack<Octree*> ancestors;
+        while (ptr != top) {
+            ancestors.push(ptr);
+            ptr = ptr->parent;
+        }
+
+        while (ptr != bottom) {
+            bool found = false;
+            for (size_t j = 0; j < 8; j++) {
+                if (&(ptr->getChild(j)) == ancestors.top())
+                {
+                    ancestors.pop();
+                    ptr = &(ptr->getChild(j));
+                    found = true;
+
+                    break;
+                }
+            }
+
+            ASSERT_TRUE(found);
+        }
+
+        ASSERT_TRUE(ancestors.empty());
     }
 }

@@ -21,7 +21,7 @@ public:
     ///< Scales the octree 2 times by each axis while origin remains in place
     void grow();
 
-    void fill(Vec3i pos, unsigned level);
+    Octree* fill(Vec3i pos, unsigned level);
 
     ///< Returns the linear size of octree in minimal units
     unsigned long long size() const;
