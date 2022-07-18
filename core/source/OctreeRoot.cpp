@@ -78,8 +78,6 @@ void OctreeRoot::fill(Vec3i pos, unsigned level) {
         if (!node->hasChildren())
             node->makeChildren();
 
-        std::cout << node->isSemi() << std::endl;
-
         node = &node->getChild(Triplet(nextPos).index());
 
         cubeSize = half;
