@@ -11,6 +11,8 @@
 #include <iostream>
 #include <vector>
 
+using ull = unsigned long long;
+
 class OctreeRoot : public Octree {
 protected:
     unsigned long long logSize;
@@ -24,7 +26,7 @@ public:
     Octree* fill(Vec3i pos, unsigned level);
 
     ///< Returns the linear size of octree in minimal units
-    unsigned long long size() const;
+    ull size() const;
 };
 
 

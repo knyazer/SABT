@@ -48,10 +48,10 @@ Octree* OctreeRoot::fill(Vec3i pos, unsigned level) {
     Octree* node = &children[Triplet(pos).index()];
     Vec3i nextPos = pos;
 
-    unsigned long long cubeSize = size();
+    ull cubeSize = size();
 
     for (int i = 1; i < (logSize - level); i++) {
-        unsigned long long half = cubeSize >> 1;
+        ull half = cubeSize >> 1;
 
         // TODO: Make a special Vec3i functions like sign and +/-/etc implementations
         if (nextPos.x < 0)
@@ -86,6 +86,6 @@ Octree* OctreeRoot::fill(Vec3i pos, unsigned level) {
     return node;
 }
 
-unsigned long long OctreeRoot::size() const {
+ull OctreeRoot::size() const {
     return 1 << logSize;
 }
