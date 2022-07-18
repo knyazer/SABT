@@ -32,6 +32,7 @@ void OctreeRoot::grow() {
 
     children = newChildren;
 }
+
 // TODO: SEMI filling could be FULL actually
 Octree* OctreeRoot::fill(Vec3i pos, unsigned level) {
 
