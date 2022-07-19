@@ -23,9 +23,9 @@ int main(int argc, char* args[]) {
     std::vector<Vec3f> pointCloud;
 
     for (size_t i = 0; i < 3000; i++) {
-        Vec3f point(double(2 * rand()) / RAND_MAX,
-                    double(2 * rand()) / RAND_MAX,
-                    double(2 * rand()) / RAND_MAX);
+        Vec3f point(2.0 * double(rand()) / RAND_MAX - 1,
+                    2.0 * double(rand()) / RAND_MAX - 1,
+                    2.0 * double(rand()) / RAND_MAX - 1);
 
         if (point.size() <= 1) {
             pointCloud.push_back(point);
@@ -65,7 +65,7 @@ int main(int argc, char* args[]) {
 
         // rotation controls
         auto delta = renderer.getMouseDelta();
-        cam.rotateByX(Angle::deg(static_cast<double>(delta.y) / 10));
+        cam.rotateByX(Angle::deg(static_cast<double>(-delta.y) / 10));
         cam.rotateByY(Angle::deg(static_cast<double>(delta.x) / 10));
     }
 
