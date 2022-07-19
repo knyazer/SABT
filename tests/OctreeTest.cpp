@@ -74,6 +74,30 @@ TEST(Octree, SingleGrowthTest) {
     }
 }
 
+TEST(Octree, GetCubeTest) {
+    OctreeRoot octree;
+
+    for (size_t i = 0; i < 8; i++)
+        octree.grow();
+
+    for (size_t i = 0; i < 100; i++) {
+        int x = rand() % 256, y = rand() % 256, z = rand() % 256;
+        int level = 0;
+
+        for (size_t j = 0; j < level; j++) {
+            x = (x / 2) * 2;
+            y = (y / 2) * 2;
+            z = (z / 2) * 2;
+        }
+
+        Octree *node = octree.fill({x, y, z}, level);
+        Cube cube = octree.getCubeFor(node);
+
+        ASSERT_TRUE(cube.pos.x == x && cube.pos.y == y && cube.pos.z == z);
+        ASSERT_EQ(cube.size, 1 << level);
+    }
+}
+
 TEST(Octree, ParentalTest) {
     OctreeRoot octree;
 

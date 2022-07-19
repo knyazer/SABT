@@ -5,14 +5,18 @@
 #ifndef SABT_CUBE_H
 #define SABT_CUBE_H
 
-#include "Vec3f.h"
+#include <Vec3i.h>
+#include <vector>
+
+using ll = long long;
 
 struct Cube {
-    Vec3f center;
-    double size;
+    Vec3i pos;
+    ll size;
 
     Cube();
-    Cube(Vec3f cubeCenter, double cubeSize);
+    Cube(Vec3i pos, ll size);
+    std::vector<Vec3i> getVertices();
 };
 
 

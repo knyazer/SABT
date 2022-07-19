@@ -8,10 +8,12 @@
 #define SABT_OCTREE_ROOT_H
 
 #include <Octree.h>
+#include <Cube.h>
 #include <iostream>
 #include <vector>
+#include <stack>
 
-using ull = unsigned long long;
+using ll = long long;
 
 class OctreeRoot : public Octree {
 protected:
@@ -26,7 +28,9 @@ public:
     Octree* fill(Vec3i pos, unsigned level);
 
     ///< Returns the linear size of octree in minimal units
-    ull size() const;
+    ll size() const;
+
+    Cube getCubeFor(Octree *node) const;
 };
 
 
