@@ -112,7 +112,6 @@ Cube OctreeRoot::getCubeFor(Octree *node) const {
                 trace.pop();
                 ptr = &(ptr->getChild(i));
 
-
                 cube.size /= 2;
                 cube.pos = cube.pos + Vec3i(tri.x(), tri.y(), tri.z()) * cube.size;
 

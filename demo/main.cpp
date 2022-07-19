@@ -12,13 +12,15 @@ using namespace graphics;
 using std::cout, std::endl;
 
 #define eps 1e-6
+constexpr double N = 30;
+constexpr double Nh = N / 2;
 
 int main(int argc, char* args[]) {
     Renderer renderer;
 
     Camera cam;
     cam.setPosition({0, 0, 0});
-    cam.setRotationByX(Angle::deg(0));
+    cam.setRotationByX(Angle::deg(180));
     cam.setRotationByY(Angle::deg(0));
     cam.setRotationByZ(Angle::deg(0));
     cam.setFOV(Angle::deg(80));
@@ -26,19 +28,20 @@ int main(int argc, char* args[]) {
     renderer.createWindow("SABT", Rect(500, 500, 800, 800));
 
     OctreeRoot world;
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 5; i++)
         world.grow();
-    world.fill({0, 0, -5}, 0);
+    world.fill({0, 0, 10}, 0);
+    world.fill({4, 0, 10}, 0);
 
 
     // Main render cycle
     while (renderer.update()) {
         renderer.clear(GRAY);
 
-        for (int xi = 0; xi < 40; xi++) {
-            for (int yi = 0; yi < 40; yi++) {
-                AlignedRect rect({0.05 * xi - 1, 0.05 * yi - 1},
-                                 {0.05 * (xi + 1) - 1, 0.05 * (yi + 1) - 1});
+        for (int xi = 0; xi < N; xi++) {
+            for (int yi = 0; yi < N; yi++) {
+                AlignedRect rect({static_cast<double>(xi - Nh) / Nh, static_cast<double>(yi - Nh) / Nh},
+                                 {static_cast<double>((xi + 1) - Nh) / Nh, static_cast<double>((yi + 1) - Nh) / Nh });
 
                 // Do we need to fill the current "pixel"?
                 bool fill = false;
@@ -72,14 +75,24 @@ int main(int argc, char* args[]) {
 
                         std::vector<Vec2f> projected;
                         for (auto vertex : cube.getVertices()) {
-                            projected.push_back(cam.project(vertex)); // TODO: add none project, not 42 42
+                            Vec2f proj = cam.project(Vec3f(vertex.x, vertex.y, vertex.z)); // TODO: add none project, not 42 42
+                            if (proj.x != 42 || proj.y != 42)
+                                projected.push_back(proj);
                         }
 
+                        AlignedRect box(projected);
+
                         // TODO: add bounding box test
-                        if (GJK::GJK(rect, Polygon(projected)))
+                        if (rect.intersects(box) && GJK::GJK(rect, Polygon(projected)))
                             stack.push(child);
                     }
+                }
 
+                if (fill) {
+                    Vec2f mid = rect.min;
+                    Vec2f dim = rect.max - rect.min;
+                    auto tr = [](double x) {return x * 400 + 400;};
+                    renderer.drawRect(Rect(tr(mid.x), tr(mid.y), 800 / N, 800 / N), BLACK);
                 }
             }
         }
@@ -100,7 +113,7 @@ int main(int argc, char* args[]) {
 
         // rotation controls
         auto delta = renderer.getMouseDelta();
-        cam.rotateByX(Angle::deg(static_cast<double>(-delta.y) / 10));
+        cam.rotateByX(Angle::deg(static_cast<double>(delta.y) / 10));
         cam.rotateByY(Angle::deg(static_cast<double>(delta.x) / 10));
     }
 
