@@ -8,24 +8,27 @@
 #include <cstdint>
 
 namespace graphics {
-    struct Color {
+    struct ColorSDL {
         uint8_t r, g, b;
 
-        Color() = default;
+        ColorSDL() = default;
 
-        Color(uint8_t r, uint8_t g, uint8_t b) {
+        ColorSDL(uint8_t r, uint8_t g, uint8_t b) {
             this->r = r;
             this->g = g;
             this->b = b;
         }
+
     };
 
-    const Color RED = Color(0xFF, 0, 0);
-    const Color GREEN = Color(0, 0xFF, 0);
-    const Color BLUE = Color(0, 0, 0xFF);
-    const Color WHITE = Color(0xFF, 0xFF, 0xFF);
-    const Color BLACK = Color(0, 0, 0);
-    const Color GRAY = Color(0x88, 0x88, 0x88);
+    namespace colors {
+        const ColorSDL RED = ColorSDL(0xFF, 0, 0);
+        const ColorSDL GREEN = ColorSDL(0, 0xFF, 0);
+        const ColorSDL BLUE = ColorSDL(0, 0, 0xFF);
+        const ColorSDL WHITE = ColorSDL(0xFF, 0xFF, 0xFF);
+        const ColorSDL BLACK = ColorSDL(0, 0, 0);
+        const ColorSDL GRAY = ColorSDL(0x88, 0x88, 0x88);
+    }
 }
 
 #endif //SABT_COLOR_H

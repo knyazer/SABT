@@ -2,7 +2,7 @@
 // Created by knyaz on 6/30/2022.
 //
 
-#include <AlignedRect.h>
+#include "include/AlignedRect.h"
 
 AlignedRect::AlignedRect(Vec2f newMin, Vec2f newMax) {
     min = newMin;
@@ -29,9 +29,8 @@ Vec2f AlignedRect::mid() const {
 }
 
 AlignedRect::AlignedRect(std::vector<Vec2f> vertices) {
-    if (vertices.size() <= 2) {
-        throw std::runtime_error(
-                "Cannot initialize aligned rect with less than 3 points. Think about usage of two args constructor");
+    if (vertices.size() == 0) {
+        throw std::runtime_error("Cannot initialize aligned rect with no points");
     }
 
     min = vertices[0];

@@ -12,7 +12,7 @@ using namespace graphics;
 using std::cout, std::endl;
 
 #define eps 1e-6
-constexpr double N = 30;
+constexpr double N = 16;
 constexpr double Nh = N / 2;
 
 int main(int argc, char* args[]) {
@@ -25,7 +25,7 @@ int main(int argc, char* args[]) {
     cam.setRotationByZ(Angle::deg(0));
     cam.setFOV(Angle::deg(80));
 
-    renderer.createWindow("SABT", Rect(500, 500, 800, 800));
+    renderer.createWindow("SABT demo", Rect(500, 500, 800, 800));
 
     OctreeRoot world;
     for (int i = 0; i < 5; i++)
@@ -36,7 +36,7 @@ int main(int argc, char* args[]) {
 
     // Main render cycle
     while (renderer.update()) {
-        renderer.clear(GRAY);
+        renderer.clear(colors::GRAY);
 
         for (int xi = 0; xi < N; xi++) {
             for (int yi = 0; yi < N; yi++) {
@@ -46,7 +46,7 @@ int main(int argc, char* args[]) {
                 // Do we need to fill the current "pixel"?
                 bool fill = false;
 
-                std::stack<Octree*> stack;
+                std::stack<OctreeBase*> stack;
                 stack.push(&world);
                 while (!stack.empty()) {
                     auto node = stack.top();
@@ -70,7 +70,7 @@ int main(int argc, char* args[]) {
                     // if node is semi - continue iteration, push all the children sorted by the distance to node
                     // for each node check that it intersects with current beam (thick ray), and if so - push it to stack
                     for (int i = 0; i < 8; i++) { // TODO: make for each cycle for Triplet
-                        Octree* child = &node->getChild(i);
+                        OctreeBase* child = node->getChild(i);
                         Cube cube = world.getCubeFor(child);
 
                         std::vector<Vec2f> projected;
@@ -79,6 +79,9 @@ int main(int argc, char* args[]) {
                             if (proj.x != 42 || proj.y != 42)
                                 projected.push_back(proj);
                         }
+
+                        if (projected.empty())
+                            continue;
 
                         AlignedRect box(projected);
 
@@ -92,7 +95,7 @@ int main(int argc, char* args[]) {
                     Vec2f mid = rect.min;
                     Vec2f dim = rect.max - rect.min;
                     auto tr = [](double x) {return x * 400 + 400;};
-                    renderer.drawRect(Rect(tr(mid.x), tr(mid.y), 800 / N, 800 / N), BLACK);
+                    renderer.drawRect(Rect(tr(mid.x), tr(mid.y), 800 / N, 800 / N), colors::BLACK);
                 }
             }
         }

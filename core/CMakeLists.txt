@@ -15,6 +15,8 @@ add_library(core STATIC
         source/AlignedRect.cpp
         source/Polygon.cpp
         source/Camera.cpp
+        source/OctreeUnit.cpp
+        source/OctreeBase.cpp
         )
 
-target_include_directories(core PUBLIC include .)
+target_include_directories(core PUBLIC .)

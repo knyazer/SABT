@@ -4,8 +4,8 @@
 
 #include "gtest/gtest.h"
 
-#include <AlignedRect.h>
-#include <GJK.h>
+#include <SABT.h>
+
 #include <iostream>
 
 #define N 100000

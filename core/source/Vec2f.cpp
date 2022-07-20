@@ -2,7 +2,7 @@
 // Created by knyaz on 6/11/2022.
 //
 
-#include "Vec2f.h"
+#include "include/Vec2f.h"
 
 Vec2f::Vec2f(double newX, double newY) {
     x = newX;

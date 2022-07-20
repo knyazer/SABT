@@ -2,9 +2,7 @@
 // Created by knyaz on 6/30/2022.
 //
 
-#include <Polygon.h>
-
-#include <utility>
+#include "include/Polygon.h"
 
 Vec2f Polygon::getFarthestPointInDirection(Vec2f direction) const {
     double bestVertexProj = Vec2f::dot(vertices[0], direction);

@@ -7,8 +7,9 @@
 #ifndef SABT_OCTREE_ROOT_H
 #define SABT_OCTREE_ROOT_H
 
-#include <Octree.h>
-#include <Cube.h>
+#include "Octree.h"
+#include "Cube.h"
+
 #include <iostream>
 #include <vector>
 #include <stack>
@@ -25,12 +26,12 @@ public:
     ///< Scales the octree 2 times by each axis while origin remains in place
     void grow();
 
-    Octree* fill(Vec3i pos, unsigned level);
+    OctreeBase *fill(Vec3i pos, unsigned level);
 
     ///< Returns the linear size of octree in minimal units
     ll size() const;
 
-    Cube getCubeFor(Octree *node) const;
+    Cube getCubeFor(OctreeBase *node) const;
 };
 
 

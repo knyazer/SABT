@@ -2,7 +2,7 @@
 // Created by knyaz on 6/8/2022.
 //
 
-#include "OctreeRoot.h"
+#include "include/OctreeRoot.h"
 
 OctreeRoot::OctreeRoot() {
     logSize = 0;
@@ -26,7 +26,7 @@ void OctreeRoot::grow() {
         else {
             newChildren[i].setFilling(SEMI);
             newChildren[i].makeChildren();
-            newChildren[i].getChild(Triplet(i).reverse().index()) = children[i];
+            *newChildren[i].getChild(Triplet(i).reverse().index()) = children[i];
         }
     }
 
@@ -34,7 +34,7 @@ void OctreeRoot::grow() {
 }
 
 // TODO: SEMI filling could be FULL actually
-Octree* OctreeRoot::fill(Vec3i pos, unsigned level) {
+OctreeBase* OctreeRoot::fill(Vec3i pos, unsigned level) {
     if (pos.x < 0 || pos.y < 0 || pos.z < 0)
         throw std::runtime_error("Cannot fill node on negative coordinates: octree has only positive coords");
 
@@ -50,7 +50,7 @@ Octree* OctreeRoot::fill(Vec3i pos, unsigned level) {
     if (!hasChildren())
         makeChildren();
 
-    Octree* node = this;
+    OctreeBase* node = this;
     Vec3i nextPos = pos;
 
     ll cubeSize = size();
@@ -79,7 +79,7 @@ Octree* OctreeRoot::fill(Vec3i pos, unsigned level) {
 
         Triplet tri(sign);
 
-        node = &node->getChild(tri.index());
+        node = dynamic_cast<Octree*>(node)->getChild(tri.index());
 
         cubeSize = half;
     }
@@ -93,9 +93,9 @@ ll OctreeRoot::size() const {
     return 1 << logSize;
 }
 
-Cube OctreeRoot::getCubeFor(Octree *node) const {
-    Octree* ptr = node;
-    std::stack<Octree*> trace;
+Cube OctreeRoot::getCubeFor(OctreeBase *node) const {
+    OctreeBase* ptr = node;
+    std::stack<OctreeBase*> trace;
     while (ptr != this) {
         trace.push(ptr);
         ptr = ptr->parent;
@@ -107,10 +107,12 @@ Cube OctreeRoot::getCubeFor(Octree *node) const {
         bool found = false;
         for (size_t i = 0; i < 8; i++) {
             Triplet tri(i);
-            if (&(ptr->getChild(i)) == trace.top())
+            OctreeBase *child = dynamic_cast<Octree*>(ptr)->getChild(i);
+
+            if (child == trace.top())
             {
                 trace.pop();
-                ptr = &(ptr->getChild(i));
+                ptr = child;
 
                 cube.size /= 2;
                 cube.pos = cube.pos + Vec3i(tri.x(), tri.y(), tri.z()) * cube.size;

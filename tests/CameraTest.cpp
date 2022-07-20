@@ -4,8 +4,7 @@
 
 #include "gtest/gtest.h"
 
-#include <Vec3f.h>
-#include <Camera.h>
+#include <SABT.h>
 
 #include <vector>
 #include <iostream>

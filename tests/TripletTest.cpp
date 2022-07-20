@@ -4,7 +4,8 @@
 
 #include "gtest/gtest.h"
 
-#include <Triplet.h>
+#include <SABT.h>
+
 #include <stdexcept>
 
 TEST(Triplet, GeneralTest) {

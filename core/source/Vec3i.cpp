@@ -2,7 +2,7 @@
 // Created by knyaz on 6/8/2022.
 //
 
-#include "Vec3i.h"
+#include "include/Vec3i.h"
 
 Vec3i::Vec3i() {
     x = 0;

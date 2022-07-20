@@ -7,10 +7,11 @@
 #ifndef SABT_TRIPLET_H
 #define SABT_TRIPLET_H
 
+#include "Vec3i.h"
+
 #include <cstdint>
 #include <stdexcept>
 #include <cassert>
-#include <Vec3i.h>
 
 constexpr uint8_t X_INDEX = 0;
 constexpr uint8_t Y_INDEX = 1;

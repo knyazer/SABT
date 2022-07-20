@@ -2,7 +2,7 @@
 // Created by knyaz on 6/11/2022.
 //
 
-#include "Vec3f.h"
+#include "include/Vec3f.h"
 
 Vec3f::Vec3f(double x, double y, double z) {
     this->x = x;

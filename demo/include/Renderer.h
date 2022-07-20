@@ -22,13 +22,15 @@ namespace graphics {
         SDL_Window* window;
         SDL_Surface* surface;
 
+        bool mousePressed, mouseUp;
+
     public:
 
         struct Pos2 {
             int x, y;
         };
 
-        Pos2 mouse, center;
+        Pos2 mouse, center, delta;
 
         static const size_t KEY_ARR_SIZE = 128;
         bool pressed[KEY_ARR_SIZE];
@@ -37,9 +39,9 @@ namespace graphics {
 
         void createWindow(const string& name, Rect rect);
 
-        void drawRect(Rect rect, Color color);
+        void drawRect(Rect rect, ColorSDL color);
 
-        void clear(Color color);
+        void clear(ColorSDL color);
 
         bool update();
 

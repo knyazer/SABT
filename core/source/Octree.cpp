@@ -2,7 +2,7 @@
 // Created by knyaz on 6/8/2022.
 //
 
-#include <Octree.h>
+#include "include/Octree.h"
 
 Octree::Octree() {
     filling = EMPTY;
@@ -10,10 +10,10 @@ Octree::Octree() {
     children.clear();
 }
 
-Octree &Octree::getChild(Triplet tri) {
+OctreeBase *Octree::getChild(Triplet tri) {
     if (!hasChildren())
         throw std::runtime_error("Unable to access not initialized children of octree");
-    return children[tri.index()];
+    return &children[tri.index()];
 }
 
 void Octree::makeChildren() {
@@ -22,10 +22,6 @@ void Octree::makeChildren() {
     for (size_t i = 0; i < 8; i++) {
         children[i].fosterBy(this);
     }
-}
-
-void Octree::fosterBy(Octree* newParent) {
-    parent = newParent;
 }
 
 bool Octree::hasChildren() {
@@ -85,4 +81,8 @@ Octree Octree::copy() {
     clone.children = children;
 
     return clone;
+}
+
+Color Octree::getColor(int face) {
+    return BLACK;
 }

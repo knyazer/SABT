@@ -5,9 +5,11 @@
 #ifndef SABT_ALIGNED_RECT_H
 #define SABT_ALIGNED_RECT_H
 
-#include <Vec2f.h>
-#include <Shape2d.h>
-#include <Polygon.h>
+#include "Vec2f.h"
+#include "Shape2d.h"
+#include "Polygon.h"
+
+#include <vector>
 
 class AlignedRect : public Shape2d {
 public:

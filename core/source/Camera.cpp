@@ -2,7 +2,7 @@
 // Created by knyaz on 7/1/2022.
 //
 
-#include "Camera.h"
+#include "include/Camera.h"
 
 Camera::Camera() {
     setFOV(Angle::deg(90));

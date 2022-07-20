@@ -4,10 +4,9 @@
 
 #include "gtest/gtest.h"
 
+#include <SABT.h>
+
 #include <stack>
-#include <vector>
-#include <Octree.h>
-#include <OctreeRoot.h>
 
 TEST(Octree, SimpleFillingTest) {
     Octree octree;

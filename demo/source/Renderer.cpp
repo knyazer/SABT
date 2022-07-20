@@ -11,6 +11,9 @@ graphics::Renderer::Renderer() {
     mouse = {0, 0};
     center = {0, 0};
 
+    mousePressed = false;
+    mouseUp = false;
+
     for (bool &i: pressed)
         i = false;
 
@@ -36,18 +39,36 @@ void graphics::Renderer::createWindow(const string &name, graphics::Rect rect) {
     surface = SDL_GetWindowSurface(window);
 
     center = {rect.w / 2, rect.h / 2};
-    SDL_ShowCursor(0);
-    SDL_WarpMouseInWindow(window, center.x, center.y);
+    SDL_ShowCursor(1);
 }
 
-void graphics::Renderer::clear(Color color) {
+void graphics::Renderer::clear(ColorSDL color) {
     SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, color.r, color.g, color.b));
 }
 
 graphics::Renderer::Pos2 graphics::Renderer::getMouseDelta() {
-    SDL_WarpMouseInWindow(window, center.x, center.y);
+    static Pos2 prev = {mouse.x, mouse.y};
+    static bool reset = true;
 
-    return {mouse.x - center.x, mouse.y - center.y};
+    if (mouseUp) {
+        reset = true;
+        mouseUp = false;
+    }
+
+    if (mousePressed) {
+        if (reset) {
+            prev = {mouse.x, mouse.y};
+            reset = false;
+        }
+
+        Pos2 res = {mouse.x - prev.x, mouse.y - prev.y};
+        prev = {mouse.x, mouse.y};
+
+        return res;
+    }
+    else {
+        return {0, 0};
+    }
 }
 
 bool graphics::Renderer::update() {
@@ -83,6 +104,17 @@ bool graphics::Renderer::update() {
                 break;
             }
 
+            case SDL_MOUSEBUTTONDOWN: {
+                mousePressed = true;
+                break;
+            }
+
+            case SDL_MOUSEBUTTONUP: {
+                mousePressed = false;
+                mouseUp = true;
+                break;
+            }
+
             default: {
                 break;
             }
@@ -92,7 +124,7 @@ bool graphics::Renderer::update() {
     return true;
 }
 
-void graphics::Renderer::drawRect(graphics::Rect rect, Color color) {
+void graphics::Renderer::drawRect(graphics::Rect rect, ColorSDL color) {
     SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, color.r, color.g, color.b));
 }
 

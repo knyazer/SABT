@@ -5,7 +5,8 @@
 #ifndef SABT_CUBE_H
 #define SABT_CUBE_H
 
-#include <Vec3i.h>
+#include "Vec3i.h"
+
 #include <vector>
 
 using ll = long long;

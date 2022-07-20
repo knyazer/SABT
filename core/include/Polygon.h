@@ -5,8 +5,8 @@
 #ifndef SABT_POLYGON_H
 #define SABT_POLYGON_H
 
-#include <Vec2f.h>
-#include <Shape2d.h>
+#include "Vec2f.h"
+#include "Shape2d.h"
 
 #include <vector>
 

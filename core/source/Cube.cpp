@@ -2,7 +2,7 @@
 // Created by knyaz on 6/12/2022.
 //
 
-#include "Cube.h"
+#include "include/Cube.h"
 
 Cube::Cube() {
     pos = Vec3i(0, 0, 0);

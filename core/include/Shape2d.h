@@ -5,7 +5,7 @@
 #ifndef SABT_SHAPE2D_H
 #define SABT_SHAPE2D_H
 
-#include <Vec2f.h>
+#include "Vec2f.h"
 
 #include <stdexcept>
 

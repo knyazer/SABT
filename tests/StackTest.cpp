@@ -4,7 +4,8 @@
 
 #include "gtest/gtest.h"
 
-#include <ConnectedStack.h>
+#include <SABT.h>
+
 #include <stdexcept>
 
 #define N 10000
