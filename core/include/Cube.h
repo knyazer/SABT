@@ -17,7 +17,7 @@ struct Cube {
 
     Cube();
     Cube(Vec3i pos, ll size);
-    std::vector<Vec3i> getVertices();
+    Vec3i* getVertices();
 };
 
 

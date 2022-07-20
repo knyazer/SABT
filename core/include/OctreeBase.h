@@ -13,11 +13,13 @@ const bool MAKE_UNIT = 1;
 
 class OctreeBase {
 public:
-    OctreeBase();
+    Triplet tri;
 
     OctreeBase *parent;
 
-    virtual void fosterBy(OctreeBase *parent);
+    OctreeBase();
+
+    virtual void fosterBy(OctreeBase *node, Triplet pos);
 
     virtual Color getColor(int faceIndex) = 0;
 

@@ -8,6 +8,7 @@ OctreeBase::OctreeBase() {
     parent = nullptr;
 }
 
-void OctreeBase::fosterBy(OctreeBase *node) {
+void OctreeBase::fosterBy(OctreeBase *node, Triplet pos) {
     parent = node;
+    tri = pos;
 }

@@ -30,7 +30,7 @@ void Octree::makeChildren(bool makeUnit) {
     }
 
     for (size_t i = 0; i < 8; i++) {
-        children[i]->fosterBy(this);
+        children[i]->fosterBy(this, i);
     }
 }
 
@@ -84,7 +84,7 @@ void Octree::setFilling(Filling given) {
 
 Octree Octree::copy() {
     Octree clone;
-    clone.fosterBy(parent);
+    clone.fosterBy(parent, tri);
     clone.setFilling(filling);
     clone.children = children;
 
@@ -93,4 +93,9 @@ Octree Octree::copy() {
 
 Color Octree::getColor(int face) {
     return BLACK;
+}
+
+Cube Octree::getCubeForChild(const Cube &rootCube, Triplet tri) {
+    ll sz = rootCube.size / 2;
+    return {{Vec3i(tri.x(), tri.y(), tri.z()) * sz + rootCube.pos}, sz};
 }

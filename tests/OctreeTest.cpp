@@ -14,7 +14,7 @@ TEST(Octree, SimpleFillingTest) {
     ASSERT_EQ(octree.isEmpty(), true);
     ASSERT_EQ(octree.isFull(), false);
 
-    octree.fill();
+    octree.fill(BLACK);
 
     ASSERT_EQ(octree.isEmpty(), false);
     ASSERT_EQ(octree.isFull(), true);
@@ -25,39 +25,18 @@ TEST(Octree, SimpleFillingTest) {
     ASSERT_EQ(octree.isFull(), false);
 }
 
-TEST(Octree, SingleFillTest) {
-    OctreeRoot octree;
-
-    octree.grow();
-    octree.grow();
-
-    octree.fill(Vec3i(0, 0, 0), 0);
-
-    ASSERT_EQ(octree.isEmpty(), false);
-    ASSERT_EQ(octree.isFull(), false);
-
-    ASSERT_EQ(octree.getChild({-1, -1, -1}).isEmpty(), true);
-    ASSERT_EQ(octree.getChild({-1, -1, -1}).isFull(), false);
-
-    ASSERT_EQ(octree.getChild({1, 1, 1}).isEmpty(), false);
-    ASSERT_EQ(octree.getChild({1, 1, 1}).isFull(), false);
-
-    ASSERT_EQ(octree.getChild({1, 1, 1}).getChild({-1, -1, -1}).isEmpty(), false);
-    ASSERT_EQ(octree.getChild({1, 1, 1}).getChild({-1, -1, -1}).isFull(), true);
-}
-
 TEST(Octree, SingleGrowthTest) {
     OctreeRoot octree;
 
     octree.grow();
     octree.grow();
 
-    octree.fill(Vec3i(0, 0, 0), 0);
+    octree.fill(Vec3i(0, 0, 0), 0, BLACK);
 
     octree.grow();
     octree.grow();
 
-    Octree* child = &octree;
+    OctreeBase* child = &octree;
     for (int i = 1; i <= 16; i *= 2) {
         if (i != 16) {
             ASSERT_EQ(child->isSemi(), true);
@@ -66,9 +45,9 @@ TEST(Octree, SingleGrowthTest) {
         }
 
         if (i == 1) {
-            child = &child->getChild({1, 1, 1});
+            child = dynamic_cast<Octree*>(child)->getChild({1, 1, 1});
         } else if (i != 16) {
-            child = &child->getChild({-1, -1, -1});
+            child = dynamic_cast<Octree*>(child)->getChild({0, 0, 0});
         }
     }
 }
@@ -89,7 +68,7 @@ TEST(Octree, GetCubeTest) {
             z = (z / 2) * 2;
         }
 
-        Octree *node = octree.fill({x, y, z}, level);
+        OctreeBase *node = octree.fill({x, y, z}, level, BLACK);
         Cube cube = octree.getCubeFor(node);
 
         ASSERT_TRUE(cube.pos.x == x && cube.pos.y == y && cube.pos.z == z);
@@ -113,12 +92,12 @@ TEST(Octree, ParentalTest) {
             z = (z / 2) * 2;
         }
 
-        Octree* bottom = octree.fill({x, y, z}, level);
-        Octree* top = &octree;
+        OctreeBase* bottom = octree.fill({x, y, z}, level, BLACK);
+        OctreeBase* top = &octree;
 
         // Test that ancestors with top->bottom are the same as with bottom->top
-        Octree* ptr = bottom;
-        std::stack<Octree*> ancestors;
+        OctreeBase* ptr = bottom;
+        std::stack<OctreeBase*> ancestors;
         while (ptr != top) {
             ancestors.push(ptr);
             ptr = ptr->parent;
@@ -127,10 +106,10 @@ TEST(Octree, ParentalTest) {
         while (ptr != bottom) {
             bool found = false;
             for (size_t j = 0; j < 8; j++) {
-                if (&(ptr->getChild(j)) == ancestors.top())
+                if (dynamic_cast<Octree*>(ptr)->getChild(j) == ancestors.top())
                 {
                     ancestors.pop();
-                    ptr = &(ptr->getChild(j));
+                    ptr = dynamic_cast<Octree*>(ptr)->getChild(j);
                     found = true;
 
                     break;

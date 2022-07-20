@@ -19,6 +19,8 @@ public:
 
     explicit AlignedRect(std::vector<Vec2f> vertices);
 
+    explicit AlignedRect(Vec2f* arr, size_t size);
+
     [[nodiscard]] bool contains(Vec2f other) const;
 
     [[nodiscard]] bool intersects(const AlignedRect& other) const;

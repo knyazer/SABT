@@ -12,7 +12,7 @@ using namespace graphics;
 using std::cout, std::endl;
 
 #define eps 1e-6
-constexpr double N = 16;
+constexpr double N = 100;
 constexpr double Nh = N / 2;
 
 int main(int argc, char* args[]) {
@@ -28,7 +28,7 @@ int main(int argc, char* args[]) {
     renderer.createWindow("SABT demo", Rect(500, 500, 800, 800));
 
     OctreeRoot world;
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 14; i++)
         world.grow();
     world.fill({0, 0, 10}, 0, GREEN);
     world.fill({4, 0, 10}, 0, BLUE);
@@ -78,27 +78,31 @@ int main(int argc, char* args[]) {
 
                     // if node is semi - continue iteration, push all the children sorted by the distance to node
                     // for each node check that it intersects with current beam (thick ray), and if so - push it to stack
-                    for (int i = 0; i < 8; i++) { // TODO: make for each cycle for Triplet
+                    Cube rootCube = world.getCubeFor(node);
+                    for (size_t i = 0; i < 8; i++) { // TODO: make for each cycle for Triplet
                         OctreeBase* child = node->getChild(i);
-                        Cube cube = world.getCubeFor(child);
+                        Cube cube = Octree::getCubeForChild(rootCube, i);
 
                         if (child->isEmpty())
                             continue;
 
-                        std::vector<Vec2f> projected;
-                        for (auto vertex : cube.getVertices()) {
+                        auto *projected = new Vec2f[8];
+                        size_t pointsNumber = 0;
+                        Vec3i* vertices = cube.getVertices();
+                        for (size_t j = 0; j < 8; j++) {
+                            Vec3i &vertex = vertices[j];
                             Vec2f proj = cam.project(Vec3f(vertex.x, vertex.y, vertex.z)); // TODO: add none project, not 42 42
                             if (proj.x != 42 || proj.y != 42)
-                                projected.push_back(proj);
+                                projected[pointsNumber++] = proj;
                         }
 
-                        if (projected.empty())
+                        if (pointsNumber == 0)
                             continue;
 
-                        AlignedRect box(projected);
+                        AlignedRect box(projected, pointsNumber);
 
                         // TODO: add bounding box test
-                        if (rect.intersects(box) && GJK::GJK(rect, Polygon(projected)))
+                        if (rect.intersects(box) && GJK::GJK(rect, Polygon(projected, pointsNumber)))
                             stack.push(child);
                     }
                 }

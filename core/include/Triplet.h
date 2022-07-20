@@ -36,6 +36,8 @@ public:
     [[nodiscard]] inline int y() const { return (data & Y_MASK) >> 1; }
     [[nodiscard]] inline int z() const { return (data & Z_MASK) >> 2; }
 
+    [[nodiscard]] inline Vec3i vec() const { return {x(), y(), z()}; }
+
     [[nodiscard]] inline int index() const { return data & INDEX_MASK; }
 
     inline void set(int x, int y, int z) {

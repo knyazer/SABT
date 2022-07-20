@@ -88,7 +88,7 @@ OctreeBase *OctreeRoot::fill(Vec3i pos, unsigned level, Color color) {
         }
 
         Triplet tri(sign);
-        node = dynamic_cast<Octree *>(node)->getChild(tri.index());
+        node = nodeMid->getChild(tri.index());
 
         cubeSize = half;
     }
@@ -103,37 +103,23 @@ ll OctreeRoot::size() const {
 }
 
 Cube OctreeRoot::getCubeFor(OctreeBase *node) const {
+    ll level = logSize;
+
     OctreeBase *ptr = node;
-    std::stack<OctreeBase *> trace;
-    while (ptr != this) {
-        trace.push(ptr);
+    while (ptr->parent != nullptr) {
         ptr = ptr->parent;
+        level--;
     }
 
-    Cube cube({0, 0, 0}, size());
+    ll delta = 1 << level;
+    Vec3i pos;
 
-    while (ptr != node) {
-        bool found = false;
-        for (size_t i = 0; i < 8; i++) {
-            Triplet tri(i);
-            OctreeBase *child = dynamic_cast<Octree *>(ptr)->getChild(i);
-
-            if (child == trace.top()) {
-                trace.pop();
-                ptr = child;
-
-                cube.size /= 2;
-                cube.pos = cube.pos + Vec3i(tri.x(), tri.y(), tri.z()) * cube.size;
-
-                found = true;
-
-                break;
-            }
-        }
-
-        if (!found)
-            throw std::runtime_error("The child with required address was not found");
+    ptr = node;
+    while (ptr->parent != nullptr) {
+        pos = pos + (ptr->tri).vec() * delta;
+        ptr = ptr->parent;
+        delta <<= 1;
     }
 
-    return cube;
+    return {pos, 1 << level};
 }

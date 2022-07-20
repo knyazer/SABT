@@ -14,6 +14,7 @@
 #include "Triplet.h"
 #include "Filling.h"
 #include "Vec3i.h"
+#include "Cube.h"
 #include "OctreeBase.h"
 #include "OctreeUnit.h"
 
@@ -65,6 +66,8 @@ public:
     void setFilling(Filling given);
 
     Color getColor(int face) override;
+
+    static Cube getCubeForChild(const Cube &rootCube, Triplet tri);
 
     Octree copy();
 };

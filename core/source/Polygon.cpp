@@ -22,3 +22,10 @@ Vec2f Polygon::getFarthestPointInDirection(Vec2f direction) const {
 Polygon::Polygon(std::vector<Vec2f> newVertices) {
     vertices = std::move(newVertices);
 }
+
+Polygon::Polygon(Vec2f *arr, size_t size) {
+    vertices.assign(size, Vec2f());
+
+    for (size_t i = 0; i < size; i++)
+        vertices[i] = arr[i];
+}

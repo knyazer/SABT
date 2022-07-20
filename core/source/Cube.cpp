@@ -14,16 +14,17 @@ Cube::Cube(Vec3i pos, ll size) {
     this->size = size;
 }
 
-std::vector<Vec3i> Cube::getVertices() {
-    return {
+Vec3i* Cube::getVertices() {
+    ll xm = pos.x + size, ym = pos.y + size, zm = pos.z + size;
+    return new Vec3i[8]{
             pos,
-            pos + Vec3i(0, 0, size),
-            pos + Vec3i(0, size, 0),
-            pos + Vec3i(0, size, size),
-            pos + Vec3i(size, 0, 0),
-            pos + Vec3i(size, 0, size),
-            pos + Vec3i(size, size, 0),
-            pos + Vec3i(size, size, size)
+            {pos.x, pos.y, zm},
+            {pos.x, ym, pos.z},
+            {pos.x, ym, zm},
+            {xm, pos.y, pos.z},
+            {xm, pos.y, zm},
+            {xm, ym, pos.z},
+            {xm, ym, zm}
     };
 }
 

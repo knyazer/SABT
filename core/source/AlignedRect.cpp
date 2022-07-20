@@ -21,7 +21,14 @@ bool AlignedRect::intersects(const AlignedRect& other) const {
 }
 
 Vec2f AlignedRect::getFarthestPointInDirection(Vec2f direction) const { // TODO: make some specific optimizations
-    return Polygon({min, {min.x, max.y}, max, {max.x, min.y}}).getFarthestPointInDirection(direction);
+    if (direction.x >= 0 && direction.y >= 0)
+        return max;
+    else if (direction.x >= 0 && direction.y <= 0)
+        return {max.x, min.y};
+    else if (direction.x <= 0 && direction.y >= 0)
+        return {min.x, max.y};
+    else
+        return min;
 }
 
 Vec2f AlignedRect::mid() const {
@@ -46,5 +53,26 @@ AlignedRect::AlignedRect(std::vector<Vec2f> vertices) {
             max.x = vertices[i].x;
         if (vertices[i].y > max.y)
             max.y = vertices[i].y;
+    }
+}
+
+AlignedRect::AlignedRect(Vec2f *arr, size_t size) {
+    if (size == 0) {
+        throw std::runtime_error("Cannot initialize aligned rect with no points");
+    }
+
+    min = arr[0];
+    max = arr[0];
+
+    for (size_t i = 1; i < size; i++) {
+        if (arr[i].x < min.x)
+            min.x = arr[i].x;
+        if (arr[i].y < min.y)
+            min.y = arr[i].y;
+
+        if (arr[i].x > max.x)
+            max.x = arr[i].x;
+        if (arr[i].y > max.y)
+            max.y = arr[i].y;
     }
 }
