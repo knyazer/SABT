@@ -17,16 +17,20 @@ void OctreeRoot::grow() {
 
     setFilling(SEMI);
 
-    auto newChildren = std::vector<Octree>(8);
+    auto newChildren = std::vector<OctreeBase *>(8);
+    for (size_t i = 0; i < 8; i++)
+        newChildren[i] = new Octree();
 
     for (size_t i = 0; i < 8; i++) {
-        if (children[i].isEmpty()) {
-            newChildren[i].setFilling(EMPTY);
+        auto* casted = dynamic_cast<Octree*>(newChildren[i]);
+
+        if (children[i]->isEmpty()) {
+            casted->setFilling(EMPTY);
         }
         else {
-            newChildren[i].setFilling(SEMI);
-            newChildren[i].makeChildren();
-            *newChildren[i].getChild(Triplet(i).reverse().index()) = children[i];
+            casted->setFilling(SEMI);
+            casted->makeChildren();
+            *casted->getChild(Triplet(i).reverse().index()) = *children[i];
         }
     }
 
@@ -34,7 +38,7 @@ void OctreeRoot::grow() {
 }
 
 // TODO: SEMI filling could be FULL actually
-OctreeBase* OctreeRoot::fill(Vec3i pos, unsigned level) {
+OctreeBase *OctreeRoot::fill(Vec3i pos, unsigned level, Color color) {
     if (pos.x < 0 || pos.y < 0 || pos.z < 0)
         throw std::runtime_error("Cannot fill node on negative coordinates: octree has only positive coords");
 
@@ -42,7 +46,7 @@ OctreeBase* OctreeRoot::fill(Vec3i pos, unsigned level) {
         throw std::runtime_error("Out of bounds node filling when calling fill at octree root");
 
     if (level == logSize) {
-        Octree::fill();
+        Octree::fill(color);
         return this;
     }
 
@@ -50,7 +54,7 @@ OctreeBase* OctreeRoot::fill(Vec3i pos, unsigned level) {
     if (!hasChildren())
         makeChildren();
 
-    OctreeBase* node = this;
+    OctreeBase *node = this;
     Vec3i nextPos = pos;
 
     ll cubeSize = size();
@@ -71,20 +75,25 @@ OctreeBase* OctreeRoot::fill(Vec3i pos, unsigned level) {
 
         nextPos = nextPos - sign * half;
 
-        if (node->isEmpty())
-            node->setFilling(SEMI);
+        auto *nodeMid = dynamic_cast<Octree *>(node);
 
-        if (!node->hasChildren())
-            node->makeChildren();
+        if (nodeMid->isEmpty())
+            nodeMid->setFilling(SEMI);
+
+        if (!nodeMid->hasChildren()) {
+            if (i == logSize - 1)
+                nodeMid->makeChildren(MAKE_UNIT);
+            else
+                nodeMid->makeChildren();
+        }
 
         Triplet tri(sign);
-
-        node = dynamic_cast<Octree*>(node)->getChild(tri.index());
+        node = dynamic_cast<Octree *>(node)->getChild(tri.index());
 
         cubeSize = half;
     }
 
-    node->fill();
+    node->fill(color);
 
     return node;
 }
@@ -94,8 +103,8 @@ ll OctreeRoot::size() const {
 }
 
 Cube OctreeRoot::getCubeFor(OctreeBase *node) const {
-    OctreeBase* ptr = node;
-    std::stack<OctreeBase*> trace;
+    OctreeBase *ptr = node;
+    std::stack<OctreeBase *> trace;
     while (ptr != this) {
         trace.push(ptr);
         ptr = ptr->parent;
@@ -107,10 +116,9 @@ Cube OctreeRoot::getCubeFor(OctreeBase *node) const {
         bool found = false;
         for (size_t i = 0; i < 8; i++) {
             Triplet tri(i);
-            OctreeBase *child = dynamic_cast<Octree*>(ptr)->getChild(i);
+            OctreeBase *child = dynamic_cast<Octree *>(ptr)->getChild(i);
 
-            if (child == trace.top())
-            {
+            if (child == trace.top()) {
                 trace.pop();
                 ptr = child;
 

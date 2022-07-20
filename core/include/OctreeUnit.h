@@ -25,15 +25,11 @@ public:
 
     bool isSemi() override;
 
-    void fill() override;
+    void fill(Color color) override;
 
     void clear() override;
 
     Color getColor(int faceIndex) override;
-
-    OctreeBase *getChild(Triplet tri) override;
-
-    void setFilling(Filling filling) override;
 };
 
 

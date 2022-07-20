@@ -13,14 +13,24 @@ Octree::Octree() {
 OctreeBase *Octree::getChild(Triplet tri) {
     if (!hasChildren())
         throw std::runtime_error("Unable to access not initialized children of octree");
-    return &children[tri.index()];
+    return children[tri.index()];
 }
 
-void Octree::makeChildren() {
-    children = std::vector<Octree>(8);
+void Octree::makeChildren(bool makeUnit) {
+    children = std::vector<OctreeBase*>(8);
+
+    if (makeUnit) {
+        for (size_t i = 0; i < 8; i++) {
+            children[i] = new OctreeUnit();
+        }
+    } else {
+        for (size_t i = 0; i < 8; i++) {
+            children[i] = new Octree();
+        }
+    }
 
     for (size_t i = 0; i < 8; i++) {
-        children[i].fosterBy(this);
+        children[i]->fosterBy(this);
     }
 }
 
@@ -40,12 +50,12 @@ bool Octree::isSemi() {
     return filling == SEMI;
 }
 
-void Octree::fill() {
+void Octree::fill(Color color) {
     filling = FULL;
 
     if (hasChildren()) {
         for (size_t i = 0; i < 8; i++) {
-            children[i].fill();
+            children[i]->fill(color);
         }
     }
 }
@@ -55,17 +65,15 @@ void Octree::clear() {
 
     if (hasChildren()) {
         for (size_t i = 0; i < 8; i++) {
-            children[i].clear();
+            children[i]->clear();
         }
     }
 }
 
 void Octree::deleteChildren() {
-    if (hasChildren()) {
-        for (size_t i = 0; i < 8; i++) {
-            children[i].deleteChildren();
-        }
-    }
+    if (hasChildren())
+        for (size_t i = 0; i < 8; i++)
+            dynamic_cast<Octree*>(children[i])->deleteChildren();
 
     children.clear();
 }

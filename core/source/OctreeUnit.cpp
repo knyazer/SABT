@@ -21,8 +21,9 @@ bool OctreeUnit::isSemi() {
     return false;
 }
 
-void OctreeUnit::fill() {
+void OctreeUnit::fill(Color fillingColor) {
     exist = true;
+    color = fillingColor;
 }
 
 void OctreeUnit::clear() {
@@ -32,11 +33,3 @@ void OctreeUnit::clear() {
 Color OctreeUnit::getColor(int faceIndex) {
     return color;
 }
-
-OctreeBase *OctreeUnit::getChild(Triplet tri) {
-    return nullptr;
-}
-
-void OctreeUnit::setFilling(Filling filling) {
-}
-

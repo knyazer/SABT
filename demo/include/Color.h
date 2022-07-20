@@ -6,8 +6,18 @@
 #define SABT_COLOR_H
 
 #include <cstdint>
+#include <SABT.h>
 
 namespace graphics {
+    static uint32_t toSDL[] = {
+            0xffffff,
+            0x000000,
+            0xff0000,
+            0x0000ff,
+            0x00ff00,
+            0x666666,
+    };
+
     struct ColorSDL {
         uint8_t r, g, b;
 
@@ -19,16 +29,15 @@ namespace graphics {
             this->b = b;
         }
 
-    };
+        ColorSDL(Color color) {
+            uint32_t encoded = toSDL[color];
 
-    namespace colors {
-        const ColorSDL RED = ColorSDL(0xFF, 0, 0);
-        const ColorSDL GREEN = ColorSDL(0, 0xFF, 0);
-        const ColorSDL BLUE = ColorSDL(0, 0, 0xFF);
-        const ColorSDL WHITE = ColorSDL(0xFF, 0xFF, 0xFF);
-        const ColorSDL BLACK = ColorSDL(0, 0, 0);
-        const ColorSDL GRAY = ColorSDL(0x88, 0x88, 0x88);
-    }
+            r = (encoded >> 16) & 0xff;
+            g = (encoded >> 8) & 0xff;
+            b = encoded & 0xff;
+        }
+
+    };
 }
 
 #endif //SABT_COLOR_H

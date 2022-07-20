@@ -30,13 +30,13 @@ int main(int argc, char* args[]) {
     OctreeRoot world;
     for (int i = 0; i < 5; i++)
         world.grow();
-    world.fill({0, 0, 10}, 0);
-    world.fill({4, 0, 10}, 0);
+    world.fill({0, 0, 10}, 0, GREEN);
+    world.fill({4, 0, 10}, 0, BLUE);
 
 
     // Main render cycle
     while (renderer.update()) {
-        renderer.clear(colors::GRAY);
+        renderer.clear(GRAY);
 
         for (int xi = 0; xi < N; xi++) {
             for (int yi = 0; yi < N; yi++) {
@@ -45,22 +45,31 @@ int main(int argc, char* args[]) {
 
                 // Do we need to fill the current "pixel"?
                 bool fill = false;
+                Color color = GREEN;
 
                 std::stack<OctreeBase*> stack;
                 stack.push(&world);
                 while (!stack.empty()) {
-                    auto node = stack.top();
+                    auto rawNode = stack.top();
                     stack.pop();
+
+                    if (rawNode == nullptr)
+                        throw std::runtime_error("Pointer to BaseOctree in call stack is nullptr");
+
+                    // if node is full - finish, returning this node
+                    if (rawNode->isFull()) {
+                        color = rawNode->getColor(0);
+                        fill = true;
+                        break;
+                    }
+
+                    // If node is not full, it means it is not the OctreeUnit derived, so we can cast the Octree*.
+                    auto node = dynamic_cast<Octree*>(rawNode);
 
                     // ignore if the node is empty
                     if (node->isEmpty())
                         continue;
 
-                    // if node is full - finish, returning this node
-                    if (node->isFull()) {
-                        fill = true;
-                        break;
-                    }
 
                     // quick adequacy test
                     if (!node->hasChildren()) {
@@ -72,6 +81,9 @@ int main(int argc, char* args[]) {
                     for (int i = 0; i < 8; i++) { // TODO: make for each cycle for Triplet
                         OctreeBase* child = node->getChild(i);
                         Cube cube = world.getCubeFor(child);
+
+                        if (child->isEmpty())
+                            continue;
 
                         std::vector<Vec2f> projected;
                         for (auto vertex : cube.getVertices()) {
@@ -95,7 +107,7 @@ int main(int argc, char* args[]) {
                     Vec2f mid = rect.min;
                     Vec2f dim = rect.max - rect.min;
                     auto tr = [](double x) {return x * 400 + 400;};
-                    renderer.drawRect(Rect(tr(mid.x), tr(mid.y), 800 / N, 800 / N), colors::BLACK);
+                    renderer.drawRect(Rect(tr(mid.x), tr(mid.y), 800 / N, 800 / N), color);
                 }
             }
         }

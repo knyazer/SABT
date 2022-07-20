@@ -94,8 +94,10 @@ void Camera::lazyUpdate() {
 }
 
 void Camera::doLazyUpdate() {
-    updateProjectionMatrix();
-    needUpdate = false;
+    if (needUpdate) {
+        updateProjectionMatrix();
+        needUpdate = false;
+    }
 }
 
 void Camera::move(Vec3f delta) {
@@ -116,6 +118,8 @@ void Camera::rotateByX(Angle theta) {
     rot.at(2, 2) = theta.cos();
 
     xRotM = xRotM * rot;
+
+    lazyUpdate();
 }
 
 void Camera::rotateByY(Angle theta) {
@@ -128,4 +132,6 @@ void Camera::rotateByY(Angle theta) {
     rot.at(2, 2) = theta.cos();
 
     yRotM = yRotM * rot;
+
+    lazyUpdate();
 }

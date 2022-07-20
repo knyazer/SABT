@@ -11,7 +11,8 @@ enum Color {
     BLACK = 1,
     RED = 2,
     BLUE = 3,
-    GREEN = 4
+    GREEN = 4,
+    GRAY = 5
 };
 
 
