@@ -52,12 +52,13 @@ bool Octree::isSemi() {
 
 void Octree::fill(Color color) {
     filling = FULL;
+    this->color = color;
 
-    if (hasChildren()) {
-        for (size_t i = 0; i < 8; i++) {
+    // TODO: spatial structure for each octree to store colors. Supposedly quadtree is good
+
+    if (hasChildren())
+        for (size_t i = 0; i < 8; i++)
             children[i]->fill(color);
-        }
-    }
 }
 
 void Octree::clear() {
@@ -92,7 +93,7 @@ Octree Octree::copy() {
 }
 
 Color Octree::getColor(int face) {
-    return BLACK;
+    return color;
 }
 
 Cube Octree::getCubeForChild(const Cube &rootCube, Triplet tri) {

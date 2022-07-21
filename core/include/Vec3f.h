@@ -7,12 +7,16 @@
 
 #include <cmath>
 #include <iostream>
+#include "Vec3i.h"
 
 class Vec3f {
 public:
+
     double x, y, z;
 
     Vec3f();
+
+    explicit Vec3f(Vec3i vec3I);
 
     Vec3f(double x, double y, double z);
 

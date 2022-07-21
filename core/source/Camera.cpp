@@ -18,6 +18,10 @@ void Camera::setPosition(Vec3f position) {
     lazyUpdate();
 }
 
+Vec3f Camera::getPosition() {
+    return Vec3f(posM.at(0, 3), posM.at(1, 3), posM.at(2, 3));
+}
+
 void Camera::setRotationByX(Angle theta) {
     xRotM = xRotM.I();
 

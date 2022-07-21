@@ -26,6 +26,8 @@ public:
 
     void setPosition(Vec3f pos);
 
+    Vec3f getPosition();
+
     void setRotationByX(Angle theta);
 
     void setRotationByY(Angle theta);

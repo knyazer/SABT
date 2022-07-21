@@ -18,18 +18,18 @@ namespace graphics {
             0x666666,
     };
 
-    struct ColorSDL {
+    struct ColorRGB {
         uint8_t r, g, b;
 
-        ColorSDL() = default;
+        ColorRGB() = default;
 
-        ColorSDL(uint8_t r, uint8_t g, uint8_t b) {
+        ColorRGB(uint8_t r, uint8_t g, uint8_t b) {
             this->r = r;
             this->g = g;
             this->b = b;
         }
 
-        ColorSDL(Color color) {
+        ColorRGB(Color color) {
             uint32_t encoded = toSDL[color];
 
             r = (encoded >> 16) & 0xff;

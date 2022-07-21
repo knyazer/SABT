@@ -14,22 +14,23 @@ graphics::Renderer::Renderer() {
     mousePressed = false;
     mouseUp = false;
 
+    fps = 0;
+
     for (bool &i: pressed)
         i = false;
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
         fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
         throw std::runtime_error("Failed to initialize sdl2");
+    }
+
+    if (TTF_Init() == -1) {
+        throw std::runtime_error("Failed to initialize TTF");
     }
 }
 
 void graphics::Renderer::createWindow(const string &name, graphics::Rect rect) {
-    window = SDL_CreateWindow(
-            name.c_str(),
-            rect.x, rect.y,
-            rect.w, rect.h,
-            SDL_WINDOW_SHOWN
-    );
+    SDL_CreateWindowAndRenderer(rect.w, rect.h,0,&window,&renderer);
 
     if (window == nullptr) {
         fprintf(stderr, "could not create window: %s\n", SDL_GetError());
@@ -42,8 +43,15 @@ void graphics::Renderer::createWindow(const string &name, graphics::Rect rect) {
     SDL_ShowCursor(1);
 }
 
-void graphics::Renderer::clear(ColorSDL color) {
-    SDL_FillRect(surface, nullptr, SDL_MapRGB(surface->format, color.r, color.g, color.b));
+void graphics::Renderer::clear(ColorRGB color) {
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
+    SDL_RenderClear(renderer);
+}
+
+
+void graphics::Renderer::drawRect(graphics::Rect rect, ColorRGB color) {
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
+    SDL_RenderFillRect(renderer, &rect);
 }
 
 graphics::Renderer::Pos2 graphics::Renderer::getMouseDelta() {
@@ -72,8 +80,27 @@ graphics::Renderer::Pos2 graphics::Renderer::getMouseDelta() {
 }
 
 bool graphics::Renderer::update() {
-    SDL_UpdateWindowSurface(window);
-    SDL_Delay(10);
+    // fps
+    static auto startTime = SDL_GetTicks();
+    static double avgFPS = 10;
+
+    auto frameTime = SDL_GetTicks() - startTime;
+    // complementary filter to calculate average fps
+    avgFPS = 0.9 * (frameTime > 0 ? static_cast<double>(1000.0 / frameTime) : 0) + 0.1 * avgFPS;
+    startTime = SDL_GetTicks();
+
+    // change the drawn value infrequently
+    static int _counter = 0;
+    if (_counter++ % 5 == 0) {
+        _counter = 1;
+        fps = avgFPS;
+    }
+
+    renderFPS();
+
+    // delay
+    SDL_RenderPresent(renderer);
+    SDL_Delay(15);
 
 
     // mouse
@@ -124,11 +151,31 @@ bool graphics::Renderer::update() {
     return true;
 }
 
-void graphics::Renderer::drawRect(graphics::Rect rect, ColorSDL color) {
-    SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, color.r, color.g, color.b));
-}
-
 graphics::Renderer::~Renderer() {
     SDL_DestroyWindow(window);
+    TTF_Quit();
     SDL_Quit();
+}
+
+void graphics::Renderer::renderFPS() {
+    static TTF_Font* font = TTF_OpenFont("../../demo/font/ShareTechMono-Regular.ttf", 50);
+
+    if (font == nullptr)
+        std::cerr << " Failed to load font : " << SDL_GetError() << std::endl;
+
+    SDL_Color White = {0, 128, 255};
+
+    std::string num = std::to_string(static_cast<unsigned>(fps));
+    std::string str = std::string(3 - std::min(3, static_cast<int>(num.length())), '0') + num;
+    SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font, str.c_str(), White);
+
+    SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+
+    SDL_Rect Message_rect;
+    Message_rect.x = 0;
+    Message_rect.y = 0;
+    Message_rect.w = 140;
+    Message_rect.h = 50;
+
+    SDL_RenderCopy(renderer, Message, nullptr, &Message_rect);
 }

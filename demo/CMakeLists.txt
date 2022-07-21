@@ -5,6 +5,8 @@ project(demo)
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(SDL2 REQUIRED)
+find_package(SDL_ttf REQUIRED)
+
 include_directories(${SDL2_INCLUDE_DIRS})
 
 add_executable(demo
@@ -16,4 +18,4 @@ add_executable(demo
 
 target_include_directories(demo PUBLIC include)
 
-target_link_libraries(demo ${SDL2_LIBRARIES} core)
+target_link_libraries(demo ${SDL2_LIBRARIES} SDL2_ttf core)

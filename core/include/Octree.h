@@ -29,6 +29,8 @@ class Octree : public std::enable_shared_from_this<Octree>, public OctreeBase {
 protected:
     std::vector<OctreeBase*> children;
 
+    Color color;
+
     Filling filling;
 
 public:
