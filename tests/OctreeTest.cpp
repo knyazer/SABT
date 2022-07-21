@@ -64,10 +64,10 @@ TEST(Octree, ParentalTest) {
             y = (y / 2) * 2;
             z = (z / 2) * 2;
         }
-
+        
         OctreeBase* bottom = octree.fill({x, y, z}, level, BLACK);
         OctreeBase* top = &octree;
-
+        
         // Test that ancestors with top->bottom are the same as with bottom->top
         OctreeBase* ptr = bottom;
         std::stack<OctreeBase*> ancestors;
