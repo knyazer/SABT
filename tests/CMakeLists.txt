@@ -17,6 +17,7 @@ FetchContent_MakeAvailable(googletest)
 
 # set(CMAKE_CXX_FLAGS "--coverage")
 
+<<<<<<< HEAD
 add_executable(tests
         ExampleTest.cpp
         StackTest.cpp
@@ -28,3 +29,11 @@ add_executable(tests
         )
 
 target_link_libraries(tests gtest_main gtest core)
+=======
+add_executable(tests ExampleTest.cpp StackTest.cpp TripletTest.cpp OctreeTest.cpp)
+target_link_libraries(tests gtest_main gtest core)
+
+set(CMAKE_CXX_FLAGS "-std=c++20")
+set(CMAKE_CXX_STANDARD 20)
+set_property(TARGET tests PROPERTY CXX_STANDARD 20)
+>>>>>>> 57d2e3786ac6e39968eb4c4f09a501bad7f54e09
