@@ -17,6 +17,7 @@ FetchContent_MakeAvailable(googletest)
 # set(CMAKE_CXX_FLAGS "--coverage")
 
 add_executable(tests
+        tests.cpp
         ExampleTest.cpp
         StackTest.cpp
         TripletTest.cpp
