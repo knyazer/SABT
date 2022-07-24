@@ -1,0 +1,6 @@
+@INCLUDE = "./Doxyfile"
+GENERATE_HTML = NO
+GENERATE_XML = YES
+HAVE_DOT = NO
+XML_PROGRAMLISTING = NO
+INPUT = ../../core/include

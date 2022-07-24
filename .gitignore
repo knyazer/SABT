@@ -1,0 +1,6 @@
+docs/api
+docs/doxygen/xml
+docs/doxygen/latex
+docs/_build
+docs/_static
+docs/_templates
