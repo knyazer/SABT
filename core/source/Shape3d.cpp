@@ -16,17 +16,12 @@ bool Shape3d::hasIntersection(Shape3d *A, Shape3d *B) {
 
     ccd.mpr_tolerance = 0.0001;
 
-    std::cout <<"jonk" << std::endl;
-
     return ccdMPRIntersect(A, B, &ccd);
 }
 
 void Shape3d_ccd::support(const void *obj, const ccd_vec3_t *dir, ccd_vec3_t *vec) {
-    std::cout << "ponk" << std::endl;
-
     Vec3f res = ((Shape3d*)(obj))->getFarthestPointInDirection({dir->v[0], dir->v[1], dir->v[2]});
 
-    std::cout << "ponk2" << std::endl;
     vec->v[0] = res.x;
     vec->v[1] = res.y;
     vec->v[2] = res.z;

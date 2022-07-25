@@ -33,28 +33,22 @@ Vec3f Cube::getCenter() const {
 }
 
 Vec3f Cube::getFarthestPointInDirection(Vec3f direction) const {
-    Vec3i *vertices = getVertices();
-    auto vertex = Vec3f(vertices[0]);
-    double maxProduct = Vec3f::dot(vertex, direction);
+    return Vec3f(direction.x <= 0 ? pos.x : pos.x + size,
+                 direction.y <= 0 ? pos.y : pos.y + size,
+                 direction.z <= 0 ? pos.z : pos.z + size);
+}
 
-    for (size_t i = 1; i < 8; i++) {
-        double dotProduct = Vec3f::dot(Vec3f(vertices[i]), direction);
-        if (dotProduct > maxProduct) {
-            maxProduct = dotProduct;
-            vertex = Vec3f(vertices[i]);
-        }
-    }
-
-    return vertex;
+bool Cube::contain(Vec3i point) const {
+    return  point.x >= pos.x && point.x <= pos.x + size &&
+            point.y >= pos.y && point.y <= pos.y + size &&
+            point.z >= pos.z && point.z <= pos.z + size;
 }
 
 bool Cube::cubeIntersectsCube(const Cube &A, const Cube &B) {
-    if (A.pos.x + A.size > B.pos.x && A.pos.x < B.pos.x + B.size)
-        return true;
-    if (A.pos.y + A.size > B.pos.y && A.pos.y < B.pos.y + B.size)
-        return true;
-    if (A.pos.z + A.size > B.pos.x && A.pos.z < B.pos.z + B.size)
-        return true;
+    Vec3i *verticesOfA = A.getVertices(), *verticesOfB = B.getVertices();
+    for (size_t i = 0; i < 8; i++)
+        if (B.contain(verticesOfA[i]) || A.contain(verticesOfB[i]))
+            return true;
 
     return false;
 }

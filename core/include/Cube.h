@@ -21,6 +21,8 @@ struct Cube : public Shape3d {
 
     Cube(Vec3i pos, ll size);
 
+    [[nodiscard]] bool contain(Vec3i point) const;
+
     [[nodiscard]] Vec3i *getVertices() const;
 
     [[nodiscard]] Vec3f getCenter() const override;
