@@ -4,7 +4,8 @@
 
 #include "gtest/gtest.h"
 
-#include <Mat.h>
+#include <SABT.h>
+
 #include <cmath>
 
 TEST(Mat, ReadWriteTest) {

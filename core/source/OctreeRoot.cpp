@@ -2,7 +2,7 @@
 // Created by knyaz on 6/8/2022.
 //
 
-#include "OctreeRoot.h"
+#include "include/OctreeRoot.h"
 
 OctreeRoot::OctreeRoot() {
     logSize = 0;
@@ -17,16 +17,20 @@ void OctreeRoot::grow() {
 
     setFilling(SEMI);
 
-    auto newChildren = std::vector<Octree>(8);
+    auto newChildren = std::vector<OctreeBase *>(8);
+    for (size_t i = 0; i < 8; i++)
+        newChildren[i] = new Octree();
 
     for (size_t i = 0; i < 8; i++) {
-        if (children[i].isEmpty()) {
-            newChildren[i].setFilling(EMPTY);
+        auto* casted = dynamic_cast<Octree*>(newChildren[i]);
+
+        if (children[i]->isEmpty()) {
+            casted->setFilling(EMPTY);
         }
         else {
-            newChildren[i].setFilling(SEMI);
-            newChildren[i].makeChildren();
-            newChildren[i].getChild(Triplet(i).reverse().index()) = children[i];
+            casted->setFilling(SEMI);
+            casted->makeChildren();
+            *casted->getChild(Triplet(i).reverse().index()) = *children[i];
         }
     }
 
@@ -34,10 +38,15 @@ void OctreeRoot::grow() {
 }
 
 // TODO: SEMI filling could be FULL actually
-Octree* OctreeRoot::fill(Vec3i pos, unsigned level) {
+OctreeBase *OctreeRoot::fill(Vec3i pos, unsigned level, Color color) {
+    if (pos.x < 0 || pos.y < 0 || pos.z < 0)
+        throw std::runtime_error("Cannot fill node on negative coordinates: octree has only positive coords");
+
+    if (pos.x >= size() || pos.y >= size() || pos.z >= size())
+        throw std::runtime_error("Out of bounds node filling when calling fill at octree root");
 
     if (level == logSize) {
-        Octree::fill();
+        Octree::fill(color);
         return this;
     }
 
@@ -45,47 +54,72 @@ Octree* OctreeRoot::fill(Vec3i pos, unsigned level) {
     if (!hasChildren())
         makeChildren();
 
-    Octree* node = &children[Triplet(pos).index()];
+    OctreeBase *node = this;
     Vec3i nextPos = pos;
 
-    ull cubeSize = size();
+    ll cubeSize = size();
 
-    for (int i = 1; i < (logSize - level); i++) {
-        ull half = cubeSize >> 1;
+    for (int i = 0; i < (logSize - level); i++) {
+        ll half = cubeSize >> 1;
 
         // TODO: Make a special Vec3i functions like sign and +/-/etc implementations
-        if (nextPos.x < 0)
-            nextPos.x += half;
-        if (nextPos.x >= 0)
-            nextPos.x -= half; // TODO: check Vec sizeof
-        if (nextPos.y < 0)
-            nextPos.y += half;
-        if (nextPos.y >= 0)
-            nextPos.y -= half;
-        if (nextPos.z < 0)
-            nextPos.z += half;
-        if (nextPos.z >= 0)
-            nextPos.z -= half;
+        Vec3i sign;
+        if (nextPos.x > 0 && nextPos.x >= half) sign.x = 1;
+        else sign.x = 0;
 
-        if (!hasChildren())
-            makeChildren();
+        if (nextPos.y > 0 && nextPos.y >= half) sign.y = 1;
+        else sign.y = 0;
 
-        if (node->isEmpty())
-            node->setFilling(SEMI);
+        if (nextPos.z > 0 && nextPos.z >= half) sign.z = 1;
+        else sign.z = 0;
 
-        if (!node->hasChildren())
-            node->makeChildren();
+        nextPos = nextPos - sign * half;
 
-        node = &node->getChild(Triplet(nextPos).index());
+        auto *nodeMid = dynamic_cast<Octree *>(node);
+
+        if (nodeMid->isEmpty())
+            nodeMid->setFilling(SEMI);
+
+        if (!nodeMid->hasChildren()) {
+            if (i == logSize - 1)
+                nodeMid->makeChildren(MAKE_UNIT);
+            else
+                nodeMid->makeChildren();
+        }
+
+        Triplet tri(sign);
+        node = nodeMid->getChild(tri.index());
 
         cubeSize = half;
     }
 
-    node->fill();
+    node->fill(color);
 
     return node;
 }
 
-ull OctreeRoot::size() const {
+ll OctreeRoot::size() const {
     return 1 << logSize;
+}
+
+Cube OctreeRoot::getCubeFor(OctreeBase *node) const {
+    ll level = logSize;
+
+    OctreeBase *ptr = node;
+    while (ptr->parent != nullptr) {
+        ptr = ptr->parent;
+        level--;
+    }
+
+    ll delta = 1 << level;
+    Vec3i pos;
+
+    ptr = node;
+    while (ptr->parent != nullptr) {
+        pos = pos + (ptr->tri).vec() * delta;
+        ptr = ptr->parent;
+        delta <<= 1;
+    }
+
+    return {pos, 1 << level};
 }

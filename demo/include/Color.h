@@ -6,26 +6,38 @@
 #define SABT_COLOR_H
 
 #include <cstdint>
+#include <SABT.h>
 
 namespace graphics {
-    struct Color {
+    static uint32_t toSDL[] = {
+            0xffffff,
+            0x000000,
+            0xff0000,
+            0x0000ff,
+            0x00ff00,
+            0x666666,
+    };
+
+    struct ColorRGB {
         uint8_t r, g, b;
 
-        Color() = default;
+        ColorRGB() = default;
 
-        Color(uint8_t r, uint8_t g, uint8_t b) {
+        ColorRGB(uint8_t r, uint8_t g, uint8_t b) {
             this->r = r;
             this->g = g;
             this->b = b;
         }
-    };
 
-    const Color RED = Color(0xFF, 0, 0);
-    const Color GREEN = Color(0, 0xFF, 0);
-    const Color BLUE = Color(0, 0, 0xFF);
-    const Color WHITE = Color(0xFF, 0xFF, 0xFF);
-    const Color BLACK = Color(0, 0, 0);
-    const Color GRAY = Color(0x88, 0x88, 0x88);
+        ColorRGB(Color color) {
+            uint32_t encoded = toSDL[color];
+
+            r = (encoded >> 16) & 0xff;
+            g = (encoded >> 8) & 0xff;
+            b = encoded & 0xff;
+        }
+
+    };
 }
 
 #endif //SABT_COLOR_H

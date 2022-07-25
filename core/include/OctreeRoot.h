@@ -7,11 +7,15 @@
 #ifndef SABT_OCTREE_ROOT_H
 #define SABT_OCTREE_ROOT_H
 
-#include <Octree.h>
+#include "Octree.h"
+#include "Cube.h"
+#include "Color.h"
+
 #include <iostream>
 #include <vector>
+#include <stack>
 
-using ull = unsigned long long;
+using ll = long long;
 
 class OctreeRoot : public Octree {
 protected:
@@ -23,10 +27,12 @@ public:
     ///< Scales the octree 2 times by each axis while origin remains in place
     void grow();
 
-    Octree* fill(Vec3i pos, unsigned level);
+    OctreeBase *fill(Vec3i pos, unsigned level, Color color);
 
     ///< Returns the linear size of octree in minimal units
-    ull size() const;
+    ll size() const;
+
+    Cube getCubeFor(OctreeBase *node) const;
 };
 
 

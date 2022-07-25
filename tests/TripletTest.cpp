@@ -4,7 +4,8 @@
 
 #include "gtest/gtest.h"
 
-#include <Triplet.h>
+#include <SABT.h>
+
 #include <stdexcept>
 
 TEST(Triplet, GeneralTest) {
@@ -23,9 +24,9 @@ TEST(Triplet, GeneralTest) {
         ASSERT_EQ(tri.index(), i);
     }
 
-    for (int x = -1; x <= 1; x += 2) {
-        for (int y = -1; y <= 1; y += 2) {
-            for (int z = -1; z <= 1; z += 2) {
+    for (int x = 0; x <= 1; x++) {
+        for (int y = 0; y <= 1; y++) {
+            for (int z = 0; z <= 1; z++) {
                 tri.set(x, y, z);
 
                 ASSERT_EQ(tri.x(), x);

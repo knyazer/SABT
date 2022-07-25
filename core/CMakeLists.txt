@@ -8,4 +8,4 @@ file(GLOB SOURCES source/*)
 
 add_library(core STATIC ${SOURCES})
 
-target_include_directories(core PUBLIC include .)
+target_include_directories(core PUBLIC .)

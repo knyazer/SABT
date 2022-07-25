@@ -2,7 +2,7 @@
 // Created by knyaz on 7/2/2022.
 //
 
-#include "Angle.h"
+#include "include/Angle.h"
 
 Angle::Angle(const double radians) {
     value = radians;

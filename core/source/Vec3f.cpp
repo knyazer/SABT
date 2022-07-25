@@ -2,18 +2,25 @@
 // Created by knyaz on 6/11/2022.
 //
 
-#include "Vec3f.h"
+#include "include/Vec3f.h"
 
-Vec3f::Vec3f(double x, double y, double z) {
-    this->x = x;
-    this->y = y;
-    this->z = z;
-}
 
 Vec3f::Vec3f() {
     x = 0;
     y = 0;
     z = 0;
+}
+
+Vec3f::Vec3f(Vec3i vec) {
+    x = vec.x;
+    y = vec.y;
+    z = vec.z;
+}
+
+Vec3f::Vec3f(double x, double y, double z) {
+    this->x = x;
+    this->y = y;
+    this->z = z;
 }
 
 Vec3f Vec3f::cross(Vec3f a, Vec3f b) {

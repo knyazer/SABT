@@ -46,10 +46,14 @@ public:
         }
     }
 
-    inline double &at(size_t i, size_t j) {
+    [[nodiscard]] inline double &at(size_t i, size_t j) {
         if (i < 0 || i >= R || j < 0 || j >= C)
             throw std::runtime_error("Out of bounds of matrix.");
 
+        return data[i][j];
+    }
+
+    [[nodiscard]] inline double qat(size_t i, size_t j) const {
         return data[i][j];
     }
 

@@ -5,7 +5,7 @@
 #ifndef SABT_GJK_H
 #define SABT_GJK_H
 
-#include <Vec2f.h>
+#include "Vec2f.h"
 #include <iostream>
 
 namespace GJK {

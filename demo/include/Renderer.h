@@ -8,9 +8,11 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <cmath>
 #include <SDL2/SDL.h>
-#include <Color.h>
-#include <Rect.h>
+#include <SDL2/SDL_ttf.h>
+#include "Color.h"
+#include "Rect.h"
 
 using std::unique_ptr;
 using std::shared_ptr;
@@ -21,6 +23,9 @@ namespace graphics {
     private:
         SDL_Window* window;
         SDL_Surface* surface;
+        SDL_Renderer* renderer;
+
+        bool mousePressed, mouseUp;
 
     public:
 
@@ -28,18 +33,22 @@ namespace graphics {
             int x, y;
         };
 
-        Pos2 mouse, center;
+        Pos2 mouse, center, delta;
 
         static const size_t KEY_ARR_SIZE = 128;
         bool pressed[KEY_ARR_SIZE];
+
+        double fps;
 
         Renderer();
 
         void createWindow(const string& name, Rect rect);
 
-        void drawRect(Rect rect, Color color);
+        void drawRect(Rect rect, ColorRGB color);
 
-        void clear(Color color);
+        void clear(ColorRGB color);
+
+        void renderFPS();
 
         bool update();
 

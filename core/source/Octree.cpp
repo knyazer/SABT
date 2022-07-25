@@ -2,7 +2,7 @@
 // Created by knyaz on 6/8/2022.
 //
 
-#include <Octree.h>
+#include "include/Octree.h"
 
 Octree::Octree() {
     filling = EMPTY;
@@ -10,22 +10,28 @@ Octree::Octree() {
     children.clear();
 }
 
-Octree &Octree::getChild(Triplet tri) {
+OctreeBase *Octree::getChild(Triplet tri) {
     if (!hasChildren())
         throw std::runtime_error("Unable to access not initialized children of octree");
     return children[tri.index()];
 }
 
-void Octree::makeChildren() {
-    children = std::vector<Octree>(8);
+void Octree::makeChildren(bool makeUnit) {
+    children = std::vector<OctreeBase*>(8);
+
+    if (makeUnit) {
+        for (size_t i = 0; i < 8; i++) {
+            children[i] = new OctreeUnit();
+        }
+    } else {
+        for (size_t i = 0; i < 8; i++) {
+            children[i] = new Octree();
+        }
+    }
 
     for (size_t i = 0; i < 8; i++) {
-        children[i].fosterBy(this);
+        children[i]->fosterBy(this, i);
     }
-}
-
-void Octree::fosterBy(Octree* newParent) {
-    parent = newParent;
 }
 
 bool Octree::hasChildren() {
@@ -44,14 +50,15 @@ bool Octree::isSemi() {
     return filling == SEMI;
 }
 
-void Octree::fill() {
+void Octree::fill(Color color) {
     filling = FULL;
+    this->color = color;
 
-    if (hasChildren()) {
-        for (size_t i = 0; i < 8; i++) {
-            children[i].fill();
-        }
-    }
+    // TODO: spatial structure for each octree to store colors. Supposedly quadtree is good
+
+    if (hasChildren())
+        for (size_t i = 0; i < 8; i++)
+            children[i]->fill(color);
 }
 
 void Octree::clear() {
@@ -59,17 +66,15 @@ void Octree::clear() {
 
     if (hasChildren()) {
         for (size_t i = 0; i < 8; i++) {
-            children[i].clear();
+            children[i]->clear();
         }
     }
 }
 
 void Octree::deleteChildren() {
-    if (hasChildren()) {
-        for (size_t i = 0; i < 8; i++) {
-            children[i].deleteChildren();
-        }
-    }
+    if (hasChildren())
+        for (size_t i = 0; i < 8; i++)
+            dynamic_cast<Octree*>(children[i])->deleteChildren();
 
     children.clear();
 }
@@ -80,9 +85,18 @@ void Octree::setFilling(Filling given) {
 
 Octree Octree::copy() {
     Octree clone;
-    clone.fosterBy(parent);
+    clone.fosterBy(parent, tri);
     clone.setFilling(filling);
     clone.children = children;
 
     return clone;
+}
+
+Color Octree::getColor(int face) {
+    return color;
+}
+
+Cube Octree::getCubeForChild(const Cube &rootCube, Triplet tri) {
+    ll sz = rootCube.size / 2;
+    return {{Vec3i(tri.x(), tri.y(), tri.z()) * sz + rootCube.pos}, sz};
 }

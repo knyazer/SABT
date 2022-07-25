@@ -11,9 +11,13 @@
 #ifndef SABT_OCTREE_H
 #define SABT_OCTREE_H
 
-#include <Triplet.h>
-#include <Filling.h>
-#include <Vec3i.h>
+#include "Triplet.h"
+#include "Filling.h"
+#include "Vec3i.h"
+#include "Cube.h"
+#include "OctreeBase.h"
+#include "OctreeUnit.h"
+
 #include <memory>
 #include <cstddef>
 #include <vector>
@@ -21,41 +25,41 @@
 using std::size_t;
 
 ///< Main class for the octree administration
-class Octree : public std::enable_shared_from_this<Octree> {
+class Octree : public std::enable_shared_from_this<Octree>, public OctreeBase {
 protected:
-    std::vector<Octree> children;
+    std::vector<OctreeBase*> children;
+
+    Color color;
 
     Filling filling;
 
 public:
+
     Octree();
 
     ///< Generate new children for the current node
-    void makeChildren();
+    void makeChildren(bool makeUnit = false);
 
     ///< Get child by the given triplet
-    Octree& getChild(Triplet tri);
+    OctreeBase *getChild(Triplet tri);
 
     ///< Does the tree has any children
     bool hasChildren();
 
     ///< Is the tree empty
-    bool isEmpty();
+    bool isEmpty() override;
 
     ///< Is the tree full
-    bool isFull();
+    bool isFull() override;
 
     ///< Is the tree filled only partly
-    bool isSemi();
-
-    ///< Sets the parent of the octree
-    void fosterBy(Octree* parent);
+    bool isSemi() override;
 
     ///< Fill the octree; recursively fills (sets filling to FULL) all the children
-    void fill();
+    void fill(Color color) override;
 
     ///< Empty (or clear) the octree; recursively sets the filling to EMPTY
-    void clear();
+    void clear() override;
 
     ///< Recursively deletes all the children of the octree
     void deleteChildren();
@@ -63,9 +67,11 @@ public:
     ///< Sets the filling of the only current node. Better not to use, kept it for the backwards compatibility
     void setFilling(Filling given);
 
-    Octree copy();
+    Color getColor(int face) override;
 
-    Octree* parent;
+    static Cube getCubeForChild(const Cube &rootCube, Triplet tri);
+
+    Octree copy();
 };
 
 #endif //SABT_OCTREE_H

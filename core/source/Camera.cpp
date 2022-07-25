@@ -2,7 +2,7 @@
 // Created by knyaz on 7/1/2022.
 //
 
-#include "Camera.h"
+#include "include/Camera.h"
 
 Camera::Camera() {
     setFOV(Angle::deg(90));
@@ -16,6 +16,10 @@ void Camera::setPosition(Vec3f position) {
     posM.at(2, 3) = position.z;
 
     lazyUpdate();
+}
+
+Vec3f Camera::getPosition() {
+    return Vec3f(posM.at(0, 3), posM.at(1, 3), posM.at(2, 3));
 }
 
 void Camera::setRotationByX(Angle theta) {
@@ -75,18 +79,27 @@ void Camera::updateProjectionMatrix() {
 Vec2f Camera::project(Vec3f point) {
     doLazyUpdate();
 
-    Mat<4, 1> pointV({{point.x}, {point.y}, {point.z}, {1}});
+    /*
+     * [ a00 a01 a02 a03 ] * [ x ] = [ x * a00 + y * a01 + z * a02 + a03 ]
+     * [ a10 a11 a12 a13 ]   [ y ]   [ ...                               ]
+     * [ a20 a21 a22 a23 ]   [ z ]   [ ...                               ]
+     * [ a30 a31 a32 a33 ]   [ 1 ]   [ ...                               ]
+     *
+     *
+     *
+     */
 
-    auto res = projM * pointV;
+    double u = point.x * projM.qat(3, 0) + point.y * projM.qat(3, 1) + point.z * projM.qat(3, 2) + projM.qat(3, 3);
 
-    for (size_t i = 0; i < 3; i++)
-        res.at(i, 0) /= res.at(3, 0);
-
-    // if out of clipping space
-    if (std::abs(res.at(2, 0)) >= 1)
+    // z clip
+    if (std::abs(point.x * projM.qat(2, 0) + point.y * projM.qat(2, 1) + point.z * projM.qat(2, 2) + projM.qat(2, 3)) >= std::abs(u))
         return {42, 42};
 
-    return {res.at(0, 0), res.at(1, 0)};
+    return {
+            (point.x * projM.qat(0, 0) + point.y * projM.qat(0, 1) + point.z * projM.qat(0, 2) + projM.qat(0, 3)) / u,
+            (point.x * projM.qat(1, 0) + point.y * projM.qat(1, 1) + point.z * projM.qat(1, 2) + projM.qat(1, 3)) / u
+    };
+
 }
 
 void Camera::lazyUpdate() {
@@ -94,8 +107,10 @@ void Camera::lazyUpdate() {
 }
 
 void Camera::doLazyUpdate() {
-    updateProjectionMatrix();
-    needUpdate = false;
+    if (needUpdate) {
+        updateProjectionMatrix();
+        needUpdate = false;
+    }
 }
 
 void Camera::move(Vec3f delta) {
@@ -116,6 +131,8 @@ void Camera::rotateByX(Angle theta) {
     rot.at(2, 2) = theta.cos();
 
     xRotM = xRotM * rot;
+
+    lazyUpdate();
 }
 
 void Camera::rotateByY(Angle theta) {
@@ -128,4 +145,6 @@ void Camera::rotateByY(Angle theta) {
     rot.at(2, 2) = theta.cos();
 
     yRotM = yRotM * rot;
+
+    lazyUpdate();
 }

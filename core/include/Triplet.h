@@ -7,10 +7,11 @@
 #ifndef SABT_TRIPLET_H
 #define SABT_TRIPLET_H
 
+#include "Vec3i.h"
+
 #include <cstdint>
 #include <stdexcept>
 #include <cassert>
-#include <Vec3i.h>
 
 constexpr uint8_t X_INDEX = 0;
 constexpr uint8_t Y_INDEX = 1;
@@ -31,21 +32,22 @@ public:
     Triplet(int index) { set(index); }
     Triplet(Vec3i pos) { set(pos); }
 
-    // Such a strange construct needed to avoid excessive computation (subtraction costs a lot)
-    [[nodiscard]] inline int x() const { return ((data & X_MASK) << 1) - 1; }
-    [[nodiscard]] inline int y() const { return ((data & Y_MASK)) - 1; }
-    [[nodiscard]] inline int z() const { return ((data & Z_MASK) >> 1) - 1; }
+    [[nodiscard]] inline int x() const { return (data & X_MASK); }
+    [[nodiscard]] inline int y() const { return (data & Y_MASK) >> 1; }
+    [[nodiscard]] inline int z() const { return (data & Z_MASK) >> 2; }
+
+    [[nodiscard]] inline Vec3i vec() const { return {x(), y(), z()}; }
 
     [[nodiscard]] inline int index() const { return data & INDEX_MASK; }
 
     inline void set(int x, int y, int z) {
-        data =  ((x >= 0 ? 1 : 0) << X_INDEX) +
-                ((y >= 0 ? 1 : 0) << Y_INDEX) +
-                ((z >= 0 ? 1 : 0) << Z_INDEX);
+        data =  (x << X_INDEX) +
+                (y << Y_INDEX) +
+                (z << Z_INDEX);
     }
 
     inline void set(Vec3i pos) {
-        set(pos.x, pos.y, pos.z);
+        set(pos.x > 0 ? 1 : 0, pos.y > 0 ? 1 : 0, pos.z > 0 ? 1 : 0);
     }
 
     inline void set(int index) {
@@ -55,7 +57,7 @@ public:
     }
 
     [[nodiscard]] inline Triplet reverse() const {
-        return {-x(), -y(), -z()};
+        return {1 - x(), 1 - y(), 1 - z()};
     }
 
     Triplet(const Triplet& other) = default;
