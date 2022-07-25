@@ -26,6 +26,9 @@ public:
     // Sum vectors elementwise
     Vec3f operator+(Vec3f other);
 
+    // Sum vector with scalar - add scalar to each dimension
+    Vec3f operator+(double other);
+
     // Scale
     Vec3f operator*(double other);
 

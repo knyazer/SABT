@@ -27,4 +27,4 @@ add_executable(tests
         CameraTest.cpp
         )
 
-target_link_libraries(tests gtest_main gtest core)
+target_link_libraries(tests gtest_main gtest ccd core)
