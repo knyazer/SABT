@@ -86,7 +86,7 @@ bool graphics::Renderer::update() {
 
     auto frameTime = SDL_GetTicks() - startTime;
     // complementary filter to calculate average fps
-    avgFPS = 0.9 * (frameTime > 0 ? static_cast<double>(1000.0 / frameTime) : 0) + 0.1 * avgFPS;
+    avgFPS = 0.05 * (frameTime > 0 ? static_cast<double>(1000.0 / frameTime) : 0) + 0.95 * avgFPS;
     startTime = SDL_GetTicks();
 
     // change the drawn value infrequently
