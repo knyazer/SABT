@@ -108,14 +108,25 @@ Vec2f Camera::project(Vec3f point) {
 Vec3f Camera::restore(Vec2f point) {
     doLazyUpdate();
 
-    double Px = point.x * (fov / 2).tan();// * imageAspectRatio;
-    double Py = point.y * (fov / 2).tan();
+    // scale by fov
+    point = point * (fov / 2).tan();
 
-    Mat<4, 1> unitVector({{Px}, {Py}, {-1}, {1}});
+    /*
+     * [ z ] = [ a00 a01 a02 a03 ] * [ p.x ] - [ cam.x ]
+     * [ y ]   [ a10 a11 a12 a13 ]   [ p.y ]   [ cam.y ]
+     * [ x ]   [ a20 a21 a22 a23 ]   [ -1  ]   [ cam.z ]
+     * [ . ]   [ a30 a31 a32 a33 ]   [ 1   ]   [ 1     ]
+     */
 
-    Mat<4, 1> rayPWorld = cameraToWorld * unitVector;
-    Mat<4, 1> zeroVec = cameraToWorld * Mat<4, 1>({{0}, {0}, {0}, {1}});
-    Mat<4, 1> res = rayPWorld - zeroVec;
+    return {    cameraToWorld.qat(0, 0) * point.x + cameraToWorld.qat(0, 1) * point.y -
+                cameraToWorld.qat(0, 2) + cameraToWorld.qat(0, 3) + posM.at(0, 3),
+
+                cameraToWorld.qat(1, 0) * point.x + cameraToWorld.qat(1, 1) * point.y -
+                cameraToWorld.qat(1, 2) + cameraToWorld.qat(1, 3) + posM.at(1, 3),
+
+                cameraToWorld.qat(2, 0) * point.x + cameraToWorld.qat(2, 1) * point.y -
+                cameraToWorld.qat(2, 2) + cameraToWorld.qat(2, 3) + posM.at(2, 3)
+    };
 
     /*
      * cameraToWorld * projM = I
@@ -134,9 +145,6 @@ Vec3f Camera::restore(Vec2f point) {
      * [ xw.z ]                   [ xs.z ]
      * [ 1    ]                   [ u    ]
      */
-
-    Vec3f rayDirection = {res.at(0, 0), res.at(1, 0), res.at(2, 0)};
-    return rayDirection.norm();
 }
 
 void Camera::lazyUpdate() {
