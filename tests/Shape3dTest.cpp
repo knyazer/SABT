@@ -36,4 +36,5 @@ TEST(Shape3d, CubeVSCubeTest) {
 
     // Ignore boundary conditions mistakes - MPR returns arbitrary result on boundary
     ASSERT_TRUE(incorrect < (N / 1000));
+    std::cout << "MPR failures: " << incorrect << std::endl;
 }

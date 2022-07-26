@@ -23,5 +23,7 @@
 #include "include/Vec2f.h"
 #include "include/Vec3f.h"
 #include "include/Vec3i.h"
+#include "include/Shape3d.h"
+#include "include/Beam.h"
 
 #endif //SABT_SABT_H

@@ -12,7 +12,7 @@ using namespace graphics;
 using std::cout, std::endl;
 
 #define eps 1e-6
-constexpr double N = 80;
+constexpr double N = 32;
 constexpr double Nh = N / 2;
 
 int main(int argc, char* args[]) {
@@ -110,22 +110,14 @@ int main(int argc, char* args[]) {
                         auto *child = zipped.first.first;
                         Cube cube = zipped.first.second;
 
-                        auto *projected = new Vec2f[8];
-                        size_t pointsNumber = 0;
-                        Vec3i* vertices = cube.getVertices();
-                        for (size_t j = 0; j < 8; j++) {
-                            Vec3i &vertex = vertices[j];
-                            Vec2f proj = cam.project(Vec3f(vertex.x, vertex.y, vertex.z)); // TODO: add none project, not 42 42
-                            if (proj.x != 42 || proj.y != 42)
-                                projected[pointsNumber++] = proj;
-                        }
+                        auto beamVertices = rect.getVertices();
+                        auto *restored = new Vec3f[4];
+                        for (size_t j = 0; j < 4; j++)
+                            restored[j] = cam.restore(beamVertices[j]);
 
-                        if (pointsNumber == 0)
-                            continue;
+                        Beam beam(cam.getPosition(), restored);
 
-                        AlignedRect box(projected, pointsNumber);
-
-                        if (rect.intersects(box) && GJK::GJK(rect, Polygon(projected, pointsNumber))) {
+                        if (Shape3d::hasIntersection(&beam, &cube)) {
                             stack.push(child);
                             break;
                         }

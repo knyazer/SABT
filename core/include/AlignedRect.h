@@ -28,6 +28,8 @@ public:
     [[nodiscard]] Vec2f getFarthestPointInDirection(Vec2f direction) const override;
 
     [[nodiscard]] Vec2f mid() const;
+
+    [[nodiscard]] Vec2f* getVertices() const;
 };
 
 
