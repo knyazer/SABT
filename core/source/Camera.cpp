@@ -11,15 +11,16 @@ Camera::Camera() {
 void Camera::setPosition(Vec3f position) {
     posM = posM.I();
 
-    posM.at(0, 3) = position.x;
-    posM.at(1, 3) = position.y;
-    posM.at(2, 3) = position.z;
+    posM.at(0, 3) = -position.x;
+    posM.at(1, 3) = -position.y;
+    posM.at(2, 3) = -position.z;
+    posM.at(3, 3) = 1;
 
     lazyUpdate();
 }
 
 Vec3f Camera::getPosition() {
-    return Vec3f(posM.at(0, 3), posM.at(1, 3), posM.at(2, 3));
+    return Vec3f(-posM.at(0, 3), -posM.at(1, 3), -posM.at(2, 3));
 }
 
 void Camera::setRotationByX(Angle theta) {
@@ -73,17 +74,20 @@ void Camera::setFOV(Angle angle) {
 }
 
 void Camera::updateProjectionMatrix() {
-    projM = perspM * (xRotM * yRotM * zRotM) * posM; // First we translate the object, then rotate it abd apply perspective
+    worldToCamera = (xRotM * yRotM * zRotM) * posM;
+    worldToCamera.inverse(cameraToWorld);
+
+    projM = perspM * worldToCamera; // First we translate the object, then rotate it abd apply perspective
 }
 
 Vec2f Camera::project(Vec3f point) {
     doLazyUpdate();
 
     /*
-     * [ a00 a01 a02 a03 ] * [ x ] = [ x * a00 + y * a01 + z * a02 + a03 ]
-     * [ a10 a11 a12 a13 ]   [ y ]   [ ...                               ]
-     * [ a20 a21 a22 a23 ]   [ z ]   [ ...                               ]
-     * [ a30 a31 a32 a33 ]   [ 1 ]   [ ...                               ]
+     * [ a00 a01 a02 a03 ] * [ x ] = [ x * a00 + y * a01 + z * a02 + a03 ] = [ xt * u ]
+     * [ a10 a11 a12 a13 ]   [ y ]   [ ...                               ]   [ yt * u ]
+     * [ a20 a21 a22 a23 ]   [ z ]   [ ...                               ]   [ ..     ]
+     * [ a30 a31 a32 a33 ]   [ 1 ]   [ ...                               ]   [ u      ]
      *
      *
      *
@@ -99,7 +103,40 @@ Vec2f Camera::project(Vec3f point) {
             (point.x * projM.qat(0, 0) + point.y * projM.qat(0, 1) + point.z * projM.qat(0, 2) + projM.qat(0, 3)) / u,
             (point.x * projM.qat(1, 0) + point.y * projM.qat(1, 1) + point.z * projM.qat(1, 2) + projM.qat(1, 3)) / u
     };
+}
 
+Vec3f Camera::restore(Vec2f point) {
+    doLazyUpdate();
+
+    double Px = point.x * (fov / 2).tan();// * imageAspectRatio;
+    double Py = point.y * (fov / 2).tan();
+
+    Mat<4, 1> unitVector({{Px}, {Py}, {-1}, {1}});
+
+    Mat<4, 1> rayPWorld = cameraToWorld * unitVector;
+    Mat<4, 1> zeroVec = cameraToWorld * Mat<4, 1>({{0}, {0}, {0}, {1}});
+    Mat<4, 1> res = rayPWorld - zeroVec;
+
+    /*
+     * cameraToWorld * projM = I
+     * find vector passing through origin and point with coords xs on screen, xw in world
+     * projM * xw = xs
+     * cameraToWorld * projM * xw = cameraToWorld * xs
+     * xw = cameraToWorld * xs
+     *
+     * projM * [ xw.x ] = [ xs.x ]
+     *         [ xw.y ]   [ xs.y ]
+     *         [ xw.z ]   [ xs.z ]
+     *         [ 1    ]   [ u    ]
+     *
+     * [ xw.x ] = cameraToWorld * [ xs.x ]
+     * [ xw.y ]                   [ xs.y ]
+     * [ xw.z ]                   [ xs.z ]
+     * [ 1    ]                   [ u    ]
+     */
+
+    Vec3f rayDirection = {res.at(0, 0), res.at(1, 0), res.at(2, 0)};
+    return rayDirection.norm();
 }
 
 void Camera::lazyUpdate() {

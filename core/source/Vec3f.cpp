@@ -31,23 +31,27 @@ double Vec3f::dot(Vec3f a, Vec3f b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
-Vec3f Vec3f::operator-(Vec3f other) {
+Vec3f Vec3f::operator-(Vec3f other) const {
     return {x - other.x, y - other.y, z - other.z};
 }
 
-Vec3f Vec3f::operator*(double other) {
+Vec3f Vec3f::operator*(double other) const {
     return {x * other, y * other, z * other};
 }
 
-Vec3f Vec3f::operator+(Vec3f other) {
+Vec3f Vec3f::operator+(Vec3f other) const {
     return {x + other.x, y + other.y, z + other.z};
+}
+
+Vec3f Vec3f::operator+(double other) const {
+    return {x + other, y + other, z + other};
 }
 
 double Vec3f::size() const {
     return sqrt(x * x + y * y + z * z);
 }
 
-Vec3f Vec3f::norm() {
+Vec3f Vec3f::norm() const {
     return operator*(1 / size());
 }
 
@@ -55,8 +59,4 @@ std::ostream& operator<<(std::ostream& os, const Vec3f& val)
 {
     os << "[Vec3f](" << val.x << ", " << val.y << ", " << val.z << ")";
     return os;
-}
-
-Vec3f Vec3f::operator+(double other) {
-    return {x + other, y + other, z + other};
 }

@@ -21,22 +21,22 @@ public:
     Vec3f(double x, double y, double z);
 
     // Subtract vectors elementwise
-    Vec3f operator-(Vec3f other);
+    Vec3f operator-(Vec3f other) const;
 
     // Sum vectors elementwise
-    Vec3f operator+(Vec3f other);
+    Vec3f operator+(Vec3f other) const;
 
     // Sum vector with scalar - add scalar to each dimension
-    Vec3f operator+(double other);
+    Vec3f operator+(double other) const;
 
     // Scale
-    Vec3f operator*(double other);
+    Vec3f operator*(double other) const;
 
     // Returns size of the vector
     [[nodiscard]] double size() const;
 
     // Divides vector by its size; Normalization
-    Vec3f norm();
+    Vec3f norm() const;
 
     // Cross product of two given vectors
     static Vec3f cross(Vec3f a, Vec3f b);

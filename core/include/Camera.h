@@ -15,7 +15,7 @@
 class Camera {
 protected:
 
-    Mat<4, 4> projM, posM, xRotM, yRotM, zRotM, perspM;
+    Mat<4, 4> projM, posM, xRotM, yRotM, zRotM, perspM, worldToCamera, cameraToWorld;
     Angle fov;
 
     bool needUpdate;
@@ -41,6 +41,8 @@ public:
     void move(Vec3f delta);
 
     Vec2f project(Vec3f point);
+
+    Vec3f restore(Vec2f point);
 
     void lazyUpdate();
 

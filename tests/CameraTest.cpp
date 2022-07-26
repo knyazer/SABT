@@ -24,16 +24,19 @@ TEST(Camera, TranslationTest) {
     cam.updateProjectionMatrix();
 
     double x = static_cast<double>(rand()) / RAND_MAX, y = static_cast<double>(rand()) / RAND_MAX, z = -2;
-
     vector<Vec2f> results(N);
     Vec2f avg;
     for (size_t i = 0; i < N; i++) {
-        double dx = rand() - RAND_MAX / 2, dy = rand() - RAND_MAX / 2, dz = rand() - RAND_MAX / 2;
+        double dx = rand() % 100 - 50, dy = rand() % 100 - 50, dz = rand() % 100 - 50;
         cam.setPosition({dx, dy, dz});
         cam.updateProjectionMatrix();
 
         Vec3f point(x + dx, y + dy, z + dz);
         results[i] = cam.project(point);
+
+        EXPECT_NE(results[i].x, 42);
+        EXPECT_NE(results[i].y, 42);
+
         avg = avg + results[i];
     }
     avg = avg * (1.0 / N);
@@ -44,7 +47,7 @@ TEST(Camera, TranslationTest) {
     }
     error /= N;
 
-    ASSERT_LT(error, 10e-6);
+    ASSERT_LE(error, 1e-6);
 }
 
 TEST(Camera, OutOfBoundsTest) {
@@ -62,5 +65,63 @@ TEST(Camera, OutOfBoundsTest) {
 
         if (point.z > -3)
             EXPECT_TRUE(Vec2f(42, 42) == proj);
+    }
+}
+
+TEST(Camera, RestoreProjectSimpleCoherenceTest) {
+    Camera cam;
+
+    cam.setPosition({0, 0, 0});
+    cam.setRotationByX(Angle::deg(0));
+    cam.setRotationByY(Angle::deg(0));
+    cam.setRotationByZ(Angle::deg(0));
+    cam.setFOV(Angle::deg(77));
+    cam.updateProjectionMatrix();
+
+    for (size_t i = 0; i < N; i++) {
+        Vec3f point(rand() % 100 - 50, rand() % 100 - 50, rand() % 100 - 10);
+        Vec2f proj = cam.project(point);
+
+        if (proj.x == 42 && proj.y == 42)
+            continue;
+
+        Vec3f restored = cam.restore(proj);
+
+        EXPECT_LE((restored.norm() - point.norm()).size(), 1e-4);
+    }
+}
+
+
+TEST(Camera, RestoreProjectConsistenceCoherenceTest) {
+    Camera cam;
+
+    cam.setPosition({0, 0, 0});
+    cam.setRotationByX(Angle::deg(0));
+    cam.setRotationByY(Angle::deg(0));
+    cam.setRotationByZ(Angle::deg(0));
+    cam.setFOV(Angle::deg(80));
+    cam.updateProjectionMatrix();
+
+    double x = static_cast<double>(rand()) / RAND_MAX, y = static_cast<double>(rand()) / RAND_MAX, z = -2;
+
+    vector<Vec2f> results(N);
+    Vec2f avg;
+    for (size_t i = 0; i < N; i++) {
+        double dx = 10, dy = 0, dz = 0;
+        cam.setPosition({dx, dy, dz});
+        cam.updateProjectionMatrix();
+
+        Vec3f point(x + dx, y + dy, z + dz);
+
+        Vec2f proj = cam.project(point);
+
+        if (proj.x == 42 && proj.y == 42)
+            continue;
+
+        Vec3f restored = cam.restore(proj);
+
+        EXPECT_LE((restored.norm() - (point - cam.getPosition()).norm()).size(), 1e-6);
+
+
     }
 }
