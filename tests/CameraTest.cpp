@@ -72,23 +72,29 @@ TEST(Camera, RestoreProjectSimpleCoherenceTest) {
     Camera cam;
 
     cam.setPosition({0, 0, 0});
-    cam.setRotationByX(Angle::deg(0));
-    cam.setRotationByY(Angle::deg(0));
-    cam.setRotationByZ(Angle::deg(0));
+    cam.setRotationByX(Angle::deg(0.5));
+    cam.setRotationByY(Angle::deg(8));
+    cam.setRotationByZ(Angle::deg(2));
     cam.setFOV(Angle::deg(77));
     cam.updateProjectionMatrix();
 
+    long long unchecked = 0;
     for (size_t i = 0; i < N; i++) {
-        Vec3f point(rand() % 100 - 50, rand() % 100 - 50, rand() % 100 - 10);
+        Vec3f point(rand() % 100 - 50, rand() % 100 - 50, rand() % 100 - 90);
         Vec2f proj = cam.project(point);
 
-        if (proj.x == 42 && proj.y == 42)
+        if (proj.x == 42 && proj.y == 42) {
+            unchecked++;
             continue;
+        }
 
         Vec3f restored = cam.restore(proj);
 
         EXPECT_LE((restored.norm() - point.norm()).size(), 1e-4);
     }
+
+    if (unchecked > N / 2)
+        EXPECT_TRUE(false && "More than half of the tests were skipped. Generation problem?");
 }
 
 
@@ -96,9 +102,9 @@ TEST(Camera, RestoreProjectConsistenceCoherenceTest) {
     Camera cam;
 
     cam.setPosition({0, 0, 0});
-    cam.setRotationByX(Angle::deg(0));
-    cam.setRotationByY(Angle::deg(0));
-    cam.setRotationByZ(Angle::deg(0));
+    cam.setRotationByX(Angle::deg(3));
+    cam.setRotationByY(Angle::deg(-1));
+    cam.setRotationByZ(Angle::deg(2));
     cam.setFOV(Angle::deg(80));
     cam.updateProjectionMatrix();
 
@@ -115,13 +121,13 @@ TEST(Camera, RestoreProjectConsistenceCoherenceTest) {
 
         Vec2f proj = cam.project(point);
 
-        if (proj.x == 42 && proj.y == 42)
+        if (proj.x == 42 && proj.y == 42) {
+            EXPECT_TRUE(false && "Point should be always available. Generation problem?");
             continue;
+        }
 
         Vec3f restored = cam.restore(proj);
 
         EXPECT_LE((restored.norm() - (point - cam.getPosition()).norm()).size(), 1e-6);
-
-
     }
 }
