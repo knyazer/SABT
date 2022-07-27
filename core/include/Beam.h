@@ -12,12 +12,13 @@
 
 class Beam : public Shape3d {
 public:
-    Vec3f origin;
-    Vec3f rays[4];
+    Vec3f origin, rays[4];
+
+    Beam(Vec3f origin, Vec3f *rays);
 
     Beam();
 
-    Beam(Vec3f origin, Vec3f *rays);
+    void set(Vec3f origin, Vec3f *rays);
 
     [[nodiscard]] Vec3f getFarthestPointInDirection(Vec3f direction) const override;
 

@@ -100,6 +100,10 @@ public:
         return currentSize == 0;
     }
 
+    bool parentEmpty() {
+        return empty() && (parent.root == nullptr || parent.size == 0);
+    }
+
     void push(T value) {
         if (currentSize < 0 || currentSize >= allocated)
             throw std::out_of_range("Attempt to access not allocated memory. Problems with stack growth.");
@@ -146,7 +150,7 @@ public:
         return result;
     }
 
-    size_t size() {
+    size_t size() const {
         return currentSize;
     }
 

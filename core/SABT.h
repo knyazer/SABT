@@ -25,5 +25,7 @@
 #include "include/Vec3i.h"
 #include "include/Shape3d.h"
 #include "include/Beam.h"
+#include "include/BeamTracer.h"
+#include "include/BeamTracerRoot.h"
 
 #endif //SABT_SABT_H

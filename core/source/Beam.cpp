@@ -4,11 +4,11 @@
 
 #include "include/Beam.h"
 
-Beam::Beam() {
-
+Beam::Beam(Vec3f origin, Vec3f* rays) {
+    set(origin, rays);
 }
 
-Beam::Beam(Vec3f origin, Vec3f* rays) {
+void Beam::set(Vec3f origin, Vec3f* rays) {
     this->origin = origin;
 
     for (int i = 0; i < 4; i++)
@@ -23,8 +23,7 @@ Vec3f Beam::getFarthestPointInDirection(Vec3f direction) const {
     double maxProduct = Vec3f::dot(origin, direction);
     Vec3f res = origin;
 
-    for (size_t i = 0; i < 4; i++) { // TODO: dynamically detect thingy !imp
-        Vec3f point = rays[i];
+    for (auto point : rays) { // TODO: dynamically detect thingy !imp
         double product = Vec3f::dot(point, direction);
         if (product > maxProduct) {
             maxProduct = product;
@@ -34,3 +33,5 @@ Vec3f Beam::getFarthestPointInDirection(Vec3f direction) const {
 
     return res;
 }
+
+Beam::Beam() {}

@@ -33,6 +33,8 @@ public:
     ll size() const;
 
     Cube getCubeFor(OctreeBase *node) const;
+
+    Cube getCube() const;
 };
 
 

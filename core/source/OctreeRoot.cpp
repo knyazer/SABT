@@ -123,3 +123,7 @@ Cube OctreeRoot::getCubeFor(OctreeBase *node) const {
 
     return {pos, 1 << level};
 }
+
+Cube OctreeRoot::getCube() const {
+    return {{0, 0, 0}, size()};
+}

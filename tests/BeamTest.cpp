@@ -36,7 +36,7 @@ TEST(Beam, CameraBeamEqualityOfCubeTest) {
 
         // Beam construction part
         auto beamVertices = beamRect.getVertices();
-        auto *restored = new Vec3f[4];
+        Vec3f restored[4];
         for (size_t j = 0; j < 4; j++)
             restored[j] = cam.restore(beamVertices[j]);
 
@@ -44,7 +44,7 @@ TEST(Beam, CameraBeamEqualityOfCubeTest) {
         bool newResult = Shape3d::hasIntersection(&cube, &beam);
 
         // GJK part
-        auto *projected = new Vec2f[8];
+        Vec2f projected[8];
         size_t pointsNumber = 0;
         Vec3i *cubeVertices = cube.getVertices();
         for (size_t j = 0; j < 8; j++) {
