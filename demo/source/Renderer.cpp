@@ -14,6 +14,8 @@ graphics::Renderer::Renderer() {
     mousePressed = false;
     mouseUp = false;
 
+    debug = false;
+
     fps = 0;
 
     for (bool &i: pressed)
@@ -178,4 +180,8 @@ void graphics::Renderer::renderFPS() {
     Message_rect.h = 50;
 
     SDL_RenderCopy(renderer, Message, nullptr, &Message_rect);
+}
+
+void graphics::Renderer::enableDebugging() {
+    debug = true;
 }

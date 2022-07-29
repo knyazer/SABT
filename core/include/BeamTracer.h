@@ -24,7 +24,9 @@ class BeamTracer : public Beam {
 public:
     ConnectedStack<ID> stack;
 
-    OctreeRoot *root;
+    OctreeRoot *root{};
+
+    bool verbose{false};
 
     void attach(const BeamTracer &other);
 

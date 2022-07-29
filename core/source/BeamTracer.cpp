@@ -24,6 +24,10 @@ TracingResult BeamTracer::trace(double desiredSize) {
         if (rawNode->isFull()) {
             result.color = rawNode->getColor(0);
             result.fill = true;
+
+            if (verbose)
+                std::cout << *dynamic_cast<Octree*>(rawNode) << " is full; done\n\n\n";
+
             break;
         }
 
@@ -57,17 +61,30 @@ TracingResult BeamTracer::trace(double desiredSize) {
         std::vector<S_T> sorted;
         for (size_t i = 0; i < 8; i++) {
             OctreeBase* child = node->getChild(i);
-            if (child->isEmpty())
+
+            if (child->isEmpty()) {
+                if (verbose)
+                    std::cout << *child << " is empty, so ignore. It was at " << Triplet(i) << "\n";
+
                 continue;
+            }
 
             Cube cube = Octree::getCubeForChild(rootCube, i);
             double distance = (Vec3f(cube.pos) - origin).size();
 
             sorted.push_back({{child, cube}, distance});
+
+
+            if (verbose)
+                std::cout << *child << " is not empty, so add to the dist arr. It was at " << Triplet(i) \
+                    << ", distance from origin: " << distance << "\n";
         }
 
+        if (verbose)
+            std::cout << "Distance array size is " << sorted.size()  << "\n";
+
         std::sort(sorted.begin(), sorted.end(), [](const S_T& A, const S_T &B) {
-            return A.second < B.second;
+            return A.second > B.second;
         });
 
         for (const auto& zipped : sorted) {
@@ -75,11 +92,20 @@ TracingResult BeamTracer::trace(double desiredSize) {
             Cube cube = zipped.first.second;
 
             if (Shape3d::hasIntersection(this, &cube)) {
+
+                if (verbose)
+                    std::cout << "There is an intersection of the beam and " << *child << " so push to stack " << std::endl;
+
                 stack.push(child);
-                break;
+            } else {
+                if (verbose)
+                    std::cout << "There is NO! intersection of the beam and " << *child << " so ignore " << std::endl;
             }
         }
     }
+
+    if (verbose && stack.parentEmpty())
+        std::cout << "Stack is empty; done\n\n\n";
 
     return result;
 }

@@ -12,7 +12,7 @@ void Beam::set(Vec3f origin, Vec3f* rays) {
     this->origin = origin;
 
     for (int i = 0; i < 4; i++)
-        this->rays[i] = origin + rays[i] * 1000;
+        this->rays[i] = origin + rays[i] * 10000;
 }
 
 Vec3f Beam::getCenter() const {

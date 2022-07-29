@@ -27,9 +27,3 @@ Vec3i Vec3i::operator+(const Vec3i &other) {
 Vec3i Vec3i::operator-(const Vec3i &other) {
     return {x - other.x, y - other.y, z - other.z};
 }
-
-std::ostream& operator<<(std::ostream& os, const Vec3i& val)
-{
-    os << "[Vec3i](" << val.x << ", " << val.y << ", " << val.z << ")";
-    return os;
-}

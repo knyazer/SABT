@@ -50,7 +50,9 @@ OctreeBase *OctreeRoot::fill(Vec3i pos, unsigned level, Color color) {
         return this;
     }
 
-    filling = SEMI;
+    if (isEmpty())
+        filling = SEMI;
+
     if (!hasChildren())
         makeChildren();
 

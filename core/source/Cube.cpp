@@ -53,3 +53,8 @@ bool Cube::cubeIntersectsCube(const Cube &A, const Cube &B) {
     return false;
 }
 
+std::ostream& operator<<(std::ostream& os, const Cube& val)
+{
+    os << "[Cube](" << "pos: " << val.pos << ", size: " << val.size << ")";
+    return os;
+}

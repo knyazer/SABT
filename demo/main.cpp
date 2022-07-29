@@ -23,24 +23,48 @@ int main(int argc, char* args[]) {
     cam.setRotationByX(Angle::deg(180));
     cam.setRotationByY(Angle::deg(0));
     cam.setRotationByZ(Angle::deg(0));
-    cam.setFOV(Angle::deg(80));
+    cam.setFOV(Angle::deg(90));
 
     renderer.createWindow("SABT demo", Rect(500, 500, 800, 800));
 
     OctreeRoot world;
-    for (int i = 0; i < 14; i++)
+    for (int i = 0; i < 4; i++)
         world.grow();
-    for (int i = 8; i < 1000; i+= 8) {
-        world.fill({0, 0, 8 + i}, 2, GREEN);
-        world.fill({0, 0, 12 + i}, 2, BLUE);
-    }
 
+    world.fill({0, 0, 8}, 2, GREEN);
+    world.fill({3, 1, 2}, 1, BLUE);
+
+    renderer.enableDebugging();
+    int debugX = 0, debugY = 0;
 
     // Main render cycle
     while (renderer.update()) {
         renderer.clear(GRAY);
 
         ll perfCounterTotal = 0, perfCounterFilled = 0, filledPixels = 0;
+
+        if (renderer.debug) {
+            if (renderer.pressed['d'])
+                debugX++;
+            if (renderer.pressed['a'])
+                debugX--;
+            if (renderer.pressed['w'])
+                debugY--;
+            if (renderer.pressed['s'])
+                debugY++;
+
+            while (debugX < 0)
+                debugX += N;
+
+            while (debugX >= N)
+                debugX -= N;
+
+            while (debugY < 0)
+                debugY += N;
+
+            while (debugY >= N)
+                debugY -= N;
+        }
 
         BeamTracerRoot beamRoot;
         beamRoot.attachToRoot(&world);
@@ -60,19 +84,29 @@ int main(int argc, char* args[]) {
                     restored[j] = cam.restore(beamVertices[j]);
 
                 BeamTracer tracer;
+
+                if (renderer.debug && debugX == xi && debugY == yi)
+                    tracer.verbose = true;
+
                 tracer.set(cam.getPosition(), restored);
 
                 tracer.attach(beamRoot);
 
-                auto res = tracer.trace(0.05);
+                auto res = tracer.trace(0);
 
                 perfCounterTotal += perfCounter;
+
+                // Showing the beam
+
+                Vec2f mid = rect.min;
+                Vec2f dim = rect.max - rect.min;
+                auto tr = [](double x) {return round(x * 400 + 400);};
+
                 if (res.fill) {
-                    Vec2f mid = rect.min;
-                    Vec2f dim = rect.max - rect.min;
-                    auto tr = [](double x) {return round(x * 400 + 400);};
                     renderer.drawRect(Rect(tr(mid.x), tr(mid.y), 800 / N, 800 / N), res.color);
                 }
+                if (renderer.debug && debugX == xi && debugY == yi)
+                    renderer.drawRect(Rect(tr(mid.x + dim.x / 2) - 2.0, tr(mid.y + dim.y / 2) - 2.0, 4.0, 4.0), WHITE);
             }
         }
 

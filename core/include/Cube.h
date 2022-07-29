@@ -30,6 +30,8 @@ struct Cube : public Shape3d {
     [[nodiscard]] Vec3f getFarthestPointInDirection(Vec3f direction) const override;
 
     [[nodiscard]] static bool cubeIntersectsCube(const Cube &A, const Cube &B);
+
+    friend std::ostream& operator<<(std::ostream& os, const Cube& val);
 };
 
 

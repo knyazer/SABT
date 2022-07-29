@@ -9,7 +9,7 @@
 #include "Triplet.h"
 #include "Filling.h"
 
-const bool MAKE_UNIT = 1;
+const bool MAKE_UNIT = true;
 
 class OctreeBase {
 public:
@@ -18,6 +18,8 @@ public:
     OctreeBase *parent;
 
     OctreeBase();
+
+    [[nodiscard]] OctreeBase* getRoot() const;
 
     virtual void fosterBy(OctreeBase *node, Triplet pos);
 
@@ -32,6 +34,8 @@ public:
     virtual void fill(Color color) = 0;
 
     virtual void clear() = 0;
+
+    friend std::ostream& operator<<(std::ostream& os, const OctreeBase& val);
 };
 
 

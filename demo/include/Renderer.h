@@ -40,6 +40,8 @@ namespace graphics {
 
         double fps;
 
+        bool debug;
+
         Renderer();
 
         void createWindow(const string& name, Rect rect);
@@ -55,6 +57,8 @@ namespace graphics {
         ~Renderer();
 
         Pos2 getMouseDelta();
+
+        void enableDebugging();
     };
 }
 

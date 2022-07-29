@@ -55,8 +55,3 @@ Vec3f Vec3f::norm() const {
     return operator*(1 / size());
 }
 
-std::ostream& operator<<(std::ostream& os, const Vec3f& val)
-{
-    os << "[Vec3f](" << val.x << ", " << val.y << ", " << val.z << ")";
-    return os;
-}
