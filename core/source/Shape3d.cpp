@@ -14,7 +14,7 @@ bool Shape3d::hasIntersection(Shape3d *A, Shape3d *B) {
     ccd.center1 = Shape3d_ccd::center;
     ccd.center2 = Shape3d_ccd::center;
 
-    ccd.mpr_tolerance = 0.1;
+    ccd.mpr_tolerance = 0.0001;
     ccd.max_iterations = 10;
 
     return ccdMPRIntersect(A, B, &ccd);

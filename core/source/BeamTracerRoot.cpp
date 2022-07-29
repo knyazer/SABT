@@ -9,7 +9,7 @@ void BeamTracerRoot::attachToRoot(OctreeRoot *root) {
     this->root = root;
 }
 
-void BeamTracerRoot::setCamera(Camera *camera) {
-    this->camera = camera;
-    origin = camera->getPosition();
+void BeamTracerRoot::setCamera(Camera *other) {
+    camera = other;
+    origin = other->getPosition();
 }

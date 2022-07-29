@@ -60,6 +60,8 @@ public:
         return {1 - x(), 1 - y(), 1 - z()};
     }
 
+    friend std::ostream& operator<<(std::ostream& os, const Triplet& val);
+
     Triplet(const Triplet& other) = default;
     ~Triplet() = default;
 };
