@@ -14,6 +14,8 @@ TracingResult BeamTracer::trace(double desiredSize) {
     TracingResult result;
 
     while (!stack.parentEmpty()) {
+        result.iterations ++;
+
         auto rawNode = stack.front();
         stack.pop();
 

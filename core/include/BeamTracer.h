@@ -18,6 +18,7 @@ using ID = OctreeBase*;
 struct TracingResult {
     Color color = BLACK;
     bool fill = false;
+    long long iterations = 0;
 };
 
 class BeamTracer : public Beam {

@@ -11,8 +11,9 @@ using namespace graphics;
 
 using std::cout, std::endl;
 
+#define WIN_SIZE 960
 #define eps 1e-6
-constexpr double N = 80;
+constexpr double N = 64;
 constexpr double Nh = N / 2;
 
 int main(int argc, char* args[]) {
@@ -23,9 +24,9 @@ int main(int argc, char* args[]) {
     cam.setRotationByX(Angle::deg(180));
     cam.setRotationByY(Angle::deg(0));
     cam.setRotationByZ(Angle::deg(0));
-    cam.setFOV(Angle::deg(90));
+    cam.setFOV(Angle::deg(80));
 
-    renderer.createWindow("SABT demo", Rect(500, 500, 800, 800));
+    renderer.createWindow("SABT demo", Rect(500, 500, WIN_SIZE, WIN_SIZE));
 
     OctreeRoot world;
     for (int i = 0; i < 4; i++)
@@ -34,7 +35,7 @@ int main(int argc, char* args[]) {
     world.fill({0, 0, 8}, 2, GREEN);
     world.fill({3, 1, 2}, 1, BLUE);
 
-    renderer.enableDebugging();
+    // renderer.enableDebugging();
     int debugX = 0, debugY = 0;
 
     // Main render cycle
@@ -70,16 +71,31 @@ int main(int argc, char* args[]) {
         beamRoot.attachToRoot(&world);
         beamRoot.setCamera(&cam);
 
+        Vec2f* beamVertices = new Vec2f[4];
+        int k = 0;
+        for (int x = -1; x <= 1; x += 2)
+            for (int y = -1; y <= 1; y += 2)
+                beamVertices[k++] = Vec2f(x, y);
+
+        for (k = 0; k < 4; k++)
+            std::cout << beamVertices[k] << std::endl;
+
+        Vec3f restored[4];
+        for (size_t j = 0; j < 4; j++)
+            restored[j] = cam.restore(beamVertices[j]);
+        beamRoot.set(cam.getPosition(), restored);
+
+        beamRoot.verbose = true;
+
+        beamRoot.trace(0);
+
         for (int xi = 0; xi < N; xi++) {
             for (int yi = 0; yi < N; yi++) {
-                ll perfCounter = 0;
-
                 AlignedRect rect({static_cast<double>(xi - Nh) / Nh, static_cast<double>(yi - Nh) / Nh},
                                  {static_cast<double>((xi + 1) - Nh) / Nh, static_cast<double>((yi + 1) - Nh) / Nh });
 
 
-                auto beamVertices = rect.getVertices();
-                Vec3f restored[4];
+                beamVertices = rect.getVertices();
                 for (size_t j = 0; j < 4; j++)
                     restored[j] = cam.restore(beamVertices[j]);
 
@@ -94,21 +110,23 @@ int main(int argc, char* args[]) {
 
                 auto res = tracer.trace(0);
 
-                perfCounterTotal += perfCounter;
+                perfCounterTotal += res.iterations;
 
                 // Showing the beam
 
                 Vec2f mid = rect.min;
                 Vec2f dim = rect.max - rect.min;
-                auto tr = [](double x) {return round(x * 400 + 400);};
+                auto tr = [](double x) {return round(x * WIN_SIZE / 2 + WIN_SIZE / 2);};
 
-                if (res.fill) {
-                    renderer.drawRect(Rect(tr(mid.x), tr(mid.y), 800 / N, 800 / N), res.color);
-                }
+                if (res.fill)
+                    renderer.drawRect(Rect(tr(mid.x), tr(mid.y), WIN_SIZE / N, WIN_SIZE / N), res.color);
+
                 if (renderer.debug && debugX == xi && debugY == yi)
                     renderer.drawRect(Rect(tr(mid.x + dim.x / 2) - 2.0, tr(mid.y + dim.y / 2) - 2.0, 4.0, 4.0), WHITE);
             }
         }
+
+        std::cout << perfCounterTotal << std::endl;
 
         // position controls
         if (renderer.pressed['j'])
