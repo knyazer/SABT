@@ -1,1 +1,4 @@
 
+[submodule "libccd"]
+	path = libccd
+	url = https://github.com/knyazer/libccd.git
