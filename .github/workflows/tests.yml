@@ -28,9 +28,7 @@ jobs:
         libsdl2-dev libsdl2-2.0-0 
         
     - name: Download libccd
-      run: |
-        cd ${{github.workspace}}
-        git submodule update --remote
+      run: git submodule update --init --recursive
         
     - name: Install LLVM and Clang
       uses: KyleMayes/install-llvm-action@v1
