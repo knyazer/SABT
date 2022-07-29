@@ -17,28 +17,35 @@ TracingResult BeamTracer::trace(double desiredSize) {
         result.iterations ++;
 
         auto rawNode = stack.front();
-        stack.pop();
 
-        if (rawNode == nullptr)
+        if (rawNode.node == nullptr)
             throw std::runtime_error("Pointer to BaseOctree in call stack is nullptr");
 
+        // ignore if the node is empty
+        if (rawNode.node->isEmpty())
+            continue;
+
+        // Check for intersection
+        if (!Shape3d::hasIntersection(this, &rawNode.cube)) {
+            stack.pop();
+            continue;
+        }
+
         // if node is full - finish, returning this node
-        if (rawNode->isFull()) {
-            result.color = rawNode->getColor(0);
+        if (rawNode.node->isFull()) {
+            result.color = rawNode.node->getColor(0);
             result.fill = true;
 
             if (verbose)
-                std::cout << *dynamic_cast<Octree*>(rawNode) << " is full; done\n\n\n";
+                std::cout << *dynamic_cast<Octree*>(rawNode.node) << " is full; done\n";
 
             break;
         }
 
-        // If node is not full, it means it is not the OctreeUnit derived, so we can cast the Octree*.
-        auto node = dynamic_cast<Octree*>(rawNode);
+        stack.pop();
 
-        // ignore if the node is empty
-        if (node->isEmpty())
-            continue;
+        // If node is not full, it means it is not the OctreeUnit derived, so we can cast the Octree*.
+        auto node = dynamic_cast<Octree*>(rawNode.node);
 
         // quick adequacy test
         if (!node->hasChildren()) {
@@ -93,21 +100,16 @@ TracingResult BeamTracer::trace(double desiredSize) {
             auto *child = zipped.first.first;
             Cube cube = zipped.first.second;
 
-            if (Shape3d::hasIntersection(this, &cube)) {
-
-                if (verbose)
-                    std::cout << "There is an intersection of the beam and " << *child << " so push to stack " << std::endl;
-
-                stack.push(child);
-            } else {
-                if (verbose)
-                    std::cout << "There is NO! intersection of the beam and " << *child << " so ignore " << std::endl;
-            }
+            stack.push({child, cube});
         }
     }
 
-    if (verbose && stack.parentEmpty())
-        std::cout << "Stack is empty; done\n\n\n";
+    if (verbose) {
+        if (stack.parentEmpty())
+            std::cout << "Stack is empty; done\n\n\n";
+        else
+            std::cout << "Final stack size is " << stack.size() << "\n\n\n";
+    }
 
     return result;
 }

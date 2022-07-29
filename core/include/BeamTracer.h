@@ -13,7 +13,10 @@
 #include "Color.h"
 #include "Vec3f.h"
 
-using ID = OctreeBase*;
+struct ID {
+    OctreeBase *node;
+    Cube cube;
+};
 
 struct TracingResult {
     Color color = BLACK;

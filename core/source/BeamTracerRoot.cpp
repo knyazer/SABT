@@ -5,7 +5,7 @@
 #include "include/BeamTracerRoot.h"
 
 void BeamTracerRoot::attachToRoot(OctreeRoot *root) {
-    stack.push(root);
+    stack.push({root, root->getCube()});
     this->root = root;
 }
 

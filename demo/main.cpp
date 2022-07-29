@@ -77,15 +77,10 @@ int main(int argc, char* args[]) {
             for (int y = -1; y <= 1; y += 2)
                 beamVertices[k++] = Vec2f(x, y);
 
-        for (k = 0; k < 4; k++)
-            std::cout << beamVertices[k] << std::endl;
-
         Vec3f restored[4];
         for (size_t j = 0; j < 4; j++)
             restored[j] = cam.restore(beamVertices[j]);
         beamRoot.set(cam.getPosition(), restored);
-
-        beamRoot.verbose = true;
 
         beamRoot.trace(0);
 
