@@ -29,6 +29,7 @@ jobs:
         
     - name: Download libccd
       run: |
+        cd ${{github.workspace}}
         git submodule update --remote
         
     - name: Install LLVM and Clang
