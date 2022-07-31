@@ -1,9 +1,7 @@
 //
 // Created by knyaz on 7/1/2022.
 //
-// Matrix class, any matrix size supported, though only for doubles.
-// Interesting fact - operations with wrong matrix shapes produce runtime errors,
-// not a compilation time errors, because it is simpler to test them and/or ignore them.
+
 //
 
 #ifndef SABT_MAT_H
@@ -13,6 +11,12 @@
 #include <stdexcept>
 #include <iostream>
 
+/*
+ * Matrix class, any matrix size supported, though only for doubles.
+ * Interesting fact - operations with wrong matrix shapes produce runtime errors,
+ * not a compilation time errors, because it is simpler to test them and/or ignore them.
+ * All the operations are kind of obvious.
+ */
 template<size_t R, size_t C>
 class Mat {
 private:
@@ -46,6 +50,7 @@ public:
         }
     }
 
+    // Access a particular index in matrix
     [[nodiscard]] inline double &at(size_t i, size_t j) {
         if (i < 0 || i >= R || j < 0 || j >= C)
             throw std::runtime_error("Out of bounds of matrix.");
@@ -53,6 +58,7 @@ public:
         return data[i][j];
     }
 
+    // Access a particular index without any checks and in read only mode
     [[nodiscard]] inline double qat(size_t i, size_t j) const {
         return data[i][j];
     }
@@ -154,7 +160,8 @@ public:
         return data[i >> 2][i & 0b11];
     }
 
-    // Generate & return the inverse of given matrix
+    // Generate & return the inverse of given matrix super quickly. As needed only for 4x4 matrices,
+    // no other shapes are allowed
     bool inverse(Mat<R, C> &invOut) {
         if (R != C)
             throw std::runtime_error("Cannot take inverse of the matrix with rows != columns");

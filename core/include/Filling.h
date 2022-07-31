@@ -7,9 +7,9 @@
 #define SABT_FILLING_H
 
 enum Filling {
-    FULL,
-    SEMI,
-    EMPTY
+    FULL, // Means that node has no EMPTY or SEMI children inside it
+    EMPTY, // Means that all the children are EMPTY
+    SEMI, // All other configurations
 };
 
 #endif //SABT_FILLING_H

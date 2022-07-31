@@ -9,6 +9,13 @@
 
 #include <stdexcept>
 
+
+/*
+ * Base class for all 2-dimensional convex shapes
+ *
+ * Consists of one pure virtual function, which give the farthest point in a given direction.
+ * That function is used in GJK support functions.
+ */
 class Shape2d {
 public:
     [[nodiscard]] virtual Vec2f getFarthestPointInDirection(Vec2f direction) const = 0;

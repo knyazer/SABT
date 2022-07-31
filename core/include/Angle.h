@@ -6,7 +6,9 @@
 #define SABT_ANGLE_H
 
 #include <cmath>
-
+/*
+ * Angle with automatic radians-degrees conversion and angle-save maths.
+ */
 class Angle {
 protected:
 
