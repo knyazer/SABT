@@ -24,7 +24,7 @@ public:
     [[nodiscard]] virtual Vec3f getCenter() const = 0;
 
     /*
-     * Finds the instersection between two given pointers to Shape3d using the libccd MPR.
+     * Finds the intersection between two given pointers to Shape3d using the libccd MPR.
      */
     [[nodiscard]] static bool hasIntersection(Shape3d *A, Shape3d *B);
 };
