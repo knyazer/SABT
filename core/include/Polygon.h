@@ -11,7 +11,8 @@
 #include <vector>
 #include <cstdint>
 
-/* Polygon in 2 dimensions
+/**
+ * Polygon in 2 dimensions
  *
  * Represented as a vector of Vec2f-s, which are vertices in an arbitrary order.
  * Able to work with GJK, as overrides getFarthestPointInDirection from Shape2d
@@ -21,13 +22,13 @@ class Polygon : public Shape2d {
 public:
     std::vector<Vec2f> vertices;
 
-    // Init with a vector of new vertices
+    /// Init with a vector of new vertices
     explicit Polygon(std::vector<Vec2f> newVertices);
 
-    // Init with a pure C-style array of new vertices
+    /// Init with a pure C-style array of new vertices
     explicit Polygon(Vec2f *arr, size_t size);
 
-    // GJK support function
+    /// GJK support function
     [[nodiscard]] Vec2f getFarthestPointInDirection(Vec2f direction) const override;
 };
 

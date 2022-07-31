@@ -11,7 +11,7 @@
 
 const bool MAKE_UNIT = true;
 
-/*
+/**
  * Base class for all octree-related classes. Allows polymorphism.
  *
  * Consists of triplet, which stores the location relative to the top level node and parent pointer,
@@ -22,18 +22,18 @@ const bool MAKE_UNIT = true;
  */
 class OctreeBase {
 public:
-    // Stores the location relative to the parent node
+    /// Stores the location relative to the parent node
     Triplet tri;
 
-    // Pointer to the parent of the current node. By default, equals to nullptr.
+    /// Pointer to the parent of the current node. By default, equals to nullptr.
     OctreeBase *parent;
 
     OctreeBase();
 
-    // Return the topmost element in the octree. Moves upwards until parent pointer is not nullptr.
+    /// Return the topmost element in the octree. Moves upwards until parent pointer is not nullptr.
     [[nodiscard]] OctreeBase* getRoot() const;
 
-    // Set the parent, and this node location relative to it
+    /// Set the parent, and this node location relative to it
     virtual void fosterBy(OctreeBase *node, Triplet pos);
 
     virtual Color getColor(int faceIndex) = 0;

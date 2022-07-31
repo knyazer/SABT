@@ -13,7 +13,7 @@
 
 #define INITIAL_SIZE 10
 #define GROWTH_FACTOR 1.5
-/*
+/**
  * The template which allows construction of connected stack with any parameter.
  * Connected stack generally acts similar to the usual stack, but with a few key differences.
  * First of all, you can connect it to other (parent) stack. It means that after "pop()" the pointer will continue to move
@@ -38,7 +38,7 @@ private:
             size = other.size;
         }
 
-        // Moves the pointer upwards
+        /// Moves the pointer upwards
         void step() {
             size--;
 
@@ -94,7 +94,7 @@ public:
         parent = StackPointer(stack.parent);
     }
 
-    // Connect the stack to some place at other one
+    /// Connect the stack to some place at other one
     void connect(std::shared_ptr<ConnectedStack<T>> root, size_t ptr) {
         if (root->empty())
             throw std::runtime_error("Not allowed connect one stack to other empty stack - bad practice.");

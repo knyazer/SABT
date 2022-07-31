@@ -2,8 +2,6 @@
 // Created by knyaz on 7/1/2022.
 //
 
-//
-
 #ifndef SABT_MAT_H
 #define SABT_MAT_H
 
@@ -11,7 +9,7 @@
 #include <stdexcept>
 #include <iostream>
 
-/*
+/**
  * Matrix class, any matrix size supported, though only for doubles.
  * Interesting fact - operations with wrong matrix shapes produce runtime errors,
  * not a compilation time errors, because it is simpler to test them and/or ignore them.
@@ -50,7 +48,7 @@ public:
         }
     }
 
-    // Access a particular index in matrix
+    //// Access a particular index in matrix
     [[nodiscard]] inline double &at(size_t i, size_t j) {
         if (i < 0 || i >= R || j < 0 || j >= C)
             throw std::runtime_error("Out of bounds of matrix.");
@@ -58,12 +56,12 @@ public:
         return data[i][j];
     }
 
-    // Access a particular index without any checks and in read only mode
+    /// Access a particular index without any checks and in read only mode
     [[nodiscard]] inline double qat(size_t i, size_t j) const {
         return data[i][j];
     }
 
-    // The correct matrix operation - sum with matrix of same dimensions
+    /// The correct matrix operation - sum with matrix of same dimensions
     Mat<R, C> operator+(Mat<R, C> other) {
         Mat<R, C> res;
         for (size_t i = 0; i < R; i++) {
@@ -75,7 +73,7 @@ public:
         return res;
     }
 
-    // The correct matrix operation - sum with scalar (bad but alright)
+    /// The correct matrix operation - sum with scalar (bad but alright)
     template<typename T>
     Mat<R, C> operator+(T other) {
         Mat<R, C> res;
@@ -88,13 +86,13 @@ public:
         return res;
     }
 
-    // The overload of all other matrix sizes - instantly throw an error
+    /// The overload of all other matrix sizes - instantly throw an error
     template<size_t oR, size_t oC>
     Mat operator+(Mat<oR, oC> other) {
         throw std::runtime_error("Matrices to be add should be exactly the same size.");
     }
 
-    // The correct matrix operation - subtraction with matrix of same dimensions
+    /// The correct matrix operation - subtraction with matrix of same dimensions
     Mat<R, C> operator-(Mat<R, C> other) {
         Mat<R, C> res;
         for (size_t i = 0; i < R; i++) {
@@ -106,7 +104,7 @@ public:
         return res;
     }
 
-    // The correct matrix operation - subtraction with scalar (bad but alright)
+    /// The correct matrix operation - subtraction with scalar (bad but alright)
     template<typename T>
     Mat<R, C> operator-(T other) {
         Mat<R, C> res;
@@ -119,14 +117,14 @@ public:
         return res;
     }
 
-    // The overload of all other matrix sizes - instantly throw an error
+    /// The overload of all other matrix sizes - instantly throw an error
     template<size_t oW, size_t oH>
     Mat operator-(Mat<oW, oH> other) {
         throw std::runtime_error("Matrices to be subtracted should be exactly the same size.");
     }
 
-    // The correct operation - number of columns of A equals to number of rows of B
-    // RxC * CxN = RxN
+    /// The correct operation - number of columns of A equals to number of rows of B
+    /// RxC * CxN = RxN
     template<size_t N>
     Mat<R, N> operator*(Mat<C, N> other) {
         Mat<R, N> result;
@@ -144,7 +142,7 @@ public:
         return result;
     }
 
-    // Overload of a wrong shapes operation
+    /// Overload of a wrong shapes operation
     template<size_t M, size_t N>
     Mat operator*(Mat<M, N> other) {
         throw std::runtime_error(
@@ -152,7 +150,7 @@ public:
                 "matrix multiplication failed.");
     }
 
-    // Get access to data in a row
+    /// Get access to data in a row
     double &operator[](size_t i) {
         if (i >= R * C)
             throw std::runtime_error("Attempt to access value out of matrix bounds using [].");
@@ -160,8 +158,8 @@ public:
         return data[i >> 2][i & 0b11];
     }
 
-    // Generate & return the inverse of given matrix super quickly. As needed only for 4x4 matrices,
-    // no other shapes are allowed
+    /// Generate & return the inverse of given matrix super quickly. As needed only for 4x4 matrices,
+    /// no other shapes are allowed
     bool inverse(Mat<R, C> &invOut) {
         if (R != C)
             throw std::runtime_error("Cannot take inverse of the matrix with rows != columns");
@@ -305,7 +303,7 @@ public:
         return true;
     }
 
-    // Equality of matrices is not the great way to compare them, but is quickest to use
+    /// Equality of matrices is not the great way to compare them, but is quickest to use
     bool operator==(Mat<R, C> other) {
         for (size_t i = 0; i < R; i++) {
             for (size_t j = 0; j < C; j++) {
@@ -323,7 +321,7 @@ public:
         return false;
     }
 
-    // Identity matrix builder
+    /// Identity matrix builder
     Mat<R, C> I() {
         if (R != C) {
             throw std::runtime_error("Cannot build not squared identity matrix.");

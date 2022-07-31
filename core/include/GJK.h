@@ -8,7 +8,7 @@
 #include "Vec2f.h"
 #include <iostream>
 
-/*
+/**
  * Namespace provides a bunch of functions which are needed for 2-dimensional convex intersection check.
  * The main one is GJK::GJK, which is checking whether there is an intersection. Code taken from my repo,
  * https://github.com/knyazer/RSS/blob/master/engine/include/core/GJK.hpp
@@ -17,13 +17,13 @@ namespace GJK {
 
     const int ITERATIONS_LIMIT = 10;
 
-    // Return minkowski difference of passed shapes in a particular direction
+    /// Return minkowski difference of passed shapes in a particular direction
     template<typename T1, typename T2>
     [[nodiscard]] Vec2f support(T1 A, T2 B, Vec2f direction)  {
         return A.getFarthestPointInDirection(direction) - B.getFarthestPointInDirection(direction.negate());
     }
 
-    // Checks whether 2 arbitrary convex shapes intersect
+    /// Checks whether 2 arbitrary convex shapes intersect
     template<typename T1, typename T2>
     [[nodiscard]] bool GJK(T1 A, T2 B, Vec2f d = {0.9338, -0.2333})  {
         size_t index = 0; // index of current vertex of simplex
