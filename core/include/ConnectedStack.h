@@ -23,9 +23,9 @@
  */
 template<typename T>
 class ConnectedStack {
-private:
+protected:
     struct StackPointer {
-        std::shared_ptr<ConnectedStack<T>> root;
+        ConnectedStack<T> *root;
         size_t size;
 
         StackPointer() {
@@ -60,26 +60,28 @@ private:
 
     StackPointer parent;
 
-    std::unique_ptr<T[]> data;
+    T *data;
     size_t allocated;
     size_t currentSize;
 
     void grow() {
         // Setup new array
         size_t newSize = (allocated * GROWTH_FACTOR) + 1;
-        std::unique_ptr<T[]> newData = std::make_unique<T[]>(newSize);
+        T *newData = new T[newSize];
 
         // Copy data
-        std::copy(data.get(), data.get() + allocated, newData.get());
+        std::copy(data, data + allocated, newData);
 
         // Reassign values
         data = std::move(newData);
         allocated = newSize;
+
+        delete data;
     }
 
 public:
     ConnectedStack() {
-        data = std::make_unique<T[]>(INITIAL_SIZE);
+        data = new T[INITIAL_SIZE];
         allocated = INITIAL_SIZE;
         currentSize = 0;
     }
@@ -88,19 +90,32 @@ public:
         allocated = stack.allocated;
         currentSize = stack.currentSize;
 
-        data = std::make_unique<T[]>(allocated);
-        std::copy(stack.data.get(), stack.data.get() + currentSize, data.get());
+        data = new T[allocated];
+        std::copy(stack.data, stack.data.get() + currentSize, data);
 
         parent = StackPointer(stack.parent);
     }
 
     /// Connect the stack to some place at other one
-    void connect(std::shared_ptr<ConnectedStack<T>> root, size_t ptr) {
+    void connect(ConnectedStack<T> *root, size_t ptr) {
         if (root->empty())
             throw std::runtime_error("Not allowed connect one stack to other empty stack - bad practice.");
+        else {
+            parent.root = root;
+            parent.size = ptr + 1;
+        }
+    }
 
-        parent.root = root;
-        parent.size = ptr + 1;
+    void connectToEnd(ConnectedStack<T> *root) {
+        if (root->size() == 0) {
+            if (root->parent.size == 0)
+                throw std::runtime_error("Fully empty stack, not allowed to connect.");
+
+            parent.root = root->parent.root;
+            parent.size = root->parent.size;
+        }
+        else
+            connect(root, root->size() - 1);
     }
 
     bool empty() {
@@ -165,6 +180,10 @@ public:
         os << "parent: " << stack.parent << " currentSize: " << stack.currentSize
            << " allocated: " << stack.allocated;
         return os;
+    }
+
+    ~ConnectedStack() {
+        delete data;
     }
 };
 

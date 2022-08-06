@@ -46,11 +46,14 @@ bool Cube::contain(Vec3i point) const {
 
 bool Cube::cubeIntersectsCube(const Cube &A, const Cube &B) {
     Vec3i *verticesOfA = A.getVertices(), *verticesOfB = B.getVertices();
+    bool res = false;
     for (size_t i = 0; i < 8; i++)
         if (B.contain(verticesOfA[i]) || A.contain(verticesOfB[i]))
-            return true;
+            res = true;
 
-    return false;
+    delete verticesOfA, verticesOfB;
+
+    return res;
 }
 
 std::ostream& operator<<(std::ostream& os, const Cube& val)

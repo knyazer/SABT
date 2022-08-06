@@ -90,7 +90,7 @@ int main(int argc, char *args[]) {
 
             if (res.fill) {
                 if (beam->stack.parentEmpty() || beam->rect.width() <= 2.0 / N)
-                    renderer.drawRect(Rect(tr1(beam->rect.mid().x), tr1(beam->rect.mid().y), WIN_SIZE / N, WIN_SIZE / N), res.color);
+                    renderer.drawRect(Rect(tr1(beam->rect.mid().x), tr1(beam->rect.mid().y), tr2(beam->rect.width()), tr2(beam->rect.height())), res.color);
                 else {
                     beam->makeChildren();
 
@@ -99,49 +99,6 @@ int main(int argc, char *args[]) {
                 }
             }
         }
-
-
-        /*
-
-        Vec2f* beamVertices = new Vec2f[4];
-        Vec3f restored[4];
-
-        for (int xi = 0; xi < N; xi++) {
-            for (int yi = 0; yi < N; yi++) {
-                AlignedRect rect({static_cast<double>(xi - Nh) / Nh, static_cast<double>(yi - Nh) / Nh},
-                                 {static_cast<double>((xi + 1) - Nh) / Nh, static_cast<double>((yi + 1) - Nh) / Nh });
-
-
-                beamVertices = rect.getVertices();
-                for (size_t j = 0; j < 4; j++)
-                    restored[j] = cam.restore(beamVertices[j]);
-
-                BeamTracer tracer;
-
-                if (renderer.debug && debugX == xi && debugY == yi)
-                    tracer.verbose = true;
-
-                tracer.set(cam.getPosition(), restored);
-
-                tracer.attach(beamRoot);
-
-                auto res = tracer.trace(0);
-
-                perfCounterTotal += res.iterations;
-
-                // Showing the beam
-
-                Vec2f mid = rect.min;
-                Vec2f dim = rect.max - rect.min;
-
-                if (res.fill)
-                    renderer.drawRect(Rect(tr(mid.x), tr(mid.y), WIN_SIZE / N, WIN_SIZE / N), res.color);
-
-                if (renderer.debug && debugX == xi && debugY == yi)
-                    renderer.drawRect(Rect(tr(mid.x + dim.x / 2) - 2.0, tr(mid.y + dim.y / 2) - 2.0, 4.0, 4.0), WHITE);
-            }
-        }
-        */
 
         std::cout << perfCounterTotal << std::endl;
 

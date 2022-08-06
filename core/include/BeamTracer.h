@@ -66,7 +66,7 @@ public:
 
     /// Connects current stack to the stack of other beam tracer,
     /// syncs the params of the root
-    void attach(const BeamTracer &other);
+    void attach(BeamTracer &other);
 
     /// Same as top one, but with pointer to the parent
     void attach(BeamTracer *other);
@@ -77,6 +77,8 @@ public:
     [[nodiscard]] TracingResult trace(double desiredSize);
 
     void update();
+
+    ~BeamTracer();
 };
 
 

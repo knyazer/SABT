@@ -77,6 +77,8 @@ public:
 
     /// Copies the current octree
     Octree copy();
+
+    ~Octree();
 };
 
 #endif //SABT_OCTREE_H

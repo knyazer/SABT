@@ -4,13 +4,13 @@
 
 #include "include/BeamTracer.h"
 
-void BeamTracer::attach(const BeamTracer &other) {
-    stack.connectToEnd(std::make_shared<ConnectedStack<ID>>(other.stack));
+void BeamTracer::attach(BeamTracer &other) {
+    stack.connectToEnd(&other.stack);
     params = other.params;
 }
 
 void BeamTracer::attach(BeamTracer *other) {
-    stack.connectToEnd(std::make_shared<ConnectedStack<ID>>(other->stack));
+    stack.connectToEnd(&other->stack);
     params = other->params;
 }
 
@@ -145,10 +145,16 @@ void BeamTracer::update() {
     if (children != nullptr)
         for (size_t i = 0; i < 4; i++)
             children[i].update();
+
+    delete beamVertices;
 }
 
 void BeamTracer::construct(const AlignedRect& newRect) {
     this->rect = newRect;
 
     update();
+}
+
+BeamTracer::~BeamTracer() {
+    delete[] children;
 }

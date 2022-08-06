@@ -102,8 +102,6 @@ bool graphics::Renderer::update() {
 
     // delay
     SDL_RenderPresent(renderer);
-    SDL_Delay(15);
-
 
     // mouse
     SDL_PumpEvents();
@@ -180,6 +178,8 @@ void graphics::Renderer::renderFPS() {
     Message_rect.h = 50;
 
     SDL_RenderCopy(renderer, Message, nullptr, &Message_rect);
+    SDL_DestroyTexture(Message);
+    SDL_FreeSurface(surfaceMessage);
 }
 
 void graphics::Renderer::enableDebugging() {

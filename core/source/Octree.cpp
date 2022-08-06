@@ -100,3 +100,10 @@ Cube Octree::getCubeForChild(const Cube &rootCube, Triplet tri) {
     ll sz = rootCube.size / 2;
     return {{Vec3i(tri.x(), tri.y(), tri.z()) * sz + rootCube.pos}, sz};
 }
+
+Octree::~Octree() {
+    for (auto &child : children)
+        delete child;
+
+    children.clear();
+}
