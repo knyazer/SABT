@@ -31,3 +31,8 @@ std::ostream &operator<<(std::ostream &os, const Triplet &val) {
     os << "[Triplet](" << val.x() << ", " << val.y() << ", " << val.z() << ")";
     return os;
 }
+
+std::ostream &operator<<(std::ostream &os, const Biplet &val) {
+    os << "[Biplet](" << val.x() << ", " << val.y() << ")";
+    return os;
+}

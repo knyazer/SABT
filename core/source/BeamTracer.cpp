@@ -5,9 +5,13 @@
 #include "include/BeamTracer.h"
 
 void BeamTracer::attach(const BeamTracer &other) {
-    stack.connect(std::make_shared<ConnectedStack<ID>>(other.stack), other.stack.size() - 1);
-    root = other.root;
-    origin = other.origin;
+    stack.connectToEnd(std::make_shared<ConnectedStack<ID>>(other.stack));
+    params = other.params;
+}
+
+void BeamTracer::attach(BeamTracer *other) {
+    stack.connectToEnd(std::make_shared<ConnectedStack<ID>>(other->stack));
+    params = other->params;
 }
 
 TracingResult BeamTracer::trace(double desiredSize) {
@@ -45,7 +49,7 @@ TracingResult BeamTracer::trace(double desiredSize) {
         stack.pop();
 
         // If node is not full, it means it is not the OctreeUnit derived, so we can cast the Octree*.
-        auto node = dynamic_cast<Octree*>(rawNode.node);
+        Octree *node = dynamic_cast<Octree*>(rawNode.node);
 
         // quick adequacy test
         if (!node->hasChildren()) {
@@ -54,7 +58,10 @@ TracingResult BeamTracer::trace(double desiredSize) {
 
         // if node is semi - continue iteration, push all the children sorted by the distance to node
         // for each node check that it intersects with current beam (thick ray), and if so - push it to stack
-        Cube rootCube = root->getCubeFor(node);
+        if (params == nullptr)
+            throw std::runtime_error("Params cannot be nullptr, they should have been transferred from parent BeamTracer");
+
+        Cube rootCube = params->root->getCubeFor(node);
 
         // check whether the cube is LE than desired, if so - finish
         double distanceToCube = (rootCube.getCenter() - origin).size();
@@ -112,4 +119,36 @@ TracingResult BeamTracer::trace(double desiredSize) {
     }
 
     return result;
+}
+
+void BeamTracer::makeChildren() {
+    children = new BeamTracer[4];
+    Vec2f center = rect.mid();
+
+    for (size_t i = 0; i < 4; i++) {
+        AlignedRect childRect(rect[Biplet(i)], center);
+
+        children[i].attach(this);
+        children[i].construct(childRect);
+    }
+}
+
+void BeamTracer::update() {
+    Vec2f* beamVertices = rect.getVertices();
+    Vec3f restored[4];
+
+    for (size_t j = 0; j < 4; j++)
+        restored[j] = params->camera->restore(beamVertices[j]);
+
+    set(params->camera->getPosition(), restored);
+
+    if (children != nullptr)
+        for (size_t i = 0; i < 4; i++)
+            children[i].update();
+}
+
+void BeamTracer::construct(const AlignedRect& newRect) {
+    this->rect = newRect;
+
+    update();
 }

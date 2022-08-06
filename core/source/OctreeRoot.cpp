@@ -105,6 +105,9 @@ ll OctreeRoot::size() const {
 }
 
 Cube OctreeRoot::getCubeFor(OctreeBase *node) const {
+    if (this == (OctreeRoot*)(node))
+        return getCube();
+
     ll level = logSize;
 
     OctreeBase *ptr = node;

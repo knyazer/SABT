@@ -4,9 +4,9 @@
 
 #include "include/AlignedRect.h"
 
-AlignedRect::AlignedRect(Vec2f newMin, Vec2f newMax) {
-    min = newMin;
-    max = newMax;
+AlignedRect::AlignedRect(Vec2f A, Vec2f B) {
+    min = {std::min(A.x, B.x), std::min(A.y, B.y)};
+    max = {std::max(A.x, B.x), std::max(A.y, B.y)};
 }
 
 bool AlignedRect::contains(Vec2f other) const {
@@ -86,4 +86,16 @@ Vec2f *AlignedRect::getVertices() const {
     vertices[3] = {max.x, min.y};
 
     return vertices;
+}
+
+Vec2f AlignedRect::operator[](Biplet index) {
+    return {index.x() ? min.x : max.x, index.y() ? min.y : max.y};
+}
+
+double AlignedRect::width() const {
+    return max.x - min.x;
+}
+
+double AlignedRect::height() const {
+    return max.y - min.y;
 }

@@ -8,6 +8,7 @@
 #include "Vec2f.h"
 #include "Shape2d.h"
 #include "Polygon.h"
+#include "Biplet.h"
 
 #include <vector>
 
@@ -21,7 +22,9 @@ public:
     /// These vectors contain coordinates of the minx,miny maxx,maxy corners of the rect.
     Vec2f min, max;
 
-    AlignedRect(Vec2f min, Vec2f max);
+    AlignedRect() = default;
+
+    AlignedRect(Vec2f A, Vec2f B);
 
     /// Initialize as a bounding box for the set of points
     AlignedRect(std::vector<Vec2f> vertices);
@@ -43,6 +46,13 @@ public:
 
     /// Returns all the 4 vertices in an arbitrary order
     [[nodiscard]] Vec2f* getVertices() const;
+
+    [[nodiscard]] double width() const;
+
+    [[nodiscard]] double height() const;
+
+    /// Access the vertices using Biplet
+    Vec2f operator[](Biplet index);
 };
 
 

@@ -13,10 +13,10 @@ using std::cout, std::endl;
 
 #define WIN_SIZE 960
 #define eps 1e-6
-constexpr double N = 64;
+constexpr double N = 256;
 constexpr double Nh = N / 2;
 
-int main(int argc, char* args[]) {
+int main(int argc, char *args[]) {
     Renderer renderer;
 
     Camera cam;
@@ -34,6 +34,8 @@ int main(int argc, char* args[]) {
 
     world.fill({0, 0, 8}, 2, GREEN);
     world.fill({3, 1, 2}, 1, BLUE);
+
+    WorldParams *params = new WorldParams(&world, &cam);
 
     // renderer.enableDebugging();
     int debugX = 0, debugY = 0;
@@ -67,22 +69,42 @@ int main(int argc, char* args[]) {
                 debugY -= N;
         }
 
-        BeamTracerRoot beamRoot;
-        beamRoot.attachToRoot(&world);
-        beamRoot.setCamera(&cam);
+        BeamTracerRoot beamController;
+        beamController.setup(params);
+
+        std::stack<BeamTracer *> beams;
+        beams.push(&beamController);
+
+        auto tr1 = [](double x) {return round(x * WIN_SIZE / 2 + WIN_SIZE / 2);};
+        auto tr2 = [](double x) {return round(x * WIN_SIZE / 2);};
+
+        while (!beams.empty()) {
+            BeamTracer* beam = beams.top();
+            beams.pop();
+
+            if (beam == nullptr)
+                throw std::runtime_error("Nullptr beam in stack encountered. Abort");
+
+            auto res = beam->trace(0);
+            perfCounterTotal += res.iterations;
+
+            if (res.fill) {
+                if (beam->stack.parentEmpty() || beam->rect.width() <= 2.0 / N)
+                    renderer.drawRect(Rect(tr1(beam->rect.mid().x), tr1(beam->rect.mid().y), WIN_SIZE / N, WIN_SIZE / N), res.color);
+                else {
+                    beam->makeChildren();
+
+                    for (size_t i = 0; i < 4; i++)
+                        beams.push(&beam->children[i]);
+                }
+            }
+        }
+
+
+        /*
 
         Vec2f* beamVertices = new Vec2f[4];
-        int k = 0;
-        for (int x = -1; x <= 1; x += 2)
-            for (int y = -1; y <= 1; y += 2)
-                beamVertices[k++] = Vec2f(x, y);
-
         Vec3f restored[4];
-        for (size_t j = 0; j < 4; j++)
-            restored[j] = cam.restore(beamVertices[j]);
-        beamRoot.set(cam.getPosition(), restored);
-
-        beamRoot.trace(0);
 
         for (int xi = 0; xi < N; xi++) {
             for (int yi = 0; yi < N; yi++) {
@@ -111,7 +133,6 @@ int main(int argc, char* args[]) {
 
                 Vec2f mid = rect.min;
                 Vec2f dim = rect.max - rect.min;
-                auto tr = [](double x) {return round(x * WIN_SIZE / 2 + WIN_SIZE / 2);};
 
                 if (res.fill)
                     renderer.drawRect(Rect(tr(mid.x), tr(mid.y), WIN_SIZE / N, WIN_SIZE / N), res.color);
@@ -120,6 +141,7 @@ int main(int argc, char* args[]) {
                     renderer.drawRect(Rect(tr(mid.x + dim.x / 2) - 2.0, tr(mid.y + dim.y / 2) - 2.0, 4.0, 4.0), WHITE);
             }
         }
+        */
 
         std::cout << perfCounterTotal << std::endl;
 

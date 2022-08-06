@@ -27,5 +27,7 @@
 #include "include/Beam.h"
 #include "include/BeamTracer.h"
 #include "include/BeamTracerRoot.h"
+#include "include/Biplet.h"
+#include "include/WorldParams.h"
 
 #endif //SABT_SABT_H

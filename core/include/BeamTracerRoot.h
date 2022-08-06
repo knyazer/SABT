@@ -8,6 +8,7 @@
 #include "BeamTracer.h"
 #include "Camera.h"
 #include "OctreeRoot.h"
+#include "WorldParams.h"
 
 /**
  * The root of all beam tracers.
@@ -15,14 +16,11 @@
  */
 class BeamTracerRoot : public BeamTracer {
 public:
-    Camera *camera{};
+    BeamTracerRoot();
 
     /// Has a specific function, which allows to attach itself directly to octree,
-    /// not to the another BeamTracer
-    void attachToRoot(OctreeRoot* root);
-
-    /// Just setter for the camera
-    void setCamera(Camera *camera);
+    /// not to another BeamTracer
+    void setup(WorldParams *params);
 };
 
 
