@@ -11,16 +11,6 @@
 #include <stdexcept>
 #include <cassert>
 
-constexpr uint8_t X_INDEX = 0;
-constexpr uint8_t Y_INDEX = 1;
-constexpr uint8_t Z_INDEX = 2;
-
-constexpr uint8_t X_MASK = (1 << X_INDEX);
-constexpr uint8_t Y_MASK = (1 << Y_INDEX);
-constexpr uint8_t Z_MASK = (1 << Z_INDEX);
-
-constexpr uint8_t INDEX_MASK = X_MASK + Y_MASK + Z_MASK;
-
 /**
  * Triplet is an intermediate representation of indices in octrees.
  * Allows to transform coordinates to indices and vice versa.
@@ -28,6 +18,16 @@ constexpr uint8_t INDEX_MASK = X_MASK + Y_MASK + Z_MASK;
 class Triplet {
 private:
     uint8_t data{};
+
+    static constexpr uint8_t X_INDEX = 0;
+    static constexpr uint8_t Y_INDEX = 1;
+    static constexpr uint8_t Z_INDEX = 2;
+
+    static constexpr uint8_t X_MASK = (1 << X_INDEX);
+    static constexpr uint8_t Y_MASK = (1 << Y_INDEX);
+    static constexpr uint8_t Z_MASK = (1 << Z_INDEX);
+
+    static constexpr uint8_t INDEX_MASK = X_MASK + Y_MASK + Z_MASK;
 public:
     Triplet() { data = 0; }
 
