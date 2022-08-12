@@ -48,6 +48,8 @@ namespace graphics {
 
         void drawRect(Rect rect, ColorRGB color);
 
+        void fillRect(Rect rect, ColorRGB color);
+
         void clear(ColorRGB color);
 
         void renderFPS();

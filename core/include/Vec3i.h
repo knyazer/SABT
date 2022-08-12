@@ -21,6 +21,8 @@ public:
 
     Vec3i operator-(const Vec3i &other);
 
+    Vec3i operator+(long long value);
+
     friend std::ostream &operator<<(std::ostream &os, const Vec3i &val);
 };
 

@@ -73,7 +73,7 @@ TEST(Stack, SequentialMinimumSizeConnectionTest) {
         current->push(i);
 
         auto newStack = new ConnectedStack<size_t>();
-        newStack->connect(std::make_shared<ConnectedStack<size_t>>(*current), 0);
+        newStack->connect(current, 0);
 
         current = newStack;
     }
@@ -94,7 +94,7 @@ TEST(Stack, SequentialConnectionTest) {
         }
 
         auto newStack = new ConnectedStack<size_t>();
-        newStack->connect(std::make_shared<ConnectedStack<size_t>>(*current), M - 1);
+        newStack->connect(current, M - 1);
 
         current = newStack;
     }
@@ -115,7 +115,7 @@ TEST(Stack, SequentialMiddleConnectionTest) {
         }
 
         auto newStack = new ConnectedStack<size_t>();
-        newStack->connect(std::make_shared<ConnectedStack<size_t>>(*current), (size_t) (M / 2));
+        newStack->connect(current, (size_t) (M / 2));
 
         current = newStack;
     }
@@ -140,7 +140,7 @@ TEST(Stack, SequentialPushPopConnectionTest) {
         }
 
         auto newStack = new ConnectedStack<size_t>();
-        newStack->connect(std::make_shared<ConnectedStack<size_t>>(*current), 1);
+        newStack->connect(current, 1);
 
         current = newStack;
     }
@@ -171,7 +171,7 @@ TEST(Stack, OneRootManyNodesConnectionTest) {
             nodes[i].push((i + 1) * (j + 1));
         }
 
-        nodes[i].connect(std::make_shared<ConnectedStack<size_t>>(*root), 0);
+        nodes[i].connect(root, 0);
     }
 
     for (size_t i = 0; i < N; i++) {

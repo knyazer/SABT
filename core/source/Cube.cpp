@@ -5,13 +5,11 @@
 #include "include/Cube.h"
 
 Cube::Cube() {
-    pos = Vec3i(0, 0, 0);
-    size = 0;
 }
 
-Cube::Cube(Vec3i pos, ll size) {
-    this->pos = pos;
-    this->size = size;
+Cube::Cube(const Vec3i &newPos, ll newSize) {
+    pos = newPos;
+    size = newSize;
 }
 
 Vec3i *Cube::getVertices() const {
@@ -51,7 +49,8 @@ bool Cube::cubeIntersectsCube(const Cube &A, const Cube &B) {
         if (B.contain(verticesOfA[i]) || A.contain(verticesOfB[i]))
             res = true;
 
-    delete verticesOfA, verticesOfB;
+    delete verticesOfA;
+    delete verticesOfB;
 
     return res;
 }

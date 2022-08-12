@@ -15,6 +15,7 @@
 #include "WorldParams.h"
 #include "AlignedRect.h"
 #include "Biplet.h"
+#include "include/Ray.h"
 
 /**
  * The type of the element contained in stack, currently made up from the pointer to the octree and its cube.
@@ -75,6 +76,9 @@ public:
     /// to satisfy the desiredSize condition (angular size of the node is approximately
     /// less than the parameter passed, desiredSize)
     [[nodiscard]] TracingResult trace(double desiredSize);
+
+    /// Casts a ray through the point using this beam stack
+    [[nodiscard]] TracingResult castRay(Vec2f point);
 
     void update();
 

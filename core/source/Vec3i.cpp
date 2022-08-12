@@ -27,3 +27,7 @@ Vec3i Vec3i::operator+(const Vec3i &other) {
 Vec3i Vec3i::operator-(const Vec3i &other) {
     return {x - other.x, y - other.y, z - other.z};
 }
+
+Vec3i Vec3i::operator+(long long int value) {
+    return Vec3i(x + value, y + value, z + value);
+}

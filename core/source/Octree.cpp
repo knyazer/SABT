@@ -102,8 +102,5 @@ Cube Octree::getCubeForChild(const Cube &rootCube, Triplet tri) {
 }
 
 Octree::~Octree() {
-    for (auto &child : children)
-        delete child;
-
     children.clear();
 }

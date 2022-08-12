@@ -29,5 +29,7 @@
 #include "include/BeamTracerRoot.h"
 #include "include/Biplet.h"
 #include "include/WorldParams.h"
+#include "include/Grid.h"
+#include "include/Ray.h"
 
 #endif //SABT_SABT_H

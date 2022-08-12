@@ -158,3 +158,116 @@ void BeamTracer::construct(const AlignedRect& newRect) {
 BeamTracer::~BeamTracer() {
     delete[] children;
 }
+
+TracingResult BeamTracer::castRay(Vec2f point) {
+    TracingResult result;
+    Ray ray(params->camera->getPosition(), params->camera->restore(point));
+
+    auto firstNode = stack.front();
+    if (firstNode.node->isFull() && ray.hasIntersection(firstNode.cube)) {
+        result.color = firstNode.node->getColor(0);
+        result.fill = true;
+
+        if (verbose)
+            std::cout << "First-step exit confirmed; " << *dynamic_cast<Octree*>(firstNode.node) << " is full; done\n";
+
+        return result;
+    }
+
+    ConnectedStack<ID> rayStack;
+    rayStack.connectToEnd(&stack);
+
+
+    while (!rayStack.parentEmpty()) {
+        result.iterations ++;
+
+        auto rawNode = rayStack.front();
+
+        if (rawNode.node == nullptr)
+            throw std::runtime_error("Pointer to BaseOctree in call stack is nullptr");
+
+        // ignore if the node is empty
+        if (rawNode.node->isEmpty())
+            continue;
+
+        // Check for intersection
+        if (!ray.hasIntersection(rawNode.cube)) {
+            rayStack.pop();
+            continue;
+        }
+
+        // if node is full - finish, returning this node
+        if (rawNode.node->isFull()) {
+            result.color = rawNode.node->getColor(0);
+            result.fill = true;
+
+            if (verbose)
+                std::cout << *dynamic_cast<Octree*>(rawNode.node) << " is full; done\n";
+
+            break;
+        }
+
+        rayStack.pop();
+
+        // If node is not full, it means it is not the OctreeUnit derived, so we can cast the Octree*.
+        Octree *node = dynamic_cast<Octree*>(rawNode.node);
+
+        // quick adequacy test
+        if (!node->hasChildren()) {
+            throw std::runtime_error("Cannot have no children while being SEMI.");
+        }
+
+        // if node is semi - continue iteration, push all the children sorted by the distance to node
+        // for each node check that it intersects with current beam (thick ray), and if so - push it to stack
+        if (params == nullptr)
+            throw std::runtime_error("Params cannot be nullptr, they should have been transferred from parent BeamTracer");
+
+        Cube rootCube = params->root->getCubeFor(node);
+
+        using S_T = std::pair<std::pair<OctreeBase*, Cube>, double>;
+
+        std::vector<S_T> sorted;
+        for (size_t i = 0; i < 8; i++) {
+            OctreeBase* child = node->getChild(i);
+
+            if (child->isEmpty()) {
+                if (verbose)
+                    std::cout << *child << " is empty, so ignore. It was at " << Triplet(i) << "\n";
+
+                continue;
+            }
+
+            Cube cube = Octree::getCubeForChild(rootCube, i);
+            double distance = (Vec3f(cube.pos) - origin).size();
+
+            sorted.push_back({{child, cube}, distance});
+
+            if (verbose)
+                std::cout << *child << " is not empty, so add to the dist arr. It was at " << Triplet(i) \
+                    << ", distance from origin: " << distance << "\n";
+        }
+
+        if (verbose)
+            std::cout << "Distance array size is " << sorted.size()  << "\n";
+
+        std::sort(sorted.begin(), sorted.end(), [](const S_T& A, const S_T &B) {
+            return A.second > B.second;
+        });
+
+        for (const auto& zipped : sorted) {
+            auto *child = zipped.first.first;
+            Cube cube = zipped.first.second;
+
+            rayStack.push({child, cube});
+        }
+    }
+
+    if (verbose) {
+        if (rayStack.parentEmpty())
+            std::cout << "Stack is empty; done\n\n\n";
+        else
+            std::cout << "Final stack size is " << rayStack.size() << "\n\n\n";
+    }
+
+    return result;
+}

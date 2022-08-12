@@ -22,7 +22,7 @@ struct Cube : public Shape3d {
 
     Cube();
 
-    Cube(Vec3i pos, ll size);
+    Cube(const Vec3i &newPos, ll newSize);
 
     /// Checks whether a particular point contained in the Rect
     [[nodiscard]] bool contain(Vec3i point) const;

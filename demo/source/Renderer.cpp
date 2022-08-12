@@ -51,9 +51,14 @@ void graphics::Renderer::clear(ColorRGB color) {
 }
 
 
-void graphics::Renderer::drawRect(graphics::Rect rect, ColorRGB color) {
+void graphics::Renderer::fillRect(graphics::Rect rect, ColorRGB color) {
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
     SDL_RenderFillRect(renderer, &rect);
+}
+
+void graphics::Renderer::drawRect(graphics::Rect rect, ColorRGB color) {
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
+    SDL_RenderDrawRect(renderer, &rect);
 }
 
 graphics::Renderer::Pos2 graphics::Renderer::getMouseDelta() {
