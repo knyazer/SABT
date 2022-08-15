@@ -30,7 +30,7 @@ struct ID {
  */
 struct TracingResult {
     /// State of the final node
-    Color color = BLACK;
+    Color color = Color::BLACK;
 
     /// Is final node empty or not ?
     bool fill = false;

@@ -26,8 +26,10 @@ TracingResult BeamTracer::trace(double desiredSize) {
             throw std::runtime_error("Pointer to BaseOctree in call stack is nullptr");
 
         // ignore if the node is empty
-        if (rawNode.node->isEmpty())
+        if (rawNode.node->isEmpty()) {
+            stack.pop();
             continue;
+        }
 
         // Check for intersection
         if (!Shape3d::hasIntersection(this, &rawNode.cube)) {

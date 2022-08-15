@@ -163,7 +163,7 @@ graphics::Renderer::~Renderer() {
 }
 
 void graphics::Renderer::renderFPS() {
-    static TTF_Font* font = TTF_OpenFont("../../demo/font/ShareTechMono-Regular.ttf", 50);
+    static TTF_Font* font = TTF_OpenFont((getPath() + "/font/ShareTechMono-Regular.ttf").c_str(), 50);
 
     if (font == nullptr)
         std::cerr << " Failed to load font : " << SDL_GetError() << std::endl;

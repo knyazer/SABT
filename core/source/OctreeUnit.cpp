@@ -5,7 +5,7 @@
 #include "include/OctreeUnit.h"
 
 OctreeUnit::OctreeUnit() {
-    color = BLACK;
+    color = Color::BLACK;
     exist = false;
 }
 

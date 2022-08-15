@@ -9,10 +9,13 @@
 #include <memory>
 #include <string>
 #include <cmath>
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+
 #include "Color.h"
 #include "Rect.h"
+#include "GetPath.h"
 
 using std::unique_ptr;
 using std::shared_ptr;

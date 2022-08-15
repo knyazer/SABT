@@ -132,3 +132,7 @@ Cube OctreeRoot::getCubeFor(OctreeBase *node) const {
 Cube OctreeRoot::getCube() const {
     return {{0, 0, 0}, size()};
 }
+
+void OctreeRoot::fitMesh(Mesh mesh) {
+
+}

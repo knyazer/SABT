@@ -8,6 +8,7 @@
 #include "Octree.h"
 #include "Cube.h"
 #include "Color.h"
+#include "Mesh.h"
 
 #include <iostream>
 #include <vector>
@@ -42,6 +43,9 @@ public:
 
     /// Returns a cube for the root octree, is {{0, 0, 0}, 2^logSize}
     Cube getCube() const;
+
+    /// Fits the provided mesh model into the octree
+    void fitMesh(Mesh mesh);
 };
 
 
