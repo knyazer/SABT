@@ -3,6 +3,7 @@
 //
 
 #include <Renderer.h>
+#include <GetPath.h>
 #include <SABT.h>
 #include <iostream>
 #include <stack>
@@ -31,21 +32,21 @@ int main(int argc, char *args[]) {
 
     renderer.createWindow("SABT demo", Rect(500, 500, WIN_SIZE, WIN_SIZE));
 
+    Mesh mesh(getPath() + "/models/sponza");
     OctreeRoot world;
-    for (int i = 0; i < 4; i++)
-        world.grow();
-
-    world.fill({0, 0, 8}, 2, GREEN);
-    world.fill({3, 1, 2}, 1, BLUE);
-
-    WorldParams *params = new WorldParams(&world, &cam);
+    world.fitMesh(mesh);
+/*
+    world.fill({0, 0, 8}, 2, Color::GREEN);
+    world.fill({3, 1, 2}, 1, Color::BLUE);
+*/
+    auto *params = new WorldParams(&world, &cam);
 
     // renderer.enableDebugging();
     int debugX = 0, debugY = 0;
 
     // Main render cycle
     while (renderer.update()) {
-        renderer.clear(GRAY);
+        renderer.clear(Color::GRAY);
 
         ll perfCounterTotal = 0, perfCounterFilled = 0, filledPixels = 0;
 
@@ -78,14 +79,14 @@ int main(int argc, char *args[]) {
         std::stack<BeamTracer *> beams;
         beams.push(&beamController);
 
-        auto tr1 = [](double x) {return round(x * WIN_SIZE / 2 + WIN_SIZE / 2);};
-        auto tr2 = [](double x) {return round(x * WIN_SIZE / 2);};
-        auto toScreen = [tr1, tr2](const AlignedRect& rect) {
+        auto tr1 = [](double x) { return round(x * WIN_SIZE / 2 + WIN_SIZE / 2); };
+        auto tr2 = [](double x) { return round(x * WIN_SIZE / 2); };
+        auto toScreen = [tr1, tr2](const AlignedRect &rect) {
             return Rect(tr1(rect.min.x), tr1(rect.min.y), tr2(rect.width()), tr2(rect.height()));
         };
 
         while (!beams.empty()) {
-            BeamTracer* beam = beams.top();
+            BeamTracer *beam = beams.top();
             beams.pop();
 
             if (beam == nullptr)
@@ -98,7 +99,8 @@ int main(int argc, char *args[]) {
             // TODO: choose the optimal beam/ray numbers relation
 
             if (res.fill) {
-                if (beam->stack.parentEmpty() || beam->rect.width() <= 2.0 / N) { // TODO: skip fully filled nodes - return colors immediately (nope, too small of improvement)
+                if (beam->stack.parentEmpty() || beam->rect.width() <= 2.0 /
+                                                                       N) { // TODO: skip fully filled nodes - return colors immediately (nope, too small of improvement)
                     int gridSizeX = NUMBER_OF_RAYS_PER_BEAM, gridSizeY = NUMBER_OF_RAYS_PER_BEAM;
 
                     Grid grid(beam->rect, gridSizeX, gridSizeY);
@@ -112,8 +114,7 @@ int main(int argc, char *args[]) {
                             }
                         }
                     }
-                }
-                else {
+                } else {
                     beam->makeChildren();
 
                     for (size_t i = 0; i < 4; i++)

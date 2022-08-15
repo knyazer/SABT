@@ -31,5 +31,7 @@
 #include "include/WorldParams.h"
 #include "include/Grid.h"
 #include "include/Ray.h"
+#include "include/Mesh.h"
+#include "include/Triangle.h"
 
 #endif //SABT_SABT_H

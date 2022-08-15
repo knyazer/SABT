@@ -18,4 +18,8 @@ add_executable(demo
 
 target_include_directories(demo PUBLIC include)
 
-target_link_libraries(demo ${SDL2_LIBRARIES} SDL2_ttf core)
+target_link_libraries(demo ${SDL2_LIBRARIES} SDL2_ttf X11 core)
+
+# Copy folders which required for executable to work
+file(COPY models DESTINATION .)
+file(COPY font DESTINATION .)

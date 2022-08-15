@@ -2,3 +2,6 @@
 [submodule "libccd"]
 	path = libccd
 	url = https://github.com/knyazer/libccd.git
+[submodule "CImg"]
+	path = CImg
+	url = https://github.com/GreycLab/CImg.git
