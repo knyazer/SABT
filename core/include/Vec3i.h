@@ -15,6 +15,8 @@ public:
 
     Vec3i(long long x, long long y, long long z);
 
+    Vec3i(const Vec3i& other);
+
     Vec3i operator*(long long factor);
 
     Vec3i operator+(const Vec3i &other);

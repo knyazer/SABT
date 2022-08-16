@@ -16,6 +16,8 @@ public:
 
     Vec2f(double newX, double newY);
 
+    Vec2f(const Vec2f& other);
+
     [[nodiscard]] bool operator==(Vec2f other) const;
 
     [[nodiscard]] Vec2f operator+(Vec2f other) const;

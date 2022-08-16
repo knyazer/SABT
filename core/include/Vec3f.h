@@ -16,6 +16,8 @@ public:
 
     Vec3f();
 
+    Vec3f(const Vec3f& other);
+
     explicit Vec3f(Vec3i vec3I);
 
     Vec3f(double x, double y, double z);

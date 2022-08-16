@@ -55,3 +55,9 @@ Vec3f Vec3f::norm() const {
     return operator*(1 / size());
 }
 
+Vec3f::Vec3f(const Vec3f &other) {
+    x = other.x;
+    y = other.y;
+    z = other.z;
+}
+

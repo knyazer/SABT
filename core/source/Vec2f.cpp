@@ -57,3 +57,8 @@ double Vec2f::size_1() const {
 bool Vec2f::operator==(Vec2f other) const {
     return x == other.x && y == other.y;
 }
+
+Vec2f::Vec2f(const Vec2f &other) {
+    x = other.x;
+    y = other.y;
+}
