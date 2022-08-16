@@ -33,7 +33,7 @@ int main(int argc, char *args[]) {
     Renderer renderer;
 
     Camera cam;
-    cam.setPosition({120, 100, 200});
+    cam.setPosition({240, 200, 400});
     cam.setRotationByX(Angle::deg(180));
     cam.setRotationByY(Angle::deg(0));
     cam.setRotationByZ(Angle::deg(0));
@@ -43,7 +43,7 @@ int main(int argc, char *args[]) {
 
     Mesh mesh(getPath() + "/models/sponza");
     OctreeRoot world;
-    world.fitMesh(mesh, 9);
+    world.fitMesh(mesh, 10);
 /*
     world.fill({0, 0, 8}, 2, Color::GREEN);
     world.fill({3, 1, 2}, 1, Color::BLUE);
@@ -130,16 +130,6 @@ int main(int argc, char *args[]) {
                         beams.push(&beam->children[i]);
                 }
             }
-
-#ifdef DEBUG
-            if (!res.fill) {
-                renderer.drawRect(onScreenRect, WHITE);
-            }
-
-            if (res.fill) {
-                renderer.drawRect(onScreenRect, BLACK);
-            }
-#endif
         }
 
         // std::cout << "size: " << N * N << "\titers: " << perfCounterTotal << std::endl;

@@ -166,6 +166,10 @@ void OctreeRoot::fitMesh(Mesh mesh, unsigned sz) {
     };
 
     for (size_t i = 0; i < mesh.size(); i++) {
+
+        if ((i + 1) % 1000 == 0)
+            std::cout << i << "/" << mesh.size() << " triangles fitted" << std::endl;
+
         Triangle tri = mesh.get(i);
 
         tri.transform(transformation);
@@ -185,7 +189,7 @@ void OctreeRoot::fitMesh(Mesh mesh, unsigned sz) {
             if (Shape3d::hasIntersection(&cube, &tri)) {
 
                 if (cube.size == 1) {
-                    rawNode->fill(tri.c1);
+                    rawNode->fill(tri.getColor(cube.getCenter()));
                 }
                 else {
                     Octree* node = dynamic_cast<Octree*>(rawNode);

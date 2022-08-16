@@ -26,11 +26,13 @@ class Mesh {
 protected:
     vector<Triangle> data;
 
+    vector<CImg<unsigned char> *> textures;
+
 public:
     Mesh();
 
     /// Constructs the vector of colored triangles from the obj-mtl files and corresponding textures
-    explicit Mesh(const std::string& filename);
+    explicit Mesh(const std::string &filename);
 
     /// Returns the number of triangles in the mesh
     [[nodiscard]] unsigned long long size() const;

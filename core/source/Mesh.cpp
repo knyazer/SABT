@@ -10,27 +10,18 @@ Mesh::Mesh(const std::string& rootPath) {
     std::string objName = rootPath.substr(rootPath.find_last_of('/') + 1);
     std::string objFilePath = rootPath + "/" + objName + ".obj";
 
-    // Lambda for getting vertex color
-    auto getVertexColor = [](CImg<unsigned char> &img, objl::Vertex &v){
-        int x = round(double(v.TextureCoordinate.X) * double(img.width())),
-            y = round(double(v.TextureCoordinate.Y) * double(img.height()));
-
-        while (x < 0 || x >= img.width())
-            x -= sign(x) * img.width();
-
-        while (y < 0 || y >= img.height())
-            y -= sign(y) * img.height();
-
-        return Color((int)(img(x, y, 0, 0)), (int)(img(x, y, 0, 1)), (int)(img(x, y, 0, 2)));
-    };
-
     objl::Loader loader;
     loader.LoadFile(objFilePath);
 
     std::cout << std::endl;
+
+    textures.resize(loader.LoadedMeshes.size());
+
     // for each mesh
-    for (auto mesh : loader.LoadedMeshes) {
+    for (size_t i = 0; i < loader.LoadedMeshes.size(); i++) {
         std::cout << ".";
+
+        auto mesh = loader.LoadedMeshes[i];
 
         // load texture
         std::string texturePath = mesh.MeshMaterial.map_Ka;
@@ -42,20 +33,23 @@ Mesh::Mesh(const std::string& rootPath) {
             continue;
         }
 
-        CImg<unsigned char> texture((rootPath + "/" + texturePath).c_str());
+        // Save the texture
+        textures[i] = new CImg<unsigned char>((rootPath + "/" + texturePath).c_str());
 
         // For each triangle extract colors and push complete triangle to the vector
-        for (size_t i = 0; i < mesh.Indices.size(); i += 3) {
-            auto v1 = mesh.Vertices[mesh.Indices[i]],
-                 v2 = mesh.Vertices[mesh.Indices[i + 1]],
-                 v3 = mesh.Vertices[mesh.Indices[i + 2]];
+        for (size_t j = 0; j < mesh.Indices.size(); j += 3) {
+            auto v1 = mesh.Vertices[mesh.Indices[j]],
+                 v2 = mesh.Vertices[mesh.Indices[j + 1]],
+                 v3 = mesh.Vertices[mesh.Indices[j + 2]];
 
             Triangle triangle({v1.Position.X, v1.Position.Y, v1.Position.Z},
                               {v2.Position.X, v2.Position.Y, v2.Position.Z},
                               {v3.Position.X, v3.Position.Y, v3.Position.Z});
-
-            // TODO: better colors for triangles; not interpolation but exact
-            triangle.setColor(getVertexColor(texture, v1), getVertexColor(texture, v2), getVertexColor(texture, v3));
+            std::cout << textures[i] << std::endl;
+            triangle.setTexture(textures[i]);
+            triangle.setTextureCoordinates({v1.TextureCoordinate.X, v1.TextureCoordinate.Y},
+                                         {v2.TextureCoordinate.X, v2.TextureCoordinate.Y},
+                                         {v2.TextureCoordinate.X, v2.TextureCoordinate.Y});
 
             data.push_back(triangle);
         }
