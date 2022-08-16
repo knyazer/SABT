@@ -6,7 +6,7 @@
 
 BoundingBox::BoundingBox() {
     min = {0, 0, 0};
-    max = {1, 1, 1};
+    max = {0, 0, 0};
 }
 
 BoundingBox::BoundingBox(const std::vector<Vec3f>& points) {
@@ -17,8 +17,8 @@ BoundingBox::BoundingBox(const std::vector<Vec3f>& points) {
     max = points[0];
 
     for (auto point : points) {
-        min = {min2(point.x, min.x), min2(point.y, min.y), min2(point.z, min.z)};
-        max = {max2(point.x, max.x), max2(point.y, max.y), max2(point.z, max.z)};
+        min = Vec3f::min(min, point);
+        max = Vec3f::max(max, point);
     }
 }
 
@@ -28,8 +28,14 @@ BoundingBox::BoundingBox(const BoundingBox &other) {
 }
 
 void BoundingBox::add(BoundingBox other) {
-    min = {min2(other.min.x, min.x), min2(other.min.y, min.y), min2(other.min.z, min.z)};
-    max = {max2(other.max.x, max.x), min2(other.max.y, max.y), min2(other.max.z, max.z)};
+    if (max.x == 0 && max.y == 0 && max.z == 0 && min.x == 0 && min.y == 0 && min.z == 0) {
+        min = other.min;
+        max = other.max;
+    }
+    else {
+        min = Vec3f::min(min, other.min);
+        max = Vec3f::max(max, other.max);
+    }
 }
 
 double BoundingBox::width() const {

@@ -133,6 +133,72 @@ Cube OctreeRoot::getCube() const {
     return {{0, 0, 0}, size()};
 }
 
-void OctreeRoot::fitMesh(Mesh mesh) {
+void OctreeRoot::fitMesh(Mesh mesh, unsigned sz) {
+    if (logSize > sz)
+        throw std::runtime_error("the octree is bigger then the size you want to generate. While it feels like this should work, due to automatic growth the fitMesh failed."
+                                 "Please consider to use fitMesh as the very first operation on octree, or see examples (which might be somewhere in repo).");
+
+    // Growing octree to requested size
+    while (logSize < sz)
+        grow();
+
+    // Calculate transformation from mesh bounding box to octree bounding box
+    BoundingBox meshBB;
+    for (size_t i = 1; i < mesh.size(); i++) {
+        Triangle tri = mesh.get(i);
+
+        auto bb = BoundingBox({tri.v1, tri.v2, tri.v3});
+
+        meshBB.add(bb);
+    }
+
+    Vec3f scaleFactor = {size() / meshBB.width(),
+                         size() / meshBB.height(),
+                         size() / meshBB.depth()};
+
+    Vec3f offset = meshBB.min;
+
+
+    auto transformation = [offset, scaleFactor](Vec3f point) {
+        Vec3f zeroOffset = point - offset;
+
+        return Vec3f(zeroOffset.x * scaleFactor.x, zeroOffset.y * scaleFactor.y, zeroOffset.z * scaleFactor.z);
+    };
+
+    for (size_t i = 0; i < mesh.size(); i++) {
+        Triangle tri = mesh.get(i);
+
+        tri.transform(transformation);
+
+        std::stack<OctreeBase*> stack;
+        stack.push(this);
+
+        while (!stack.empty()) {
+            OctreeBase* rawNode = stack.top();
+            Cube cube = getCubeFor(rawNode);
+
+            stack.pop();
+
+            if (rawNode == nullptr)
+                throw std::runtime_error("Encountered nullptr while checking nodes for intersection with triangle. Generally impossible situation.");
+
+            if (Shape3d::hasIntersection(&cube, &tri)) {
+
+                if (cube.size == 1) {
+                    rawNode->fill(tri.c1);
+                }
+                else {
+                    Octree* node = dynamic_cast<Octree*>(rawNode);
+                    node->setFilling(SEMI);
+
+                    if (!node->hasChildren())
+                        node->makeChildren(cube.size == 2 ? MAKE_UNIT : MAKE_NORMAL);
+
+                    for (size_t j = 0; j < 8; j++)
+                        stack.push(node->getChild(j));
+                }
+            }
+        }
+    }
 
 }

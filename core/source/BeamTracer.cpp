@@ -92,7 +92,6 @@ TracingResult BeamTracer::trace(double desiredSize) {
 
             sorted.push_back({{child, cube}, distance});
 
-
             if (verbose)
                 std::cout << *child << " is not empty, so add to the dist arr. It was at " << Triplet(i) \
                     << ", distance from origin: " << distance << "\n";
@@ -183,7 +182,7 @@ TracingResult BeamTracer::castRay(Vec2f point) {
     while (!rayStack.parentEmpty()) {
         result.iterations ++;
 
-        auto rawNode = rayStack.front();
+        ID rawNode = rayStack.front();
 
         if (rawNode.node == nullptr)
             throw std::runtime_error("Pointer to BaseOctree in call stack is nullptr");

@@ -10,6 +10,7 @@
 #include "Filling.h"
 
 const bool MAKE_UNIT = true;
+const bool MAKE_NORMAL = false;
 
 /**
  * Base class for all octree-related classes. Allows polymorphism.

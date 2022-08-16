@@ -20,4 +20,4 @@ file(GLOB TESTS *.cpp)
 
 add_executable(tests ${TESTS})
 
-target_link_libraries(tests gtest_main gtest core)
+target_link_libraries(tests gtest_main gtest X11 core)

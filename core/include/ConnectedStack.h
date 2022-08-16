@@ -70,13 +70,18 @@ protected:
         T *newData = new T[newSize];
 
         // Copy data
-        std::copy(data, data + allocated, newData);
+        for (size_t i = 0; i < allocated; i++)
+            newData[i] = data[i];
+
+        // Save the pointer to old data array
+        auto toDelete = data;
 
         // Reassign values
-        data = std::move(newData);
+        data = newData;
         allocated = newSize;
 
-        delete data;
+        // Free memory
+        delete toDelete;
     }
 
 public:

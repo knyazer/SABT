@@ -5,9 +5,11 @@
 #ifndef SABT_VEC3F_H
 #define SABT_VEC3F_H
 
+#include "Vec3i.h"
+#include "BasicMath.h"
+
 #include <cmath>
 #include <iostream>
-#include "Vec3i.h"
 
 class Vec3f {
 public:
@@ -22,29 +24,35 @@ public:
 
     Vec3f(double x, double y, double z);
 
-    // Subtract vectors elementwise
+    /// Subtract vectors elementwise
     Vec3f operator-(Vec3f other) const;
 
-    // Sum vectors elementwise
+    /// Sum vectors elementwise
     Vec3f operator+(Vec3f other) const;
 
-    // Sum vector with scalar - add scalar to each dimension
+    /// Sum vector with scalar - add scalar to each dimension
     Vec3f operator+(double other) const;
 
-    // Scale
+    /// Scale
     Vec3f operator*(double other) const;
 
-    // Returns size of the vector
+    /// Returns size of the vector
     [[nodiscard]] double size() const;
 
-    // Divides vector by its size; Normalization
+    /// Divides vector by its size; Normalization
     Vec3f norm() const;
 
-    // Cross product of two given vectors
-    static Vec3f cross(Vec3f a, Vec3f b);
+    /// Cross product of two given vectors
+    static Vec3f cross(const Vec3f& a, const Vec3f& b);
 
-    // Dot product of two given vectors
-    static double dot(Vec3f a, Vec3f b);
+    /// Dot product of two given vectors
+    static double dot(const Vec3f& a, const Vec3f& b);
+
+    /// Elementwise min of two vectors
+    static Vec3f min(const Vec3f& a, const Vec3f& b);
+
+    /// Elementwise max of two vectors
+    static Vec3f max(const Vec3f& a, const Vec3f& b);
 
     friend std::ostream& operator<<(std::ostream& os, const Vec3f& val);
 };

@@ -29,8 +29,8 @@ bool Ray::hasIntersection(Cube cube) const {
     double t5 = (lb.z - origin.z) * dirfrac.z;
     double t6 = (rt.z - origin.z) * dirfrac.z;
 
-    double tmin = max(max(min(t1, t2), min(t3, t4)), min(t5, t6));
-    double tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
+    double tmin = max2(max2(min2(t1, t2), min2(t3, t4)), min2(t5, t6));
+    double tmax = min2(min2(max2(t1, t2), max2(t3, t4)), max2(t5, t6));
 
     // if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is behind us
     // if tmin > tmax ray does not intersect AABB

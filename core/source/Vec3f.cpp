@@ -23,11 +23,11 @@ Vec3f::Vec3f(double x, double y, double z) {
     this->z = z;
 }
 
-Vec3f Vec3f::cross(Vec3f a, Vec3f b) {
+Vec3f Vec3f::cross(const Vec3f& a, const Vec3f& b) {
     return {a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x};
 }
 
-double Vec3f::dot(Vec3f a, Vec3f b) {
+double Vec3f::dot(const Vec3f& a, const Vec3f& b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
@@ -60,4 +60,14 @@ Vec3f::Vec3f(const Vec3f &other) {
     y = other.y;
     z = other.z;
 }
+
+Vec3f Vec3f::min(const Vec3f &a, const Vec3f &b) {
+    return {min2(a.x, b.x), min2(a.y, b.y), min2(a.z, b.z)};
+}
+
+Vec3f Vec3f::max(const Vec3f &a, const Vec3f &b) {
+    return {max2(a.x, b.x), max2(a.y, b.y), max2(a.z, b.z)};
+}
+
+
 

@@ -38,3 +38,9 @@ Vec3f Triangle::getFarthestPointInDirection(Vec3f direction) const {
             return v3;
     }
 }
+
+void Triangle::transform(const std::function<Vec3f(const Vec3f &)>& f) {
+    v1 = f(v1);
+    v2 = f(v2);
+    v3 = f(v3);
+}

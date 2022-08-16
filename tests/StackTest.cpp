@@ -20,6 +20,14 @@ TEST(Stack, PushPopTest) {
     }
 }
 
+TEST(Stack, SinglePushPopTest) {
+    ConnectedStack<size_t> stack;
+
+    stack.push(42);
+
+    EXPECT_EQ(stack.pop(), 42);
+}
+
 TEST(Stack, ManyPushManyPopTest) {
     ConnectedStack<size_t> stack;
 
@@ -28,7 +36,7 @@ TEST(Stack, ManyPushManyPopTest) {
     }
 
     for (size_t i = 0; i < N; i++) {
-        ASSERT_EQ(stack.pop(), N - i - 1);
+        EXPECT_EQ(stack.pop(), N - i - 1);
     }
 }
 

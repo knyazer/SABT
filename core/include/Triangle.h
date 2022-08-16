@@ -9,20 +9,21 @@
 #include "Shape3d.h"
 #include "Color.h"
 
-class Triangle : public Shape3d {
-protected:
+#include <functional>
+
+struct Triangle : public Shape3d {
     Vec3f v1, v2, v3;
     Color c1, c2, c3;
-
-public:
 
     Triangle(Vec3f firstVertex, Vec3f secondVertex, Vec3f thirdVertex);
 
     void setColor(Color firstColor, Color secondColor, Color thirdColor);
 
-    [[nodiscard]] Vec3f getFarthestPointInDirection(Vec3f direction) const;
+    void transform(const std::function<Vec3f(const Vec3f&)>& f);
 
-    [[nodiscard]] Vec3f getCenter() const;
+    [[nodiscard]] Vec3f getFarthestPointInDirection(Vec3f direction) const override;
+
+    [[nodiscard]] Vec3f getCenter() const override;
 };
 
 

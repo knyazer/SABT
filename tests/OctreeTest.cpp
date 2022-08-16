@@ -14,7 +14,7 @@ TEST(Octree, SimpleFillingTest) {
     ASSERT_EQ(octree.isEmpty(), true);
     ASSERT_EQ(octree.isFull(), false);
 
-    octree.fill(BLACK);
+    octree.fill(Color::BLACK);
 
     ASSERT_EQ(octree.isEmpty(), false);
     ASSERT_EQ(octree.isFull(), true);
@@ -41,7 +41,7 @@ TEST(Octree, GetCubeTest) {
             z = (z / 2) * 2;
         }
 
-        OctreeBase *node = octree.fill({x, y, z}, level, BLACK);
+        OctreeBase *node = octree.fill({x, y, z}, level, Color::BLACK);
         Cube cube = octree.getCubeFor(node);
 
         ASSERT_TRUE(cube.pos.x == x && cube.pos.y == y && cube.pos.z == z);
@@ -65,7 +65,7 @@ TEST(Octree, ParentalTest) {
             z = (z / 2) * 2;
         }
         
-        OctreeBase* bottom = octree.fill({x, y, z}, level, BLACK);
+        OctreeBase* bottom = octree.fill({x, y, z}, level, Color::BLACK);
         OctreeBase* top = &octree;
         
         // Test that ancestors with top->bottom are the same as with bottom->top

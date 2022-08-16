@@ -9,12 +9,11 @@
 #include "Color.h"
 #include "Triangle.h"
 #include "BasicMath.h"
+#include "CImg.h"
 
 #include <utility>
 #include <string>
 #include <vector>
-
-#include "../../CImg/CImg.h"
 
 using cimg_library::CImg;
 using std::vector;

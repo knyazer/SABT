@@ -9,6 +9,7 @@
 #include "Cube.h"
 #include "Color.h"
 #include "Mesh.h"
+#include "BoundingBox.h"
 
 #include <iostream>
 #include <vector>
@@ -45,7 +46,7 @@ public:
     Cube getCube() const;
 
     /// Fits the provided mesh model into the octree
-    void fitMesh(Mesh mesh);
+    void fitMesh(Mesh mesh, unsigned sz = 8);
 };
 
 

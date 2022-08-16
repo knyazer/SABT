@@ -2,9 +2,10 @@
 // Created by knyaz on 7/3/2022.
 //
 
+#include <SABT.h>
+
 #include <Renderer.h>
 #include <GetPath.h>
-#include <SABT.h>
 #include <iostream>
 #include <stack>
 
@@ -12,11 +13,19 @@ using namespace graphics;
 
 using std::cout, std::endl;
 
+// random stuff
 #define WIN_SIZE 1024
 #define eps 1e-6
-constexpr size_t NUMBER_OF_RAYS_PER_BEAM = 4;
-constexpr size_t RESOLUTION = 512;
 
+// hyps
+#define MOVE_STEP 5
+#define NUMBER_OF_RAYS_PER_BEAM 4
+
+
+// params to edit
+constexpr size_t RESOLUTION = 128;
+
+// precalc
 constexpr double N = RESOLUTION / NUMBER_OF_RAYS_PER_BEAM;
 constexpr double Nh = N / 2;
 
@@ -24,7 +33,7 @@ int main(int argc, char *args[]) {
     Renderer renderer;
 
     Camera cam;
-    cam.setPosition({0, 0, 0});
+    cam.setPosition({120, 100, 200});
     cam.setRotationByX(Angle::deg(180));
     cam.setRotationByY(Angle::deg(0));
     cam.setRotationByZ(Angle::deg(0));
@@ -34,7 +43,7 @@ int main(int argc, char *args[]) {
 
     Mesh mesh(getPath() + "/models/sponza");
     OctreeRoot world;
-    world.fitMesh(mesh);
+    world.fitMesh(mesh, 9);
 /*
     world.fill({0, 0, 8}, 2, Color::GREEN);
     world.fill({3, 1, 2}, 1, Color::BLUE);
@@ -133,21 +142,24 @@ int main(int argc, char *args[]) {
 #endif
         }
 
-        std::cout << "size: " << N * N << "\titers: " << perfCounterTotal << std::endl;
+        // std::cout << "size: " << N * N << "\titers: " << perfCounterTotal << std::endl;
 
         // position controls
         if (renderer.pressed['j'])
-            cam.move({0, 0, -0.1});
+            cam.move({0, 0, -MOVE_STEP});
         if (renderer.pressed['k'])
-            cam.move({0, 0, 0.1});
+            cam.move({0, 0, MOVE_STEP});
         if (renderer.pressed['h'])
-            cam.move({0.1, 0, 0});
+            cam.move({MOVE_STEP, 0, 0});
         if (renderer.pressed['l'])
-            cam.move({-0.1, 0, 0});
+            cam.move({-MOVE_STEP, 0, 0});
         if (renderer.pressed['i'])
-            cam.move({0, 0.1, 0});
+            cam.move({0, MOVE_STEP, 0});
         if (renderer.pressed['m'])
-            cam.move({0, -0.1, 0});
+            cam.move({0, -MOVE_STEP, 0});
+
+        if (renderer.pressed['p'])
+            std::cout << cam.getPosition() << std::endl;
 
         // rotation controls
         auto delta = renderer.getMouseDelta();
