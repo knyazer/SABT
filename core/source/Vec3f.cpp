@@ -52,7 +52,12 @@ double Vec3f::size() const {
 }
 
 Vec3f Vec3f::norm() const {
-    return operator*(1 / size());
+    double sz = size();
+
+    if (sz != 0)
+        return operator*(1 / size());
+
+    return {0, 0, 0};
 }
 
 Vec3f::Vec3f(const Vec3f &other) {

@@ -2,55 +2,61 @@
 // Created by knyaz on 12/08/22.
 //
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include "include/ObjLoader.h"
+#include "include/CImg.h"
+
 #include "include/Mesh.h"
 
 Mesh::Mesh(const std::string& rootPath) {
     data.clear();
 
+
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+
     std::string objName = rootPath.substr(rootPath.find_last_of('/') + 1);
     std::string objFilePath = rootPath + "/" + objName + ".obj";
 
-    objl::Loader loader;
-    loader.LoadFile(objFilePath);
-
-    std::cout << std::endl;
-
-    textures.resize(loader.LoadedMeshes.size());
+    std::string warn;
+    std::string err;
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, objFilePath.c_str(),
+                                rootPath.c_str(), true);
+    std::cout << "meow" << std::endl;
 
     // for each mesh
-    for (size_t i = 0; i < loader.LoadedMeshes.size(); i++) {
+    for (size_t i = 0; i < shapes.size(); i++) {
         std::cout << ".";
 
-        auto mesh = loader.LoadedMeshes[i];
+        const auto& mesh = shapes[i].mesh;
 
         // load texture
-        std::string texturePath = mesh.MeshMaterial.map_Ka;
+        std::string texturePath = materials[mesh.material_ids[i]].diffuse_texname.c_str();
 
-        // ignore bump texture, because why not?
+        // ignore bump texture, because why not
 
         if (texturePath.empty()) {
-            std::cout << "\n\n[WARNING] ignore mesh (size " << mesh.Indices.size() / 3 << "), failed to determine texture name\n\n";
+            std::cout << "Fuck, empty texture. Continue anyways" << std::endl;
             continue;
         }
 
         // Save the texture
-        textures[i] = new CImg<unsigned char>((rootPath + "/" + texturePath).c_str());
+        textures.push_back(new CImg<unsigned char>((rootPath + "/" + texturePath).c_str()));
 
         // For each triangle extract colors and push complete triangle to the vector
-        for (size_t j = 0; j < mesh.Indices.size(); j += 3) {
-            auto v1 = mesh.Vertices[mesh.Indices[j]],
-                 v2 = mesh.Vertices[mesh.Indices[j + 1]],
-                 v3 = mesh.Vertices[mesh.Indices[j + 2]];
+        for (size_t j = 0; j < mesh.indices.size(); j += 3) {
+            Vec3f v1 = {attrib.vertices[mesh.indices[j].vertex_index * 3], attrib.vertices[mesh.indices[j].vertex_index * 3 + 1], attrib.vertices[mesh.indices[j].vertex_index * 3 + 2]};
+            Vec3f v2 = {attrib.vertices[mesh.indices[j + 1].vertex_index * 3], attrib.vertices[mesh.indices[j + 1].vertex_index * 3 + 1], attrib.vertices[mesh.indices[j + 1].vertex_index * 3 + 2]};
+            Vec3f v3 = {attrib.vertices[mesh.indices[j + 2].vertex_index * 3], attrib.vertices[mesh.indices[j + 2].vertex_index * 3 + 1], attrib.vertices[mesh.indices[j + 2].vertex_index * 3 + 2]};
 
-            Triangle triangle({v1.Position.X, v1.Position.Y, v1.Position.Z},
-                              {v2.Position.X, v2.Position.Y, v2.Position.Z},
-                              {v3.Position.X, v3.Position.Y, v3.Position.Z});
-            std::cout << textures[i] << std::endl;
-            triangle.setTexture(textures[i]);
-            triangle.setTextureCoordinates({v1.TextureCoordinate.X, v1.TextureCoordinate.Y},
-                                         {v2.TextureCoordinate.X, v2.TextureCoordinate.Y},
-                                         {v2.TextureCoordinate.X, v2.TextureCoordinate.Y});
+            Triangle triangle(v1, v2, v3);
 
+            triangle.setTexture(textures[textures.size() - 1]);
+
+            triangle.setTextureCoordinates({attrib.texcoords[mesh.indices[j].texcoord_index * 2], attrib.texcoords[mesh.indices[j].texcoord_index * 2 + 1]},
+                                           {attrib.texcoords[mesh.indices[j + 1].texcoord_index * 2], attrib.texcoords[mesh.indices[j + 1].texcoord_index * 2 + 1]},
+                                           {attrib.texcoords[mesh.indices[j + 2].texcoord_index * 2], attrib.texcoords[mesh.indices[j + 2].texcoord_index * 2 + 1]});
             data.push_back(triangle);
         }
     }

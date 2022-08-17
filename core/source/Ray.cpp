@@ -48,5 +48,9 @@ Vec3f Ray::getFarthestPointInDirection(Vec3f projDirection) const {
     if (Vec3f::dot(origin, projDirection) > Vec3f::dot(origin + direction * 100000, projDirection))
         return origin;
 
-    return origin + direction * 100000;
+    return origin + direction * 100000; // TODO: Fix this thing
+}
+
+Vec3f Ray::getDirection() const {
+    return direction;
 }

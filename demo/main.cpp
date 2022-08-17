@@ -19,11 +19,11 @@ using std::cout, std::endl;
 
 // hyps
 #define MOVE_STEP 5
-#define NUMBER_OF_RAYS_PER_BEAM 64
+#define NUMBER_OF_RAYS_PER_BEAM 256
 
 
 // params to edit
-constexpr size_t RESOLUTION = 64;
+constexpr size_t RESOLUTION = 256;
 
 // precalc
 constexpr double N = RESOLUTION / NUMBER_OF_RAYS_PER_BEAM;
@@ -50,37 +50,16 @@ int main(int argc, char *args[]) {
 */
     auto *params = new WorldParams(&world, &cam);
 
-    // renderer.enableDebugging();
+    //renderer.enableDebugging();
     int debugX = 0, debugY = 0;
 
     // Main render cycle
     while (renderer.update()) {
+        std::cout << '.' << std::endl;
+
         renderer.clear(Color::GRAY);
 
         ll perfCounterTotal = 0, perfCounterFilled = 0, filledPixels = 0;
-
-        if (renderer.debug) {
-            if (renderer.pressed['d'])
-                debugX++;
-            if (renderer.pressed['a'])
-                debugX--;
-            if (renderer.pressed['w'])
-                debugY--;
-            if (renderer.pressed['s'])
-                debugY++;
-
-            while (debugX < 0)
-                debugX += N;
-
-            while (debugX >= N)
-                debugX -= N;
-
-            while (debugY < 0)
-                debugY += N;
-
-            while (debugY >= N)
-                debugY -= N;
-        }
 
         BeamTracerRoot beamController;
         beamController.setup(params);
@@ -94,20 +73,25 @@ int main(int argc, char *args[]) {
             return Rect(tr1(rect.min.x), tr1(rect.min.y), tr2(rect.width()), tr2(rect.height()));
         };
 
+        if (renderer.debug)
+            std::cout << "Iter." << std::endl;
+
         while (!beams.empty()) {
             BeamTracer *beam = beams.top();
             beams.pop();
 
             if (beam == nullptr)
                 throw std::runtime_error("Nullptr beam in stack encountered. Abort");
-
-            auto res = beam->trace(0);
-            perfCounterTotal += res.iterations;
+            std::cout << "1";
+            beam->verbose = true;
+            auto res = beam->trace(0.5);
+            perfCounterTotal += 0;//  res.iterations;
+            beam->verbose = false;
 
             // TODO: use not quadtree but some sort of dynamic spatial structure, like k-d tree with parameters from previous iteration
             // TODO: choose the optimal beam/ray numbers relation
 
-            if (res.fill) {
+            if (true) { //res.fill) {
                 if (beam->stack.parentEmpty() || beam->rect.width() <= 2.0 /
                                                                        N) { // TODO: skip fully filled nodes - return colors immediately (nope, too small of improvement)
                     int gridSizeX = NUMBER_OF_RAYS_PER_BEAM, gridSizeY = NUMBER_OF_RAYS_PER_BEAM;
@@ -116,10 +100,21 @@ int main(int argc, char *args[]) {
 
                     for (size_t x = 0; x < gridSizeX; x++) {
                         for (size_t y = 0; y < gridSizeY; y++) {
+                            if (renderer.debug && x == debugX && y == debugY)
+                                beam->verbose = true;
+
                             auto rayRes = beam->castRay(grid.at(x, y));
 
                             if (rayRes.fill) {
                                 renderer.fillRect(toScreen(grid.getCell(x, y)), rayRes.color);
+                            }
+
+                            if (renderer.debug && x == debugX && y == debugY) {
+                                beam->verbose = false;
+                                std::cout << rayRes.iterations << std::endl;
+
+                                auto dRect = toScreen(grid.getCell(x, y));
+                                renderer.fillRect(Rect(dRect.x - 2, dRect.y - 2, 5, 5), Color::BLUE);
                             }
                         }
                     }
@@ -150,6 +145,29 @@ int main(int argc, char *args[]) {
 
         if (renderer.pressed['p'])
             std::cout << cam.getPosition() << std::endl;
+
+        if (renderer.debug) {
+            if (renderer.pressed['d'])
+                debugX++;
+            if (renderer.pressed['a'])
+                debugX--;
+            if (renderer.pressed['w'])
+                debugY--;
+            if (renderer.pressed['s'])
+                debugY++;
+
+            while (debugX < 0)
+                debugX += RESOLUTION;
+
+            while (debugX >= RESOLUTION)
+                debugX -= RESOLUTION;
+
+            while (debugY < 0)
+                debugY += RESOLUTION;
+
+            while (debugY >= RESOLUTION)
+                debugY -= RESOLUTION;
+        }
 
         // rotation controls
         auto delta = renderer.getMouseDelta();

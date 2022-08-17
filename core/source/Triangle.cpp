@@ -40,9 +40,34 @@ void Triangle::transform(const std::function<Vec3f(const Vec3f &)>& f) {
 }
 
 Color Triangle::getColor(Vec3f point, double side) const {
-    double c1 = (Vec3f::cross(v2 - point, v3 - point)).size();
-    double c2 = (Vec3f::cross(v3 - point, v1 - point)).size();
-    double c3 = (Vec3f::cross(v1 - point, v2 - point)).size();
+    Vec3f normal = Vec3f::cross(v2 - v1, v3 - v1);
+
+    long r = 0, g = 0, b = 0;
+
+    if (normal.x == 0 && normal.y == 0 && normal.z == 0) {
+        for (int x = 0; x < texture->width(); x++) {
+            for (int y = 0; y < texture->height(); y++) {
+                r += texture->operator()(x, y, 0, 0);
+                g += texture->operator()(x, y, 0, 1);
+                b += texture->operator()(x, y, 0, 2);
+            }
+        }
+
+        r /= texture->width() * texture->height();
+        g /= texture->width() * texture->height();
+        b /= texture->width() * texture->height();
+
+        return {static_cast<ch_t>(r), static_cast<ch_t>(g), static_cast<ch_t>(b)};
+    }
+
+    Vec3f relative = point - v1;
+
+    double distToPlane = Vec3f::dot(relative, normal);
+    Vec3f projPoint = point;
+
+    double c1 = (Vec3f::cross(v2 - projPoint, v3 - projPoint)).size();
+    double c2 = (Vec3f::cross(v3 - projPoint, v1 - projPoint)).size();
+    double c3 = (Vec3f::cross(v1 - projPoint, v2 - projPoint)).size();
 
     double totalArea = c1 + c2 + c3;
 
@@ -60,8 +85,7 @@ Color Triangle::getColor(Vec3f point, double side) const {
     while (y < 0 || y >= texture->height())
         y -= sign(y) * texture->height();
 
-    long blurSize = sqrt(texture->height() * texture->width() * side * side / totalArea) / 2;
-    long r = 0, g = 0, b = 0;
+    long blurSize = sqrt(texture->height() * texture->width() * side * side / totalArea) / 3; // not 2 cuz want sharp image
     long numOfCorrectPixels = 0;
 
     for (int dx = -blurSize; dx <= blurSize; dx++) {

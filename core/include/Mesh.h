@@ -5,11 +5,9 @@
 #ifndef SABT_MESH_H
 #define SABT_MESH_H
 
-#include "ObjLoader.h"
 #include "Color.h"
 #include "Triangle.h"
 #include "BasicMath.h"
-#include "CImg.h"
 
 #include <utility>
 #include <string>

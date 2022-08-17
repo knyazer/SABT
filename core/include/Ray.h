@@ -25,6 +25,8 @@ public:
     /// Quickly finds intersection between provided cube and the ray
     [[nodiscard]] bool hasIntersection(Cube cube) const;
 
+    [[nodiscard]] Vec3f getDirection() const;
+
     [[nodiscard]] Vec3f getFarthestPointInDirection(Vec3f projDirection) const;
 
     [[nodiscard]] Vec3f getCenter() const;

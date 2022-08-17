@@ -43,7 +43,7 @@ TracingResult BeamTracer::trace(double desiredSize) {
             result.fill = true;
 
             if (verbose)
-                std::cout << *dynamic_cast<Octree*>(rawNode.node) << " is full; done\n";
+                std::cout << *rawNode.node << " is full; done\n";
 
             break;
         }
@@ -88,7 +88,7 @@ TracingResult BeamTracer::trace(double desiredSize) {
             }
 
             Cube cube = Octree::getCubeForChild(rootCube, i);
-            double distance = (Vec3f(cube.pos) - origin).size();
+            double distance = (Vec3f(cube.getCenter()) - origin).size();
 
             sorted.push_back({{child, cube}, distance});
 
@@ -164,6 +164,9 @@ TracingResult BeamTracer::castRay(Vec2f point) {
     TracingResult result;
     Ray ray(params->camera->getPosition(), params->camera->restore(point));
 
+    if (stack.parentEmpty())
+        return {Color::BLACK, false, 0};
+
     auto firstNode = stack.front();
     if (firstNode.node->isFull() && ray.hasIntersection(firstNode.cube)) {
         result.color = firstNode.node->getColor(0);
@@ -203,7 +206,7 @@ TracingResult BeamTracer::castRay(Vec2f point) {
             result.fill = true;
 
             if (verbose)
-                std::cout << *dynamic_cast<Octree*>(rawNode.node) << " is full; done\n";
+                std::cout << *rawNode.node << " is full; done\n";
 
             break;
         }
@@ -239,7 +242,8 @@ TracingResult BeamTracer::castRay(Vec2f point) {
             }
 
             Cube cube = Octree::getCubeForChild(rootCube, i);
-            double distance = (Vec3f(cube.pos) - origin).size();
+
+            double distance = Vec3f::dot(ray.getDirection(), cube.getCenter());
 
             sorted.push_back({{child, cube}, distance});
 
