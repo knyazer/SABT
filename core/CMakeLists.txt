@@ -10,3 +10,8 @@ add_library(core STATIC ${SOURCES})
 target_include_directories(core PUBLIC .)
 
 target_link_libraries(core PUBLIC ccd)
+
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(core PUBLIC OpenMP::OpenMP_CXX)
+endif()

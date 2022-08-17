@@ -133,7 +133,7 @@ Cube OctreeRoot::getCube() const {
     return {{0, 0, 0}, size()};
 }
 
-void OctreeRoot::fitMesh(Mesh mesh, unsigned sz) {
+void OctreeRoot::fitMesh(const Mesh& mesh, unsigned sz) {
     if (logSize > sz)
         throw std::runtime_error("the octree is bigger then the size you want to generate. While it feels like this should work, due to automatic growth the fitMesh failed."
                                  "Please consider to use fitMesh as the very first operation on octree, or see examples (which might be somewhere in repo).");
@@ -159,50 +159,72 @@ void OctreeRoot::fitMesh(Mesh mesh, unsigned sz) {
     Vec3f offset = meshBB.min;
 
 
-    auto transformation = [offset, scaleFactor](Vec3f point) {
+    auto transformation = [offset, scaleFactor](const Vec3f& point) {
         Vec3f zeroOffset = point - offset;
 
         return Vec3f(zeroOffset.x * scaleFactor.x, zeroOffset.y * scaleFactor.y, zeroOffset.z * scaleFactor.z);
     };
 
-    for (size_t i = 0; i < mesh.size(); i++) {
+    long progress = 0;
+    long logStep = mesh.size() / 10;
 
-        if ((i + 1) % 1000 == 0)
-            std::cout << i << "/" << mesh.size() << " triangles fitted" << std::endl;
+    #pragma omp parallel for
+    {
+        for (size_t i = 0; i < mesh.size(); i++) {
 
-        Triangle tri = mesh.get(i);
-
-        tri.transform(transformation);
-
-        std::stack<OctreeBase*> stack;
-        stack.push(this);
-
-        while (!stack.empty()) {
-            OctreeBase* rawNode = stack.top();
-            Cube cube = getCubeFor(rawNode);
-
-            stack.pop();
-
-            if (rawNode == nullptr)
-                throw std::runtime_error("Encountered nullptr while checking nodes for intersection with triangle. Generally impossible situation.");
-
-            if (Shape3d::hasIntersection(&cube, &tri)) {
-
-                if (cube.size == 1) {
-                    rawNode->fill(tri.getColor(cube.getCenter()));
+            if ((i + 0) % logStep == 0) {
+                #pragma omp critical
+                {
+                    progress++;
+                    std::cout << logStep * progress << "/" << mesh.size() << " triangles done" << std::endl;
                 }
-                else {
-                    Octree* node = dynamic_cast<Octree*>(rawNode);
-                    node->setFilling(SEMI);
+            }
 
-                    if (!node->hasChildren())
-                        node->makeChildren(cube.size == 2 ? MAKE_UNIT : MAKE_NORMAL);
+            Triangle tri = mesh.get(i);
 
-                    for (size_t j = 0; j < 8; j++)
-                        stack.push(node->getChild(j));
+            tri.transform(transformation);
+
+            std::stack<OctreeBase *> stack;
+            stack.push(this);
+
+            while (!stack.empty()) {
+                OctreeBase *rawNode = stack.top();
+                Cube cube = getCubeFor(rawNode);
+
+                stack.pop();
+
+                if (rawNode == nullptr)
+                    throw std::runtime_error(
+                            "Encountered nullptr while checking nodes for intersection with triangle. Generally impossible situation.");
+
+                if (Shape3d::hasIntersection(&cube, &tri)) {
+
+                    if (cube.size == 1) {
+                        auto color = tri.getColor(cube.getCenter(), cube.size);
+
+                        #pragma omp critical
+                        {
+                            rawNode->fill(color);
+                        }
+
+                    } else {
+                        Octree *node = dynamic_cast<Octree *>(rawNode);
+
+                        #pragma omp critical
+                        {
+                            node->setFilling(SEMI);
+
+                            if (!node->hasChildren())
+                                node->makeChildren(cube.size == 2 ? MAKE_UNIT : MAKE_NORMAL);
+                        }
+
+                        for (size_t j = 0; j < 8; j++)
+                            stack.push(node->getChild(j));
+                    }
                 }
             }
         }
     }
 
+    std::cout << "Octree mesh built successfully." << std::endl;
 }

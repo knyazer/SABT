@@ -42,7 +42,7 @@ struct Triangle : public Shape3d {
     void setTextureCoordinates(Vec2f first, Vec2f second, Vec2f third);
 
     /// Finds the pixel corresponding to provided point and returns its color
-    [[nodiscard]] Color getColor(Vec3f point) const;
+    [[nodiscard]] Color getColor(Vec3f point, double side=1) const;
 
     [[nodiscard]] Vec3f getFarthestPointInDirection(Vec3f direction) const override;
 

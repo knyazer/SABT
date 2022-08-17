@@ -46,7 +46,7 @@ public:
     Cube getCube() const;
 
     /// Fits the provided mesh model into the octree
-    void fitMesh(Mesh mesh, unsigned sz = 8);
+    void fitMesh(const Mesh& mesh, unsigned sz = 8);
 };
 
 

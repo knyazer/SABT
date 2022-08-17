@@ -19,11 +19,11 @@ using std::cout, std::endl;
 
 // hyps
 #define MOVE_STEP 5
-#define NUMBER_OF_RAYS_PER_BEAM 4
+#define NUMBER_OF_RAYS_PER_BEAM 64
 
 
 // params to edit
-constexpr size_t RESOLUTION = 128;
+constexpr size_t RESOLUTION = 64;
 
 // precalc
 constexpr double N = RESOLUTION / NUMBER_OF_RAYS_PER_BEAM;
@@ -33,7 +33,7 @@ int main(int argc, char *args[]) {
     Renderer renderer;
 
     Camera cam;
-    cam.setPosition({240, 200, 400});
+    cam.setPosition({120, 100, 200});
     cam.setRotationByX(Angle::deg(180));
     cam.setRotationByY(Angle::deg(0));
     cam.setRotationByZ(Angle::deg(0));
@@ -43,7 +43,7 @@ int main(int argc, char *args[]) {
 
     Mesh mesh(getPath() + "/models/sponza");
     OctreeRoot world;
-    world.fitMesh(mesh, 10);
+    world.fitMesh(mesh, 9);
 /*
     world.fill({0, 0, 8}, 2, Color::GREEN);
     world.fill({3, 1, 2}, 1, Color::BLUE);

@@ -39,17 +39,14 @@ void Triangle::transform(const std::function<Vec3f(const Vec3f &)>& f) {
     v3 = f(v3);
 }
 
-Color Triangle::getColor(Vec3f point) const {
+Color Triangle::getColor(Vec3f point, double side) const {
     double c1 = (Vec3f::cross(v2 - point, v3 - point)).size();
     double c2 = (Vec3f::cross(v3 - point, v1 - point)).size();
     double c3 = (Vec3f::cross(v1 - point, v2 - point)).size();
 
-    double sum = c1 + c2 + c3;
-    c1 /= sum;
-    c2 /= sum;
-    c3 /= sum;
+    double totalArea = c1 + c2 + c3;
 
-    Vec2f coord = t1 * c1 + t2 * c2 + t3 * c3;
+    Vec2f coord = (t1 * c1 + t2 * c2 + t3 * c3) * (1.0 / totalArea);
 
     if (texture == nullptr)
         throw std::runtime_error("Texture for the triangle not set! Committing suicide.");
@@ -63,7 +60,32 @@ Color Triangle::getColor(Vec3f point) const {
     while (y < 0 || y >= texture->height())
         y -= sign(y) * texture->height();
 
-    return {texture->operator()(x, y, 0, 0), texture->operator()(x, y, 0, 1), texture->operator()(x, y, 0, 2)};
+    long blurSize = sqrt(texture->height() * texture->width() * side * side / totalArea) / 2;
+    long r = 0, g = 0, b = 0;
+    long numOfCorrectPixels = 0;
+
+    for (int dx = -blurSize; dx <= blurSize; dx++) {
+        for (int dy = -blurSize; dy <= blurSize; dy++) {
+            int nX = x + dx, nY = y + dy;
+            if (nX < 0 || nX >= texture->width() || nY < 0 || nY >= texture->height())
+                continue;
+
+            numOfCorrectPixels += 1;
+
+            r += texture->operator()(nX, nY, 0, 0);
+            g += texture->operator()(nX, nY, 0, 1);
+            b += texture->operator()(nX, nY, 0, 2);
+        }
+    }
+
+    if (numOfCorrectPixels == 0)
+        throw std::runtime_error("Somehow obtained pixel lies outside of texture. Committing suicide.");
+
+    r /= numOfCorrectPixels;
+    g /= numOfCorrectPixels;
+    b /= numOfCorrectPixels;
+
+    return {static_cast<ch_t>(r), static_cast<ch_t>(g), static_cast<ch_t>(b)};
 }
 
 void Triangle::setTexture(CImg<unsigned char> *texturePtr) {
