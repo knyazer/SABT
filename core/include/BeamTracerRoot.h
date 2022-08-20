@@ -10,6 +10,8 @@
 #include "OctreeRoot.h"
 #include "WorldParams.h"
 
+#include <stack>
+
 /**
  * The root of all beam tracers.
  * Saves the camera, from which it extracts the origin position to set for all other beams, or beam tracers.

@@ -296,3 +296,18 @@ TracingResult BeamTracer::castRay(Vec2f point) {
 
     return result;
 }
+
+double BeamTracer::calculateMinDistance() {
+    if (children == nullptr) {
+        distanceToTheClosestCube = max2((stack.front().cube.getCenter() - origin).size() - (stack.front().cube.size / 2) * SQRT3, 0);
+    }
+    else {
+        double minDistance = children[0].calculateMinDistance();
+        for (size_t i = 1; i < 4; i++)
+            minDistance = min2(minDistance, children[i].calculateMinDistance());
+
+        distanceToTheClosestCube = minDistance;
+    }
+
+    return distanceToTheClosestCube;
+}

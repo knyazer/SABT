@@ -17,6 +17,10 @@
 #include "Biplet.h"
 #include "include/Ray.h"
 
+#include <cmath>
+
+constexpr double SQRT3 = 1.73205080757;
+
 /**
  * The type of the element contained in stack, currently made up from the pointer to the octree and its cube.
  */
@@ -71,11 +75,19 @@ public:
     /// Pointer to the data saved at root of the beam tree
     WorldParams *params{};
 
+    /// Distance to the closest cube, computed from bottom to top
+    double distanceToTheClosestCube{-1};
+
     /// Set this flag to true to debug this BeamTracer
     bool verbose{false};
 
     /// Construct beam rays from the 2-dimensional camera space newRect
     void construct(const AlignedRect& newRect);
+
+    /// Recursively calculates distance to the closest cube
+    /// Yeah, recursion is bad, but I do not want to add parent pointers
+    /// So the only reasonable way to do this is DFS
+    [[nodiscard]] double calculateMinDistance();
 
     /// Connects current stack to the stack of other beam tracer,
     /// syncs the params of the root

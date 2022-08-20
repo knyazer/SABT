@@ -130,6 +130,9 @@ int main(int argc, char *args[]) {
             }
         }
 
+        double dist = beamController.calculateMinDistance();
+        std::cout << "min distance is:" << dist << std::endl;
+
         static uint64_t iterTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timerBegin).count();
         iterTime = 0.9 * static_cast<double>(iterTime) +
                 0.1 * static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timerBegin).count());
