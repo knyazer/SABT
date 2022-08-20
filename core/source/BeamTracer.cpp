@@ -17,8 +17,12 @@ void BeamTracer::attach(BeamTracer *other) {
 TracingResult BeamTracer::trace(double desiredSize) {
     TracingResult result;
 
+    // make array for sorting
+    using S_T = std::pair<std::pair<OctreeBase *, Cube>, double>;
+    S_T *sorted = new S_T[8];
+    int g_cnt = 0;
     while (!stack.parentEmpty()) {
-        result.iterations ++;
+        result.iterations++;
 
         auto rawNode = stack.front();
 
@@ -48,10 +52,8 @@ TracingResult BeamTracer::trace(double desiredSize) {
             break;
         }
 
-        stack.pop();
-
-        // If node is not full, it means it is not the OctreeUnit derived, so we can cast the Octree*.
-        Octree *node = dynamic_cast<Octree*>(rawNode.node);
+        // If node is not full, it means it is not the OctreeUnit, so we can cast the Octree*.
+        Octree *node = dynamic_cast<Octree *>(rawNode.node);
 
         // quick adequacy test
         if (!node->hasChildren()) {
@@ -61,24 +63,25 @@ TracingResult BeamTracer::trace(double desiredSize) {
         // if node is semi - continue iteration, push all the children sorted by the distance to node
         // for each node check that it intersects with current beam (thick ray), and if so - push it to stack
         if (params == nullptr)
-            throw std::runtime_error("Params cannot be nullptr, they should have been transferred from parent BeamTracer");
+            throw std::runtime_error(
+                    "Params cannot be nullptr, they should have been transferred from parent BeamTracer");
 
-        Cube rootCube = params->root->getCubeFor(node);
+        const Cube &rootCube = rawNode.cube;
 
         // check whether the cube is LE than desired, if so - finish
-        double distanceToCube = (rootCube.getCenter() - origin).size();
-        if (static_cast<double>(rootCube.size) / distanceToCube < desiredSize) { // ~~ tan(alpha) ~~ alpha
+        double distanceToCubeSq = (rootCube.getCenter() - origin).sqsize();
+        if (static_cast<double>(sq(rootCube.size)) / distanceToCubeSq < sq(desiredSize)) { // ~~ tan(alpha) ~~ alpha
             result.fill = true;
             result.color = node->getColor(0);
 
             break;
         }
 
-        using S_T = std::pair<std::pair<OctreeBase*, Cube>, double>;
+        stack.pop();
 
-        std::vector<S_T> sorted;
+        long sortedSize = 0;
         for (size_t i = 0; i < 8; i++) {
-            OctreeBase* child = node->getChild(i);
+            OctreeBase *child = node->getChild(i);
 
             if (child->isEmpty()) {
                 if (verbose)
@@ -88,25 +91,29 @@ TracingResult BeamTracer::trace(double desiredSize) {
             }
 
             Cube cube = Octree::getCubeForChild(rootCube, i);
-            double distance = (Vec3f(cube.getCenter()) - origin).size();
+            double distance = (Vec3f(cube.getCenter()) - origin).sqsize();
 
-            sorted.push_back({{child, cube}, distance});
+            sorted[sortedSize] = {{child, cube}, distance};
+            sortedSize++;
 
             if (verbose)
                 std::cout << *child << " is not empty, so add to the dist arr. It was at " << Triplet(i) \
-                    << ", distance from origin: " << distance << "\n";
+ << ", distance from origin: " << distance << "\n";
         }
 
         if (verbose)
-            std::cout << "Distance array size is " << sorted.size()  << "\n";
+            std::cout << "Distance array size is " << sortedSize << "\n";
 
-        std::sort(sorted.begin(), sorted.end(), [](const S_T& A, const S_T &B) {
+        std::sort(sorted, sorted + sortedSize, [](const S_T &A, const S_T &B) {
             return A.second > B.second;
         });
 
-        for (const auto& zipped : sorted) {
-            auto *child = zipped.first.first;
-            Cube cube = zipped.first.second;
+
+        // TODO: Check if all the points lie strictly inside the beam, if so - skip all the intersection checks for all future nodes
+
+        for (size_t i = 0; i < sortedSize; i++) {
+            auto *child = sorted[i].first.first;
+            Cube cube = sorted[i].first.second;
 
             stack.push({child, cube});
         }
@@ -118,6 +125,11 @@ TracingResult BeamTracer::trace(double desiredSize) {
         else
             std::cout << "Final stack size is " << stack.size() << "\n\n\n";
     }
+
+    // Cleanup
+    for (size_t i = 0; i < stack.size(); i++)
+        stack.at(i).clearFromTempData();
+    delete[] sorted;
 
     return result;
 }
@@ -135,7 +147,7 @@ void BeamTracer::makeChildren() {
 }
 
 void BeamTracer::update() {
-    Vec2f* beamVertices = rect.getVertices();
+    Vec2f *beamVertices = rect.getVertices();
     Vec3f restored[4];
 
     for (size_t j = 0; j < 4; j++)
@@ -150,7 +162,7 @@ void BeamTracer::update() {
     delete beamVertices;
 }
 
-void BeamTracer::construct(const AlignedRect& newRect) {
+void BeamTracer::construct(const AlignedRect &newRect) {
     this->rect = newRect;
 
     update();
@@ -164,26 +176,32 @@ TracingResult BeamTracer::castRay(Vec2f point) {
     TracingResult result;
     Ray ray(params->camera->getPosition(), params->camera->restore(point));
 
+    // in case parent stack is empty, exit immediately
     if (stack.parentEmpty())
         return {Color::BLACK, false, 0};
 
+    // check the very first node if it is complete, if so - return it without all stack business
     auto firstNode = stack.front();
     if (firstNode.node->isFull() && ray.hasIntersection(firstNode.cube)) {
         result.color = firstNode.node->getColor(0);
         result.fill = true;
 
         if (verbose)
-            std::cout << "First-step exit confirmed; " << *dynamic_cast<Octree*>(firstNode.node) << " is full; done\n";
+            std::cout << "First-step exit confirmed; " << *dynamic_cast<Octree *>(firstNode.node) << " is full; done\n";
 
         return result;
     }
 
+    // make & setup the stack
     ConnectedStack<ID> rayStack;
     rayStack.connectToEnd(&stack);
 
 
+    using S_T = std::pair<std::pair<OctreeBase *, Cube>, double>;
+    S_T *sorted = new S_T[8];
+
     while (!rayStack.parentEmpty()) {
-        result.iterations ++;
+        result.iterations++;
 
         ID rawNode = rayStack.front();
 
@@ -213,8 +231,8 @@ TracingResult BeamTracer::castRay(Vec2f point) {
 
         rayStack.pop();
 
-        // If node is not full, it means it is not the OctreeUnit derived, so we can cast the Octree*.
-        Octree *node = dynamic_cast<Octree*>(rawNode.node);
+        // If node is not full, it means it is not the OctreeUnit, so we can cast the Octree*.
+        auto *node = dynamic_cast<Octree *>(rawNode.node);
 
         // quick adequacy test
         if (!node->hasChildren()) {
@@ -224,15 +242,14 @@ TracingResult BeamTracer::castRay(Vec2f point) {
         // if node is semi - continue iteration, push all the children sorted by the distance to node
         // for each node check that it intersects with current beam (thick ray), and if so - push it to stack
         if (params == nullptr)
-            throw std::runtime_error("Params cannot be nullptr, they should have been transferred from parent BeamTracer");
+            throw std::runtime_error(
+                    "Params cannot be nullptr, they should have been transferred from parent BeamTracer");
 
-        Cube rootCube = params->root->getCubeFor(node);
+        const Cube &rootCube = rawNode.cube;
 
-        using S_T = std::pair<std::pair<OctreeBase*, Cube>, double>;
-
-        std::vector<S_T> sorted;
+        long sortedSize = 0;
         for (size_t i = 0; i < 8; i++) {
-            OctreeBase* child = node->getChild(i);
+            OctreeBase *child = node->getChild(i);
 
             if (child->isEmpty()) {
                 if (verbose)
@@ -243,25 +260,26 @@ TracingResult BeamTracer::castRay(Vec2f point) {
 
             Cube cube = Octree::getCubeForChild(rootCube, i);
 
-            double distance = Vec3f::dot(ray.getDirection(), cube.getCenter());
+            double distance = Vec3f::dot(ray.getDirection(), Vec3f(cube.pos));
 
-            sorted.push_back({{child, cube}, distance});
+            sorted[sortedSize] = {{child, cube}, distance};
+            sortedSize++;
 
             if (verbose)
                 std::cout << *child << " is not empty, so add to the dist arr. It was at " << Triplet(i) \
-                    << ", distance from origin: " << distance << "\n";
+ << ", distance from origin: " << distance << "\n";
         }
 
         if (verbose)
-            std::cout << "Distance array size is " << sorted.size()  << "\n";
+            std::cout << "Distance array size is " << sortedSize << "\n";
 
-        std::sort(sorted.begin(), sorted.end(), [](const S_T& A, const S_T &B) {
+        std::sort(sorted, sorted + sortedSize, [](const S_T &A, const S_T &B) {
             return A.second > B.second;
         });
 
-        for (const auto& zipped : sorted) {
-            auto *child = zipped.first.first;
-            Cube cube = zipped.first.second;
+        for (size_t i = 0; i < sortedSize; i++) {
+            auto *child = sorted[i].first.first;
+            Cube cube = sorted[i].first.second;
 
             rayStack.push({child, cube});
         }
@@ -273,6 +291,8 @@ TracingResult BeamTracer::castRay(Vec2f point) {
         else
             std::cout << "Final stack size is " << rayStack.size() << "\n\n\n";
     }
+
+    delete[] sorted;
 
     return result;
 }

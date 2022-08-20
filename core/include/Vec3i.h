@@ -17,13 +17,13 @@ public:
 
     Vec3i(const Vec3i& other);
 
-    Vec3i operator*(long long factor);
+    Vec3i operator*(long long factor) const;
 
-    Vec3i operator+(const Vec3i &other);
+    Vec3i operator+(const Vec3i &other) const;
 
-    Vec3i operator-(const Vec3i &other);
+    Vec3i operator-(const Vec3i &other) const;
 
-    Vec3i operator+(long long value);
+    Vec3i operator+(long long value) const;
 
     friend std::ostream &operator<<(std::ostream &os, const Vec3i &val);
 };

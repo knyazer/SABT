@@ -23,6 +23,18 @@
 struct ID {
     OctreeBase *node;
     Cube cube;
+
+    ID() {
+        node = nullptr;
+    }
+
+    ID(OctreeBase* _node, Cube _cube) : node(_node), cube(_cube) {};
+
+    ID(OctreeBase* _node, Cube _cube, bool _certainIntersection) : node(_node), cube(_cube) {};
+
+    void clearFromTempData() {
+
+    }
 };
 
 /**

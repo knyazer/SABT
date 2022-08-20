@@ -25,4 +25,9 @@ T abs(T x) {
     return x < 0 ? -x : x;
 }
 
+template <typename T>
+T sq(T x) {
+    return x * x;
+}
+
 #endif //SABT_BASICMATH_H

@@ -88,13 +88,13 @@ graphics::Renderer::Pos2 graphics::Renderer::getMouseDelta() {
 
 bool graphics::Renderer::update() {
     // fps
-    static auto startTime = SDL_GetTicks();
+    static auto startTime = SDL_GetTicks64();
     static double avgFPS = 10;
 
-    auto frameTime = SDL_GetTicks() - startTime;
+    auto frameTime = SDL_GetTicks64() - startTime;
     // complementary filter to calculate average fps
     avgFPS = 0.05 * (frameTime > 0 ? static_cast<double>(1000.0 / frameTime) : 0) + 0.95 * avgFPS;
-    startTime = SDL_GetTicks();
+    startTime = SDL_GetTicks64();
 
     // change the drawn value infrequently
     static int _counter = 0;

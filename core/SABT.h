@@ -34,5 +34,6 @@
 #include "include/Mesh.h"
 #include "include/Triangle.h"
 #include "include/BoundingBox.h"
+#include "include/Point3D.h"
 
 #endif //SABT_SABT_H

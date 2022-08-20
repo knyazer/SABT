@@ -16,20 +16,20 @@ Vec3i::Vec3i(long long x, long long y, long long z) {
     this->z = z;
 }
 
-Vec3i Vec3i::operator*(long long factor) {
+Vec3i Vec3i::operator*(long long factor) const {
     return {x * factor, y * factor, z * factor};
 }
 
-Vec3i Vec3i::operator+(const Vec3i &other) {
+Vec3i Vec3i::operator+(const Vec3i &other) const {
     return {x + other.x, y + other.y, z + other.z};
 }
 
-Vec3i Vec3i::operator-(const Vec3i &other) {
+Vec3i Vec3i::operator-(const Vec3i &other) const {
     return {x - other.x, y - other.y, z - other.z};
 }
 
-Vec3i Vec3i::operator+(long long int value) {
-    return Vec3i(x + value, y + value, z + value);
+Vec3i Vec3i::operator+(long long value) const {
+    return {x + value, y + value, z + value};
 }
 
 Vec3i::Vec3i(const Vec3i &other) {

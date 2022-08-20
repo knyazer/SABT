@@ -11,8 +11,8 @@
 #include <ostream>
 #include <iostream>
 
-#define INITIAL_SIZE 10
-#define GROWTH_FACTOR 1.5
+#define INITIAL_SIZE 4
+#define GROWTH_FACTOR 2
 /**
  * The template which allows construction of connected stack with any parameter.
  * Connected stack generally acts similar to the usual stack, but with a few key differences.
@@ -142,8 +142,8 @@ public:
             grow();
     }
 
-    T at(size_t index) {
-        if (index < 0 || index >= currentSize) {
+    T& at(size_t index) {
+        if (index >= currentSize) {
             throw std::out_of_range("Attempt to access not available memory via 'at' operation.");
         }
 

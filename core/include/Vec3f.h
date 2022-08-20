@@ -39,6 +39,9 @@ public:
     /// Returns size of the vector
     [[nodiscard]] double size() const;
 
+    /// Returns squared size of the vector, equivalent to dot(*this, *this)
+    [[nodiscard]] double sqsize() const;
+
     /// Divides vector by its size; Normalization
     Vec3f norm() const;
 

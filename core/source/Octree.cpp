@@ -98,7 +98,7 @@ Color Octree::getColor(int face) {
 
 Cube Octree::getCubeForChild(const Cube &rootCube, Triplet tri) {
     ll sz = rootCube.size / 2;
-    return {{Vec3i(tri.x(), tri.y(), tri.z()) * sz + rootCube.pos}, sz};
+    return {Vec3i(tri.x(), tri.y(), tri.z()) * sz + rootCube.pos, sz};
 }
 
 Octree::~Octree() {

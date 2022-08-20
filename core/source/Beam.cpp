@@ -34,4 +34,19 @@ Vec3f Beam::getFarthestPointInDirection(Vec3f direction) const {
     return res;
 }
 
-Beam::Beam() {}
+Beam::Beam() {
+
+}
+
+bool Beam::pointLiesInside(const Vec3f &point) const {
+
+    for (size_t i = 0; i < 4; i++) {
+
+        Vec3f normal = Vec3f::cross((rays[i] - origin), (rays[(i + 1) % 4] - origin));
+
+        if (Vec3f::dot(point - origin, normal) <= 0)
+            return false;
+    }
+
+    return true;
+}

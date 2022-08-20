@@ -30,6 +30,9 @@ public:
 
     /// MPR wants it, currently return just the origin, as it is kinda the only point which makes sense
     [[nodiscard]] Vec3f getCenter() const override;
+
+    /// Checks whether given point lies inside the beam
+    [[nodiscard]] bool pointLiesInside(const Vec3f& point) const;
 };
 
 

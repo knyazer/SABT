@@ -8,6 +8,7 @@
 #include <GetPath.h>
 #include <iostream>
 #include <stack>
+#include <chrono>
 
 using namespace graphics;
 
@@ -19,11 +20,10 @@ using std::cout, std::endl;
 
 // hyps
 #define MOVE_STEP 5
-#define NUMBER_OF_RAYS_PER_BEAM 256
-
+#define NUMBER_OF_RAYS_PER_BEAM 1
 
 // params to edit
-constexpr size_t RESOLUTION = 256;
+constexpr size_t RESOLUTION = 512;
 
 // precalc
 constexpr double N = RESOLUTION / NUMBER_OF_RAYS_PER_BEAM;
@@ -50,6 +50,12 @@ int main(int argc, char *args[]) {
 */
     auto *params = new WorldParams(&world, &cam);
 
+    auto tr1 = [](double x) { return round(x * WIN_SIZE / 2 + WIN_SIZE / 2); };
+    auto tr2 = [](double x) { return round(x * WIN_SIZE / 2); };
+    auto toScreen = [tr1, tr2](const AlignedRect &rect) {
+        return Rect(tr1(rect.min.x), tr1(rect.min.y), tr2(rect.width()), tr2(rect.height()));
+    };
+
     //renderer.enableDebugging();
     int debugX = 0, debugY = 0;
 
@@ -61,17 +67,13 @@ int main(int argc, char *args[]) {
 
         ll perfCounterTotal = 0, perfCounterFilled = 0, filledPixels = 0;
 
+        auto timerBegin = std::chrono::steady_clock::now();
+
         BeamTracerRoot beamController;
         beamController.setup(params);
 
         std::stack<BeamTracer *> beams;
         beams.push(&beamController);
-
-        auto tr1 = [](double x) { return round(x * WIN_SIZE / 2 + WIN_SIZE / 2); };
-        auto tr2 = [](double x) { return round(x * WIN_SIZE / 2); };
-        auto toScreen = [tr1, tr2](const AlignedRect &rect) {
-            return Rect(tr1(rect.min.x), tr1(rect.min.y), tr2(rect.width()), tr2(rect.height()));
-        };
 
         if (renderer.debug)
             std::cout << "Iter." << std::endl;
@@ -82,18 +84,17 @@ int main(int argc, char *args[]) {
 
             if (beam == nullptr)
                 throw std::runtime_error("Nullptr beam in stack encountered. Abort");
-            std::cout << "1";
-            beam->verbose = true;
-            auto res = beam->trace(0.5);
-            perfCounterTotal += 0;//  res.iterations;
-            beam->verbose = false;
+
+            //beam->verbose = true;
+            auto res = beam->trace(0.012);
+            perfCounterTotal += res.iterations;//  res.iterations;
+            //beam->verbose = false;
 
             // TODO: use not quadtree but some sort of dynamic spatial structure, like k-d tree with parameters from previous iteration
             // TODO: choose the optimal beam/ray numbers relation
 
-            if (true) { //res.fill) {
-                if (beam->stack.parentEmpty() || beam->rect.width() <= 2.0 /
-                                                                       N) { // TODO: skip fully filled nodes - return colors immediately (nope, too small of improvement)
+            if (res.fill) { //res.fill) {
+                if (beam->stack.parentEmpty() || beam->rect.width() <= 2.0 / N) { // TODO: skip fully filled nodes - return colors immediately (nope, too small of improvement)
                     int gridSizeX = NUMBER_OF_RAYS_PER_BEAM, gridSizeY = NUMBER_OF_RAYS_PER_BEAM;
 
                     Grid grid(beam->rect, gridSizeX, gridSizeY);
@@ -104,6 +105,8 @@ int main(int argc, char *args[]) {
                                 beam->verbose = true;
 
                             auto rayRes = beam->castRay(grid.at(x, y));
+
+                            perfCounterTotal += rayRes.iterations;
 
                             if (rayRes.fill) {
                                 renderer.fillRect(toScreen(grid.getCell(x, y)), rayRes.color);
@@ -126,6 +129,12 @@ int main(int argc, char *args[]) {
                 }
             }
         }
+
+        static uint64_t iterTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timerBegin).count();
+        iterTime = 0.9 * static_cast<double>(iterTime) +
+                0.1 * static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timerBegin).count());
+
+        std::cout << perfCounterTotal << "it / " << iterTime << "us" << std::endl;
 
         // std::cout << "size: " << N * N << "\titers: " << perfCounterTotal << std::endl;
 

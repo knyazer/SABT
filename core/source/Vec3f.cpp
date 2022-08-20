@@ -74,5 +74,9 @@ Vec3f Vec3f::max(const Vec3f &a, const Vec3f &b) {
     return {max2(a.x, b.x), max2(a.y, b.y), max2(a.z, b.z)};
 }
 
+double Vec3f::sqsize() const {
+    return x * x + y * y + z * z;
+}
+
 
 
