@@ -31,7 +31,6 @@ public:
 
     template <size_t resolution>
     void fromPrevious(BeamRenderer &other) {
-        BeamTracerRoot
     }
 
     template <size_t resolution>
