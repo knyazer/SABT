@@ -193,3 +193,7 @@ void Camera::rotateByY(Angle theta) {
 
     lazyUpdate();
 }
+
+Angle Camera::getFOV() const {
+    return fov;
+}

@@ -36,7 +36,7 @@ public:
     void setPosition(Vec3f pos);
 
     /// Gets the camera position in the Vec3f format
-    Vec3f getPosition();
+    [[nodiscard]] Vec3f getPosition();
 
     /// Set the absolute rotation of camera around X axis
     void setRotationByX(Angle theta);
@@ -55,15 +55,18 @@ public:
     /// Sets the FOV of the camera
     void setFOV(Angle angle);
 
+    // Get the FOV of the camera
+    [[nodiscard]] Angle getFOV() const;
+
     /// Moves the camera by a given position.
     /// Equivalent to the setPosition(getPosition() + param)
     void move(Vec3f delta);
 
     /// Projects a point in 3-dimensions onto the 2-dimensional screen
-    Vec2f project(Vec3f point);
+    [[nodiscard]] Vec2f project(Vec3f point);
 
     /// Returns a direction of a ray passing from the screen point (given as the parameter) in global coords
-    Vec3f restore(Vec2f point);
+    [[nodiscard]] Vec3f restore(Vec2f point);
 
     /// Means that update is required
     void lazyUpdate();

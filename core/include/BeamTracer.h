@@ -52,7 +52,7 @@ struct TracingResult {
     bool fill = false;
 
     /// Number of iterations taken to get to the latest node
-    long long iterations = 0;
+    long long iterations = 0, fullNodeReturns = 0, smallNodeReturns = 0;
 };
 
 /**
@@ -75,8 +75,8 @@ public:
     /// Pointer to the data saved at root of the beam tree
     WorldParams *params{};
 
-    /// Distance to the closest cube, computed from bottom to top
-    double distanceToTheClosestCube{-1};
+    /// Distances to the closest and farthest cubes, computed from bottom to top
+    double minCubeDistance{-1}, maxCubeDistance{-1};
 
     /// Set this flag to true to debug this BeamTracer
     bool verbose{false};
@@ -84,10 +84,10 @@ public:
     /// Construct beam rays from the 2-dimensional camera space newRect
     void construct(const AlignedRect& newRect);
 
-    /// Recursively calculates distance to the closest cube
+    /// Recursively calculates distances to the closest and farthest cubes
     /// Yeah, recursion is bad, but I do not want to add parent pointers
     /// So the only reasonable way to do this is DFS
-    [[nodiscard]] double calculateMinDistance();
+    void calculateMinMaxDistances();
 
     /// Connects current stack to the stack of other beam tracer,
     /// syncs the params of the root

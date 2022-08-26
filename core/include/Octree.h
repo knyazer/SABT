@@ -71,6 +71,9 @@ public:
     /// Gets the color of a particular face
     Color getColor(int face) override;
 
+    /// Computes current color as an average of colors of all children
+    void recomputeColor();
+
     /// Returns the cube of the child from the current cube.
     /// Equivalent to {pos + tri.vec * size / 2, size / 2)
     static Cube getCubeForChild(const Cube &rootCube, Triplet tri);

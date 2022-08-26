@@ -9,8 +9,10 @@
 #include "OctreeRoot.h"
 
 struct WorldParams {
-    OctreeRoot *root{};
-    Camera *camera{};
+    OctreeRoot *root{nullptr};
+    Camera *camera{nullptr};
+
+    WorldParams() = default;
 
     WorldParams(OctreeRoot *newRoot, Camera *newCamera) {
         root = newRoot;

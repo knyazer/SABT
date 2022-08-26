@@ -226,5 +226,7 @@ void OctreeRoot::fitMesh(const Mesh& mesh, unsigned sz) {
         }
     }
 
+    recomputeColor();
+
     std::cout << "Octree mesh built successfully." << std::endl;
 }

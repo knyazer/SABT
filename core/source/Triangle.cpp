@@ -85,8 +85,9 @@ Color Triangle::getColor(Vec3f point, double side) const {
     while (y < 0 || y >= texture->height())
         y -= sign(y) * texture->height();
 
-    long blurSize = sqrt(texture->height() * texture->width() * side * side / totalArea) / 3; // not 2 cuz want sharp image
+    long blurSize = sqrt(texture->height() * texture->width() * side * side / totalArea) / 3 + 1;
     long numOfCorrectPixels = 0;
+    bool whitePixel = false;
 
     for (int dx = -blurSize; dx <= blurSize; dx++) {
         for (int dy = -blurSize; dy <= blurSize; dy++) {
@@ -94,13 +95,26 @@ Color Triangle::getColor(Vec3f point, double side) const {
             if (nX < 0 || nX >= texture->width() || nY < 0 || nY >= texture->height())
                 continue;
 
+            // Skip white pixels cuz it is usually the background
+            ch_t cr = texture->operator()(nX, nY, 0, 0),
+                 cg = texture->operator()(nX, nY, 0, 1),
+                 cb = texture->operator()(nX, nY, 0, 2);
+
+            if (cr == 255 && cg == 255 && cb == 255) {
+                whitePixel = true;
+                continue;
+            }
+
             numOfCorrectPixels += 1;
 
-            r += texture->operator()(nX, nY, 0, 0);
-            g += texture->operator()(nX, nY, 0, 1);
-            b += texture->operator()(nX, nY, 0, 2);
+            r += cr;
+            g += cg;
+            b += cb;
         }
     }
+
+    if (numOfCorrectPixels == 0 && whitePixel)
+        return {255, 255, 255};
 
     if (numOfCorrectPixels == 0)
         throw std::runtime_error("Somehow obtained pixel lies outside of texture. Committing suicide.");

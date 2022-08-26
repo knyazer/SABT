@@ -19,21 +19,24 @@ using std::cout, std::endl;
 #define eps 1e-6
 
 // hyps
-#define MOVE_STEP 5
-#define NUMBER_OF_RAYS_PER_BEAM 1
+#define NUMBER_OF_RAYS_PER_BEAM 0
+#define OCTREE_SIZE 9
 
 // params to edit
-constexpr size_t RESOLUTION = 512;
+constexpr size_t RESOLUTION = 256;
 
 // precalc
-constexpr double N = RESOLUTION / NUMBER_OF_RAYS_PER_BEAM;
-constexpr double Nh = N / 2;
+constexpr size_t NUMBER_OF_BEAMS = NUMBER_OF_RAYS_PER_BEAM == 0 ? RESOLUTION : RESOLUTION / NUMBER_OF_RAYS_PER_BEAM;
+constexpr size_t Nh = NUMBER_OF_BEAMS / 2;
+constexpr size_t OCTREE_LINEAR_SIZE = 1 << OCTREE_SIZE;
+constexpr double MOVE_STEP = double(OCTREE_LINEAR_SIZE) / 100.0;
+constexpr double SCALE_FACTOR = WIN_SIZE / RESOLUTION;
 
 int main(int argc, char *args[]) {
     Renderer renderer;
 
     Camera cam;
-    cam.setPosition({120, 100, 200});
+    cam.setPosition({OCTREE_LINEAR_SIZE / 5, OCTREE_LINEAR_SIZE / 6, OCTREE_LINEAR_SIZE / 2});
     cam.setRotationByX(Angle::deg(180));
     cam.setRotationByY(Angle::deg(0));
     cam.setRotationByZ(Angle::deg(0));
@@ -43,103 +46,37 @@ int main(int argc, char *args[]) {
 
     Mesh mesh(getPath() + "/models/sponza");
     OctreeRoot world;
-    world.fitMesh(mesh, 9);
+    world.fitMesh(mesh, OCTREE_SIZE);
 /*
     world.fill({0, 0, 8}, 2, Color::GREEN);
     world.fill({3, 1, 2}, 1, Color::BLUE);
 */
-    auto *params = new WorldParams(&world, &cam);
+    BeamRenderer beamRenderer(&world, &cam);
 
-    auto tr1 = [](double x) { return round(x * WIN_SIZE / 2 + WIN_SIZE / 2); };
-    auto tr2 = [](double x) { return round(x * WIN_SIZE / 2); };
-    auto toScreen = [tr1, tr2](const AlignedRect &rect) {
-        return Rect(tr1(rect.min.x), tr1(rect.min.y), tr2(rect.width()), tr2(rect.height()));
-    };
-
-    //renderer.enableDebugging();
-    int debugX = 0, debugY = 0;
+    BeamRenderer firstGlanceRenderer(&world, &cam);
+    firstGlanceRenderer.update<NUMBER_OF_BEAMS>(NUMBER_OF_RAYS_PER_BEAM);
 
     // Main render cycle
     while (renderer.update()) {
-        std::cout << '.' << std::endl;
-
         renderer.clear(Color::GRAY);
-
-        ll perfCounterTotal = 0, perfCounterFilled = 0, filledPixels = 0;
 
         auto timerBegin = std::chrono::steady_clock::now();
 
-        BeamTracerRoot beamController;
-        beamController.setup(params);
+        // Render the scene into colors array
+        beamRenderer.fromPrevious<NUMBER_OF_BEAMS>(firstGlanceRenderer);
+        auto res = beamRenderer.update<NUMBER_OF_BEAMS>(NUMBER_OF_RAYS_PER_BEAM);
 
-        std::stack<BeamTracer *> beams;
-        beams.push(&beamController);
+        uint64_t iterTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timerBegin).count();
+        std::cout << "iter time:" << iterTime << "us" << std::endl;
 
-        if (renderer.debug)
-            std::cout << "Iter." << std::endl;
+        // Show the output of beam renderer on screen
+        for (size_t x = 0; x < RESOLUTION; x++) {
+            for (size_t y = 0; y < RESOLUTION; y++)
+                renderer.fillRect({x * SCALE_FACTOR, y * SCALE_FACTOR, SCALE_FACTOR, SCALE_FACTOR}, res[x][y]);
 
-        while (!beams.empty()) {
-            BeamTracer *beam = beams.top();
-            beams.pop();
-
-            if (beam == nullptr)
-                throw std::runtime_error("Nullptr beam in stack encountered. Abort");
-
-            //beam->verbose = true;
-            auto res = beam->trace(0.012);
-            perfCounterTotal += res.iterations;//  res.iterations;
-            //beam->verbose = false;
-
-            // TODO: use not quadtree but some sort of dynamic spatial structure, like k-d tree with parameters from previous iteration
-            // TODO: choose the optimal beam/ray numbers relation
-
-            if (res.fill) { //res.fill) {
-                if (beam->stack.parentEmpty() || beam->rect.width() <= 2.0 / N) { // TODO: skip fully filled nodes - return colors immediately (nope, too small of improvement)
-                    int gridSizeX = NUMBER_OF_RAYS_PER_BEAM, gridSizeY = NUMBER_OF_RAYS_PER_BEAM;
-
-                    Grid grid(beam->rect, gridSizeX, gridSizeY);
-
-                    for (size_t x = 0; x < gridSizeX; x++) {
-                        for (size_t y = 0; y < gridSizeY; y++) {
-                            if (renderer.debug && x == debugX && y == debugY)
-                                beam->verbose = true;
-
-                            auto rayRes = beam->castRay(grid.at(x, y));
-
-                            perfCounterTotal += rayRes.iterations;
-
-                            if (rayRes.fill) {
-                                renderer.fillRect(toScreen(grid.getCell(x, y)), rayRes.color);
-                            }
-
-                            if (renderer.debug && x == debugX && y == debugY) {
-                                beam->verbose = false;
-                                std::cout << rayRes.iterations << std::endl;
-
-                                auto dRect = toScreen(grid.getCell(x, y));
-                                renderer.fillRect(Rect(dRect.x - 2, dRect.y - 2, 5, 5), Color::BLUE);
-                            }
-                        }
-                    }
-                } else {
-                    beam->makeChildren();
-
-                    for (size_t i = 0; i < 4; i++)
-                        beams.push(&beam->children[i]);
-                }
-            }
+            delete res[x];
         }
-
-        double dist = beamController.calculateMinDistance();
-        std::cout << "min distance is:" << dist << std::endl;
-
-        static uint64_t iterTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timerBegin).count();
-        iterTime = 0.9 * static_cast<double>(iterTime) +
-                0.1 * static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timerBegin).count());
-
-        std::cout << perfCounterTotal << "it / " << iterTime << "us" << std::endl;
-
-        // std::cout << "size: " << N * N << "\titers: " << perfCounterTotal << std::endl;
+        delete res;
 
         // position controls
         if (renderer.pressed['j'])
@@ -157,29 +94,6 @@ int main(int argc, char *args[]) {
 
         if (renderer.pressed['p'])
             std::cout << cam.getPosition() << std::endl;
-
-        if (renderer.debug) {
-            if (renderer.pressed['d'])
-                debugX++;
-            if (renderer.pressed['a'])
-                debugX--;
-            if (renderer.pressed['w'])
-                debugY--;
-            if (renderer.pressed['s'])
-                debugY++;
-
-            while (debugX < 0)
-                debugX += RESOLUTION;
-
-            while (debugX >= RESOLUTION)
-                debugX -= RESOLUTION;
-
-            while (debugY < 0)
-                debugY += RESOLUTION;
-
-            while (debugY >= RESOLUTION)
-                debugY -= RESOLUTION;
-        }
 
         // rotation controls
         auto delta = renderer.getMouseDelta();

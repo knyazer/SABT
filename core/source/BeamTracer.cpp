@@ -49,6 +49,8 @@ TracingResult BeamTracer::trace(double desiredSize) {
             if (verbose)
                 std::cout << *rawNode.node << " is full; done\n";
 
+            result.fullNodeReturns++;
+
             break;
         }
 
@@ -70,9 +72,11 @@ TracingResult BeamTracer::trace(double desiredSize) {
 
         // check whether the cube is LE than desired, if so - finish
         double distanceToCubeSq = (rootCube.getCenter() - origin).sqsize();
-        if (static_cast<double>(sq(rootCube.size)) / distanceToCubeSq < sq(desiredSize)) { // ~~ tan(alpha) ~~ alpha
+        double approximateCubeAngularSizeSq = static_cast<double>(sq(rootCube.size)) / distanceToCubeSq;
+        if (approximateCubeAngularSizeSq < sq(desiredSize)) {
             result.fill = true;
             result.color = node->getColor(0);
+            result.smallNodeReturns++;
 
             break;
         }
@@ -297,17 +301,29 @@ TracingResult BeamTracer::castRay(Vec2f point) {
     return result;
 }
 
-double BeamTracer::calculateMinDistance() {
+void BeamTracer::calculateMinMaxDistances() {
     if (children == nullptr) {
-        distanceToTheClosestCube = max2((stack.front().cube.getCenter() - origin).size() - (stack.front().cube.size / 2) * SQRT3, 0);
+        if (stack.parentEmpty())
+            return;
+
+        const Cube& cube = stack.front().cube;
+        minCubeDistance = max2((cube.getCenter() - origin).size() - double(cube.size / 2) * SQRT3, 0);
+        maxCubeDistance = max2((cube.getCenter() - origin).size() + double(cube.size / 2) * SQRT3, 0);
     }
     else {
-        double minDistance = children[0].calculateMinDistance();
-        for (size_t i = 1; i < 4; i++)
-            minDistance = min2(minDistance, children[i].calculateMinDistance());
+        for (size_t i = 0; i < 4; i++) {
+            if (children[i].stack.parentEmpty())
+                continue;
 
-        distanceToTheClosestCube = minDistance;
+            children[i].calculateMinMaxDistances();
+
+            if (minCubeDistance == -1)
+                minCubeDistance = children[i].minCubeDistance;
+            if (maxCubeDistance == -1)
+                maxCubeDistance = children[i].maxCubeDistance;
+
+            minCubeDistance = min2(minCubeDistance, children[i].minCubeDistance);
+            maxCubeDistance = max2(maxCubeDistance, children[i].maxCubeDistance);
+        }
     }
-
-    return distanceToTheClosestCube;
 }

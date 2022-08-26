@@ -11,9 +11,9 @@
 namespace graphics {
     class Rect : public SDL_Rect {
     public:
-        explicit Rect(double x, double y, double width, double height);
+        Rect(double x, double y, double width, double height);
 
-        explicit Rect(int x, int y, int width, int height);
+        Rect(int x, int y, int width, int height);
     };
 }
 
