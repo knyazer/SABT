@@ -5,6 +5,8 @@
 #ifndef SABT_BEAM_RENDERER_H
 #define SABT_BEAM_RENDERER_H
 
+#define ZERO_ITERATION_BEAM
+
 #include "Camera.h"
 #include "OctreeRoot.h"
 #include "WorldParams.h"
@@ -15,38 +17,95 @@
 
 #include <stack>
 
+template<size_t resolution>
 class BeamRenderer {
 protected:
     WorldParams params;
-    BeamTracerRoot beamController;
+
+    BeamTracerRoot *beamController{nullptr}, *previousBeamController{nullptr};
 
 public:
+
+    bool **marked{nullptr};
+
     BeamRenderer() = default;
 
-    BeamRenderer(OctreeRoot *world, Camera *camera);
-
-    void setup(OctreeRoot *world, Camera *camera);
-
-    void erase();
-
-    template <size_t resolution>
-    void fromPrevious(BeamRenderer &other) {
+    BeamRenderer(OctreeRoot *world, Camera *camera) {
+        setup(world, camera);
     }
 
-    template <size_t resolution>
-    Color** update(size_t raysPerBeam=0) {
+    void setup(OctreeRoot *world, Camera *camera) {
+        params = WorldParams(world, camera);
+
+        marked = new bool *[resolution];
+        for (size_t i = 0; i < resolution; i++) {
+            marked[i] = new bool[resolution];
+
+            for (size_t j = 0; j < resolution; j++)
+                marked[i][j] = false;
+        }
+    }
+
+    void prepare() {
+        std::stack<BeamTracer *> beams;
+        beams.push(beamController);
+
+        double minBeamWidth = 2.0 / resolution, minBeamHeight = 2.0 / resolution;
+
+        while (!beams.empty()) {
+            BeamTracer *beam = beams.top();
+            beams.pop();
+
+            if (beam == nullptr)
+                throw std::runtime_error("Nullptr beam in stack encountered. Abort");
+
+            auto res = beam->prepare(previousBeamController, 0.8 * params.camera->getFOV().rad() / resolution);
+
+            size_t beamX = round((beam->rect.min.x + 1) / minBeamWidth), beamY = round(
+                    (beam->rect.min.y + 1) / minBeamHeight);
+
+            if (res.fill) {
+                marked[beamX][beamY] = beam->marked;
+            } else {
+                beam->makeChildren();
+
+                for (size_t i = 0; i < 4; i++)
+                    beams.push(&beam->children[i]);
+            }
+        }
+    }
+
+    Color **update(size_t raysPerBeam = 0) {
         const size_t totalResolution = raysPerBeam == 0 ? resolution : (resolution * raysPerBeam);
 
-        auto pixels = new Color*[totalResolution];
+        auto pixels = new Color *[totalResolution];
         for (size_t i = 0; i < totalResolution; i++)
             pixels[i] = new Color[totalResolution];
 
         double minBeamWidth = 2.0 / resolution, minBeamHeight = 2.0 / resolution;
 
-        beamController.setup(&params);
+        for (size_t i = 0; i < resolution; i++)
+            for (size_t j = 0; j < resolution; j++)
+                marked[i][j] = false;
+
+#ifdef ZERO_ITERATION_BEAM
+        static size_t zeroIterationCounter = 0;
+        zeroIterationCounter++;
+
+        if (zeroIterationCounter > 2)
+            delete beamController;
+        beamController = new BeamTracerRoot();
+        beamController->setup(&params, previousBeamController);
+
+        if (zeroIterationCounter == 1)
+            previousBeamController = beamController;
+
+        /*if (zeroIterationCounter > 1)
+            prepare();*/
+#endif
 
         std::stack<BeamTracer *> beams;
-        beams.push(&beamController);
+        beams.push(beamController);
 
         long long fullNodeReturns = 0, smallNodeReturns = 0, perfCounterTotal = 0;
         while (!beams.empty()) {
@@ -56,9 +115,17 @@ public:
             if (beam == nullptr)
                 throw std::runtime_error("Nullptr beam in stack encountered. Abort");
 
-            auto res = beam->trace(  0.8 * params.camera->getFOV().rad() / resolution);
+            size_t beamX = round((beam->rect.min.x + 1) / minBeamWidth), beamY = round(
+                    (beam->rect.min.y + 1) / minBeamHeight);
 
-            size_t beamX = round((beam->rect.min.x + 1) / minBeamWidth), beamY = round((beam->rect.min.y + 1) / minBeamHeight);
+#ifdef ZERO_ITERATION_BEAM
+            TracingResult res;
+
+            if (zeroIterationCounter > 2)
+                res = beam->prepare(previousBeamController, 0);
+            else
+                res = beam->trace(0); //0.8 * params.camera->getFOV().rad() / resolution);
+#endif
 
             perfCounterTotal += res.iterations;
             fullNodeReturns += res.fullNodeReturns;
@@ -68,9 +135,9 @@ public:
             // TODO: use not quadtree but some sort of dynamic spatial structure, like k-d tree with parameters from previous iteration
             // TODO: choose the optimal beam/ray numbers relation
             // TODO: skip fully filled nodes - return colors immediately (nope, too small of improvement)
-
             if (res.fill) {
-                if (beam->stack.parentEmpty() || beam->rect.width() <= minBeamWidth || beam->rect.height() <= minBeamHeight) {
+                if (beam->stack.parentEmpty() || beam->rect.width() <= minBeamWidth ||
+                    beam->rect.height() <= minBeamHeight) {
                     if (raysPerBeam != 0) {
                         size_t gridSizeX = raysPerBeam, gridSizeY = raysPerBeam;
 
@@ -88,8 +155,8 @@ public:
                             }
                         }
                     } else {
-                        if (res.fill)
-                            pixels[beamX][beamY] = res.color;
+                        pixels[beamX][beamY] = res.color;
+                        marked[beamX][beamY] = beam->marked;
                     }
                 } else {
                     beam->makeChildren();
@@ -100,7 +167,7 @@ public:
             }
         }
 
-        beamController.calculateMinMaxDistances();
+        beamController->calculateMinMaxDistances();
 
         return pixels;
     }

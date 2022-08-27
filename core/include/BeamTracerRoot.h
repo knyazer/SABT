@@ -22,7 +22,7 @@ public:
 
     /// Has a specific function, which allows to attach itself directly to octree,
     /// not to another BeamTracer
-    void setup(WorldParams *params);
+    void setup(WorldParams *params, BeamTracer *previousBeamRoot = nullptr);
 };
 
 

@@ -28,6 +28,8 @@ public:
 
     [[nodiscard]] double size() const;
 
+    [[nodiscard]] double sizesq() const;
+
     [[nodiscard]] Vec2f norm() const;
 
     [[nodiscard]] Vec2f perp() const;

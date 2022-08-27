@@ -62,3 +62,7 @@ Vec2f::Vec2f(const Vec2f &other) {
     x = other.x;
     y = other.y;
 }
+
+double Vec2f::sizesq() const {
+    return x * x + y * y;
+}

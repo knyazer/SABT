@@ -36,5 +36,6 @@
 #include "include/BoundingBox.h"
 #include "include/Point3D.h"
 #include "include/BeamRenderer.h"
+#include "include/Polytope.h"
 
 #endif //SABT_SABT_H

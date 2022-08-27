@@ -11,7 +11,7 @@
 #include <ostream>
 #include <iostream>
 
-#define INITIAL_SIZE 4
+#define INITIAL_SIZE 0
 #define GROWTH_FACTOR 2
 /**
  * The template which allows construction of connected stack with any parameter.
@@ -66,7 +66,7 @@ protected:
 
     void grow() {
         // Setup new array
-        size_t newSize = (allocated * GROWTH_FACTOR) + 1;
+        size_t newSize = (allocated * GROWTH_FACTOR) + 8;
         T *newData = new T[newSize];
 
         // Copy data
@@ -74,14 +74,11 @@ protected:
             newData[i] = data[i];
 
         // Save the pointer to old data array
-        auto toDelete = data;
+        delete[] data;
 
         // Reassign values
         data = newData;
         allocated = newSize;
-
-        // Free memory
-        delete toDelete;
     }
 
 public:
@@ -132,15 +129,15 @@ public:
     }
 
     void push(T value) {
-        if (currentSize < 0 || currentSize >= allocated)
+        if (currentSize < 0 || currentSize > allocated)
             throw std::out_of_range("Attempt to access not allocated memory. Problems with stack growth.");
+
+        if (currentSize == allocated)
+            grow();
 
         data[currentSize] = value;
         currentSize++;
-
-        if (currentSize >= allocated)
-            grow();
-    }
+   }
 
     T& at(size_t index) {
         if (index >= currentSize) {
@@ -160,7 +157,7 @@ public:
             return parent.root->at(parent.size - 1);
         }
 
-        if (currentSize < 1 || currentSize >= allocated)
+        if (currentSize < 1 || currentSize > allocated)
             throw std::out_of_range("Current size of stack is wrong.");
 
         return data[currentSize - 1];

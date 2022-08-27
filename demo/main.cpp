@@ -42,8 +42,6 @@ int main(int argc, char *args[]) {
     cam.setRotationByZ(Angle::deg(0));
     cam.setFOV(Angle::deg(80));
 
-    renderer.createWindow("SABT demo", Rect(500, 500, WIN_SIZE, WIN_SIZE));
-
     Mesh mesh(getPath() + "/models/sponza");
     OctreeRoot world;
     world.fitMesh(mesh, OCTREE_SIZE);
@@ -51,32 +49,36 @@ int main(int argc, char *args[]) {
     world.fill({0, 0, 8}, 2, Color::GREEN);
     world.fill({3, 1, 2}, 1, Color::BLUE);
 */
-    BeamRenderer beamRenderer(&world, &cam);
-
-    BeamRenderer firstGlanceRenderer(&world, &cam);
-    firstGlanceRenderer.update<NUMBER_OF_BEAMS>(NUMBER_OF_RAYS_PER_BEAM);
+    BeamRenderer<NUMBER_OF_BEAMS> beamRenderer(&world, &cam);
 
     // Main render cycle
+    renderer.createWindow("SABT demo", Rect(500, 500, WIN_SIZE, WIN_SIZE));
     while (renderer.update()) {
         renderer.clear(Color::GRAY);
 
         auto timerBegin = std::chrono::steady_clock::now();
 
         // Render the scene into colors array
-        beamRenderer.fromPrevious<NUMBER_OF_BEAMS>(firstGlanceRenderer);
-        auto res = beamRenderer.update<NUMBER_OF_BEAMS>(NUMBER_OF_RAYS_PER_BEAM);
+        auto res = beamRenderer.update(NUMBER_OF_RAYS_PER_BEAM);
 
-        uint64_t iterTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timerBegin).count();
+        uint64_t iterTime = std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::steady_clock::now() - timerBegin).count();
         std::cout << "iter time:" << iterTime << "us" << std::endl;
 
         // Show the output of beam renderer on screen
         for (size_t x = 0; x < RESOLUTION; x++) {
-            for (size_t y = 0; y < RESOLUTION; y++)
+            for (size_t y = 0; y < RESOLUTION; y++) {
                 renderer.fillRect({x * SCALE_FACTOR, y * SCALE_FACTOR, SCALE_FACTOR, SCALE_FACTOR}, res[x][y]);
+                if (beamRenderer.marked[x][y]) {
+                    renderer.drawRect(
+                            {x * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, y * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, 2.0,
+                             2.0}, Color::RED);
+                }
+            }
 
-            delete res[x];
+            delete[] res[x];
         }
-        delete res;
+        delete[] res;
 
         // position controls
         if (renderer.pressed['j'])

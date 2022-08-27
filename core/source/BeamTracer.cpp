@@ -6,11 +6,18 @@
 
 void BeamTracer::attach(BeamTracer &other) {
     stack.connectToEnd(&other.stack);
+
+    if (!other.quadStack.parentEmpty())
+        quadStack.connectToEnd(&other.quadStack);
+
     params = other.params;
 }
 
 void BeamTracer::attach(BeamTracer *other) {
     stack.connectToEnd(&other->stack);
+    if (!other->quadStack.parentEmpty())
+        quadStack.connectToEnd(&other->quadStack);
+
     params = other->params;
 }
 
@@ -326,4 +333,102 @@ void BeamTracer::calculateMinMaxDistances() {
             maxCubeDistance = max2(maxCubeDistance, children[i].maxCubeDistance);
         }
     }
+}
+
+TracingResult BeamTracer::prepare(BeamTracer* baseTracer, double desiredSize) {
+    TracingResult res;
+
+    // make array for sorting
+    using S_T = std::pair<BeamTracer*, double>;
+    S_T *sorted = new S_T[4];
+
+    Vec2f beamOriginProjectedToOldBeamPlane = baseTracer->params->camera->project(origin);
+
+    marked = false;
+    while (!quadStack.parentEmpty()) {
+        res.iterations++;
+
+        BeamTracer *node = quadStack.front();
+
+        if (node == nullptr)
+            throw std::runtime_error("Pointer to BeamTracer in quad stack is nullptr");
+
+        // ignore if the node is empty
+        if (node->stack.parentEmpty()) {
+            quadStack.pop();
+            continue;
+        }
+
+        // Check for intersection
+        Polytope boundingVolume = node->makeBoundingVolume();
+        if (!Shape3d::hasIntersection(this, &boundingVolume)) {
+            quadStack.pop();
+            continue;
+        }
+
+        if (params == nullptr)
+            throw std::runtime_error(
+                    "Params cannot be nullptr, they should have been transferred from parent BeamTracer");
+
+        // If node has no children while stack is not empty, then this node is the bottom-most leaf, which means we should return
+        // the final stack node as the result for the tracing (kinda)
+        if (node->children == nullptr) {
+            stack.push(node->stack.front());
+            marked = true;
+            res.fill = true;
+            res.color = stack.front().node->getColor(0);
+            break;
+        }
+
+        quadStack.pop();
+
+        long sortedSize = 0;
+        for (size_t i = 0; i < 4; i++) {
+            BeamTracer *child = &node->children[i];
+
+            if (child->stack.parentEmpty())
+                continue;
+
+            double distance = (child->rect.mid() - beamOriginProjectedToOldBeamPlane).sizesq();
+
+            sorted[sortedSize] = {child, distance};
+            sortedSize++;
+        }
+
+        if (verbose)
+            std::cout << "Distance array size is " << sortedSize << "\n";
+
+        std::sort(sorted, sorted + sortedSize, [](const S_T &A, const S_T &B) {
+            return A.second > B.second;
+        });
+
+        // TODO: Check if all the points lie strictly inside the beam, if so - skip all the intersection checks for all future nodes
+
+        for (size_t i = 0; i < sortedSize; i++)
+            quadStack.push(sorted[i].first);
+    }
+
+    if (marked == false) {
+        res.fill = false;
+    }
+
+    // Cleanup
+    delete[] sorted;
+
+    return res;
+}
+
+Polytope BeamTracer::makeBoundingVolume() const {
+    if (minCubeDistance < 0 || maxCubeDistance < 0)
+        throw std::runtime_error("Distance to either closest or fartest cube is negative, probably forgot to initiliaze it. Committing suicide.");
+
+    std::vector<Vec3f> vertices(8);
+
+    for (size_t i = 0; i < 4; i++) {
+        Vec3f dir = (rays[i] - origin).norm();
+        vertices[i * 2] = origin + dir * minCubeDistance;
+        vertices[i * 2 + 1] = origin + dir * maxCubeDistance;
+    }
+
+    return vertices;
 }
