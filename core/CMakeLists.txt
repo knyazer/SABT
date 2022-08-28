@@ -4,7 +4,7 @@ project(core)
 
 set(CMAKE_CXX_STANDARD 20)
 
-file(GLOB SOURCES source/*.cpp)
+file(GLOB SOURCES source/*.cpp third-party/*.c third-party/*.cpp)
 add_library(core STATIC ${SOURCES})
 
 target_include_directories(core PUBLIC .)
