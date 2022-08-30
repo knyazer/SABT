@@ -230,3 +230,45 @@ void OctreeRoot::fitMesh(const Mesh& mesh, unsigned sz) {
 
     std::cout << "Octree mesh built successfully." << std::endl;
 }
+
+std::vector<OctreeAndCubePair> OctreeRoot::constructDirectPathBetween(OctreeAndCubePair first, OctreeAndCubePair last) const {
+    if (first.node == last.node)
+        return {};
+
+    std::vector<OctreeAndCubePair> result;
+
+    auto currentNode = first.node;
+
+    ll cubeSize = first.cube.size;
+    Vec3i cubePos = first.cube.pos;
+
+    Vec3i delta = last.cube.pos - first.cube.pos;
+
+    while (currentNode != last.node) {
+        ll half = cubeSize >> 1;
+
+        if (half == 0 || currentNode == nullptr)
+            throw std::runtime_error("There is no direct path between provided nodes! Committing suicide.");
+
+        Vec3i sign;
+        if (delta.x >= half) sign.x = 1;
+        else sign.x = 0;
+
+        if (delta.y >= half) sign.y = 1;
+        else sign.y = 0;
+
+        if (delta.z >= half) sign.z = 1;
+        else sign.z = 0;
+
+        delta = delta - sign * half;
+
+        cubePos = cubePos + sign * half;
+        cubeSize = half;
+        currentNode = dynamic_cast<Octree*>((currentNode))->getChild(sign);
+
+        if (cubeSize != 1)
+            result.push_back({currentNode, {cubePos, cubeSize}});
+    }
+
+    return result;
+}

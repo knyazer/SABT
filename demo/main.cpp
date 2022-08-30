@@ -20,7 +20,7 @@ using std::cout, std::endl;
 
 // hyps
 #define NUMBER_OF_RAYS_PER_BEAM 0
-#define OCTREE_SIZE 9
+#define OCTREE_SIZE 10
 
 // params to edit
 constexpr size_t RESOLUTION = 256;
@@ -69,11 +69,21 @@ int main(int argc, char *args[]) {
         for (size_t x = 0; x < RESOLUTION; x++) {
             for (size_t y = 0; y < RESOLUTION; y++) {
                 renderer.fillRect({x * SCALE_FACTOR, y * SCALE_FACTOR, SCALE_FACTOR, SCALE_FACTOR}, res[x][y]);
-                if (beamRenderer.marked[x][y]) {
+                /*if (beamRenderer.marked[x][y] == 1) {
                     renderer.drawRect(
-                            {x * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, y * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, 2.0,
-                             2.0}, Color::RED);
+                            {x * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, y * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, 1.0,
+                             1.0}, Color::GREEN);
                 }
+                else if (beamRenderer.marked[x][y] == 2) {
+                    renderer.drawRect(
+                            {x * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, y * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, 1.0,
+                             1.0}, Color::RED);
+                }
+                else if (beamRenderer.marked[x][y] == 3) {
+                    renderer.drawRect(
+                            {x * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, y * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, 1.0,
+                             1.0}, Color::BLUE);
+                }*/
             }
 
             delete[] res[x];

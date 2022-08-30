@@ -11,8 +11,8 @@
 #include <ostream>
 #include <iostream>
 
-#define INITIAL_SIZE 0
-#define GROWTH_FACTOR 2
+#define INITIAL_SIZE 4
+#define GROWTH_FACTOR 3
 /**
  * The template which allows construction of connected stack with any parameter.
  * Connected stack generally acts similar to the usual stack, but with a few key differences.
@@ -37,6 +37,8 @@ protected:
             root = other.root;
             size = other.size;
         }
+
+        StackPointer(ConnectedStack<T> *_root, size_t _size) : root(_root), size(_size) {}
 
         /// Moves the pointer upwards
         void step() {
@@ -66,7 +68,7 @@ protected:
 
     void grow() {
         // Setup new array
-        size_t newSize = (allocated * GROWTH_FACTOR) + 8;
+        size_t newSize = (allocated * GROWTH_FACTOR) + 1;
         T *newData = new T[newSize];
 
         // Copy data
@@ -74,11 +76,14 @@ protected:
             newData[i] = data[i];
 
         // Save the pointer to old data array
-        delete[] data;
+        auto toDelete = data;
 
         // Reassign values
         data = newData;
         allocated = newSize;
+
+        // Free memory
+        delete toDelete;
     }
 
 public:
@@ -88,14 +93,36 @@ public:
         currentSize = 0;
     }
 
-    ConnectedStack(const ConnectedStack<T> &stack) {
-        allocated = stack.allocated;
-        currentSize = stack.currentSize;
+    void syncAllData(ConnectedStack<T> *other) {
+        ConnectedStack<T> *ptr = other;
+        size_t len = other->currentSize;
+
+        size_t offset = currentSize;
+
+        do {
+            for (size_t i = 1; i <= len; i++)
+                push(ptr->at(len - i));
+
+            len = ptr->parent.size;
+            ptr = ptr->parent.root;
+        } while (ptr != nullptr);
+
+        std::reverse(data + offset, data + currentSize);
+    }
+
+    void syncData(ConnectedStack<T> *other) {
+        allocated = other->allocated;
+        currentSize = other->currentSize;
+
+        delete[] data;
 
         data = new T[allocated];
-        std::copy(stack.data, stack.data.get() + currentSize, data);
+        for (size_t i = 0; i < currentSize; i++)
+            data[i] = T(other->data[i]);
+    }
 
-        parent = StackPointer(stack.parent);
+    void setParent(ConnectedStack<T> *stack, ConnectedStack<T> *root) {
+        parent = StackPointer(root, stack->parent.size);
     }
 
     /// Connect the stack to some place at other one
@@ -129,15 +156,15 @@ public:
     }
 
     void push(T value) {
-        if (currentSize < 0 || currentSize > allocated)
+        if (currentSize < 0 || currentSize >= allocated)
             throw std::out_of_range("Attempt to access not allocated memory. Problems with stack growth.");
-
-        if (currentSize == allocated)
-            grow();
 
         data[currentSize] = value;
         currentSize++;
-   }
+
+        if (currentSize >= allocated)
+            grow();
+    }
 
     T& at(size_t index) {
         if (index >= currentSize) {
@@ -157,10 +184,48 @@ public:
             return parent.root->at(parent.size - 1);
         }
 
-        if (currentSize < 1 || currentSize > allocated)
+        if (currentSize < 1 || currentSize >= allocated)
             throw std::out_of_range("Current size of stack is wrong.");
 
         return data[currentSize - 1];
+    }
+
+    T back() {
+        if (parent.root == nullptr)
+            throw std::runtime_error("Cannot return the last element of parent if parent is nullptr, duh. Committing suicide.");
+        if (parent.size == 0)
+            throw std::runtime_error("Parent is zero size, weird, unable to access last element. Committing suicide cuz something might go wrong.");
+
+        return parent.root->at(parent.size - 1);
+    }
+
+    void ascend() {
+        if (parent.root == nullptr)
+            throw std::runtime_error("Failed to ascend, parent is nullptr. Committing suicide.");
+
+        parent.step();
+    }
+
+    void print(auto printFunction=[](T x){return x;}, long long len=-1) {
+        if (len == -1)
+            len = currentSize;
+
+        for (size_t i = 1; i <= len; i++)
+            std::cout << printFunction(data[len - i]) << std::endl;
+    }
+
+    void printAll(auto printFunction=[](T x){return x;}) {
+        ConnectedStack<T> *ptr = this;
+        size_t len = currentSize;
+
+        do {
+            ptr->print(printFunction, len);
+
+            len = ptr->parent.size;
+            ptr = ptr->parent.root;
+
+            std::cout << " fin." << std::endl;
+        } while (ptr != nullptr);
     }
 
     T pop() {

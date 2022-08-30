@@ -10,6 +10,8 @@ void BeamTracer::attach(BeamTracer &other) {
     if (!other.quadStack.parentEmpty())
         quadStack.connectToEnd(&other.quadStack);
 
+    parent = &other;
+
     params = other.params;
 }
 
@@ -17,6 +19,8 @@ void BeamTracer::attach(BeamTracer *other) {
     stack.connectToEnd(&other->stack);
     if (!other->quadStack.parentEmpty())
         quadStack.connectToEnd(&other->quadStack);
+
+    parent = other;
 
     params = other->params;
 }
@@ -170,7 +174,7 @@ void BeamTracer::update() {
         for (size_t i = 0; i < 4; i++)
             children[i].update();
 
-    delete beamVertices;
+    delete[] beamVertices;
 }
 
 void BeamTracer::construct(const AlignedRect &newRect) {
@@ -204,7 +208,7 @@ TracingResult BeamTracer::castRay(Vec2f point) {
     }
 
     // make & setup the stack
-    ConnectedStack<ID> rayStack;
+    ConnectedStack<OctreeAndCubePair> rayStack;
     rayStack.connectToEnd(&stack);
 
 
@@ -214,7 +218,7 @@ TracingResult BeamTracer::castRay(Vec2f point) {
     while (!rayStack.parentEmpty()) {
         result.iterations++;
 
-        ID rawNode = rayStack.front();
+        OctreeAndCubePair rawNode = rayStack.front();
 
         if (rawNode.node == nullptr)
             throw std::runtime_error("Pointer to BaseOctree in call stack is nullptr");
@@ -372,11 +376,81 @@ TracingResult BeamTracer::prepare(BeamTracer* baseTracer, double desiredSize) {
 
         // If node has no children while stack is not empty, then this node is the bottom-most leaf, which means we should return
         // the final stack node as the result for the tracing (kinda)
-        if (node->children == nullptr) {
-            stack.push(node->stack.front());
+        if (node->children == nullptr || node->rect.width() <= rect.width()) {
+
+            //stack.printAll([](auto x){return x.cube;});
+
+            //std::cout << "---------" << std::endl;
+
+            if (stack.size() == 0) {
+                static auto isThisFamily = [](const Cube& old, const Cube& recent) {
+                    if (old.size < recent.size)
+                        return false;
+
+                    if (recent.pos.x < old.pos.x || recent.pos.y < old.pos.y || recent.pos.z < old.pos.z)
+                        return false;
+
+                    if (recent.pos.x >= old.pos.x + old.size || recent.pos.y >= old.pos.y + old.size || recent.pos.z >= old.pos.z + old.size)
+                        return false;
+
+                    return true;
+                };
+
+                ConnectedStack<OctreeAndCubePair> ptr;
+                ptr.connectToEnd(&stack);
+
+                while (!isThisFamily(ptr.front().cube, node->stack.front().cube)) {
+                    //std::cout << stack.front().cube << " " << node->stack.front().cube << std::endl;
+
+                    ptr.pop();
+
+                    if (ptr.parentEmpty())
+                        break;
+                }
+
+                if (ptr.parentEmpty()) {
+                    break;
+                }
+
+                while (!isThisFamily(stack.front().cube, node->stack.front().cube)) {
+                    //std::cout << stack.front().cube << " " << node->stack.front().cube << std::endl;
+
+                    stack.pop();
+                }
+
+                // now the root pointer of the stack points to some cube, which contains the last cube of the given node
+                std::vector<OctreeAndCubePair> path = params->root->constructDirectPathBetween(stack.front(), node->stack.front());
+
+                for (auto &v : path)
+                    stack.push(v);
+
+                stack.push(node->stack.front());
+            }
+            else {
+                // Should execute only with the root beam, just construct the path between root octree node and given
+                std::vector<OctreeAndCubePair> path = params->root->constructDirectPathBetween(stack.front(), node->stack.front());
+
+                for (auto &v : path)
+                    stack.push(v);
+
+                stack.push(node->stack.front());
+            }
+
+            //std::cout << "->" << std::endl;
+
+            //stack.printAll([](auto x){return x.cube;});
+
+            //stack.push(node->stack.front());
+
+            /*for (size_t i = 0; i < stack.size(); i++)
+                std::cout << stack.at(i).node << " " << node->stack.at(i).node << std::endl;
+*/
             marked = true;
             res.fill = true;
-            res.color = stack.front().node->getColor(0);
+            if (stack.empty())
+                res.color = Color::BLACK;
+            else
+                res.color = node->stack.front().node->getColor(0);
             break;
         }
 
@@ -420,14 +494,14 @@ TracingResult BeamTracer::prepare(BeamTracer* baseTracer, double desiredSize) {
 
 Polytope BeamTracer::makeBoundingVolume() const {
     if (minCubeDistance < 0 || maxCubeDistance < 0)
-        throw std::runtime_error("Distance to either closest or fartest cube is negative, probably forgot to initiliaze it. Committing suicide.");
+        throw std::runtime_error("Distance to either closest or farthest cube is negative, probably forgot to initiliaze it. Committing suicide.");
 
     std::vector<Vec3f> vertices(8);
 
     for (size_t i = 0; i < 4; i++) {
         Vec3f dir = (rays[i] - origin).norm();
         vertices[i * 2] = origin + dir * minCubeDistance;
-        vertices[i * 2 + 1] = origin + dir * maxCubeDistance;
+        vertices[i * 2 + 1] = rays[i]; //origin + dir * maxCubeDistance;
     }
 
     return vertices;

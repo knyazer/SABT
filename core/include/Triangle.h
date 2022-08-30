@@ -5,11 +5,12 @@
 #ifndef SABT_TRIANGLE_H
 #define SABT_TRIANGLE_H
 
+#include "third-party/CImg.h"
+
 #include "Vec3f.h"
 #include "Vec2f.h"
 #include "Shape3d.h"
 #include "Color.h"
-#include "CImg.h"
 
 #include <functional>
 

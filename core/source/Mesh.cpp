@@ -3,8 +3,8 @@
 //
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include "include/ObjLoader.h"
-#include "include/CImg.h"
+#include "third-party/ObjLoader.h"
+#include "third-party/CImg.h"
 
 #include "include/Mesh.h"
 

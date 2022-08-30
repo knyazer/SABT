@@ -26,7 +26,7 @@ protected:
 
 public:
 
-    bool **marked{nullptr};
+    size_t **marked{nullptr};
 
     BeamRenderer() = default;
 
@@ -37,13 +37,9 @@ public:
     void setup(OctreeRoot *world, Camera *camera) {
         params = WorldParams(world, camera);
 
-        marked = new bool *[resolution];
-        for (size_t i = 0; i < resolution; i++) {
-            marked[i] = new bool[resolution];
-
-            for (size_t j = 0; j < resolution; j++)
-                marked[i][j] = false;
-        }
+        marked = new size_t *[resolution];
+        for (size_t i = 0; i < resolution; i++)
+            marked[i] = new size_t[resolution];
     }
 
     void prepare() {
@@ -86,7 +82,7 @@ public:
 
         for (size_t i = 0; i < resolution; i++)
             for (size_t j = 0; j < resolution; j++)
-                marked[i][j] = false;
+                marked[i][j] = 0;
 
 #ifdef ZERO_ITERATION_BEAM
         static size_t zeroIterationCounter = 0;
@@ -99,9 +95,6 @@ public:
 
         if (zeroIterationCounter == 1)
             previousBeamController = beamController;
-
-        /*if (zeroIterationCounter > 1)
-            prepare();*/
 #endif
 
         std::stack<BeamTracer *> beams;
@@ -121,10 +114,22 @@ public:
 #ifdef ZERO_ITERATION_BEAM
             TracingResult res;
 
-            if (zeroIterationCounter > 2)
+            if (zeroIterationCounter > 2) {
                 res = beam->prepare(previousBeamController, 0);
-            else
+                //beam->stack.printAll([](auto x){return x.cube; });
+                //std::cout << "------" << std::endl;
+                if (beamX == 1 && beamY == 1)
+                    int a = 1;
+
+                //res = beam->trace(0); // 0.8 * params.camera->getFOV().rad() / resolution);
+            }
+            else {
                 res = beam->trace(0); //0.8 * params.camera->getFOV().rad() / resolution);
+                /*if (beamX == 1 && beamY == 1) {
+                    beam->stack.printAll([](auto x){return x.cube; });
+                    throw std::runtime_error("a");
+                };*/
+            }
 #endif
 
             perfCounterTotal += res.iterations;
@@ -156,7 +161,7 @@ public:
                         }
                     } else {
                         pixels[beamX][beamY] = res.color;
-                        marked[beamX][beamY] = beam->marked;
+                        marked[beamX][beamY] = (beam->marked ? 1 : 0) + ((res.prepareSuccess ? 1 : 0) * 2);
                     }
                 } else {
                     beam->makeChildren();
@@ -168,6 +173,8 @@ public:
         }
 
         beamController->calculateMinMaxDistances();
+
+        std::cout << "it " << perfCounterTotal << std::endl;
 
         return pixels;
     }

@@ -23,26 +23,6 @@
 constexpr double SQRT3 = 1.73205080757;
 
 /**
- * The type of the element contained in stack, currently made up from the pointer to the octree and its cube.
- */
-struct ID {
-    OctreeBase *node;
-    Cube cube;
-
-    ID() {
-        node = nullptr;
-    }
-
-    ID(OctreeBase* _node, Cube _cube) : node(_node), cube(_cube) {};
-
-    ID(OctreeBase* _node, Cube _cube, bool _certainIntersection) : node(_node), cube(_cube) {};
-
-    void clearFromTempData() {
-
-    }
-};
-
-/**
  * Result of the trace, returns a bunch of useful and not so information.
  */
 struct TracingResult {
@@ -51,6 +31,9 @@ struct TracingResult {
 
     /// Is final node empty or not ?
     bool fill = false;
+
+    /// Is preparation step led to correct result
+    bool prepareSuccess = false;
 
     /// Number of iterations taken to get to the latest node
     long long iterations = 0, fullNodeReturns = 0, smallNodeReturns = 0;
@@ -62,13 +45,16 @@ struct TracingResult {
 class BeamTracer : public Beam {
 public:
     /// The main stack
-    ConnectedStack<ID> stack;
+    ConnectedStack<OctreeAndCubePair> stack;
 
     /// The stack for the preparation step - tracing of the surface formed by previously traced beams
     ConnectedStack<BeamTracer*> quadStack;
 
     /// Pointer to the children of the beam tracer
     BeamTracer *children{nullptr};
+
+    /// Pointer to the parent of the beam tracer
+    BeamTracer *parent{nullptr};
 
     /// Generates the 4 children and attaches them to itself
     void makeChildren();

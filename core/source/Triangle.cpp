@@ -85,7 +85,7 @@ Color Triangle::getColor(Vec3f point, double side) const {
     while (y < 0 || y >= texture->height())
         y -= sign(y) * texture->height();
 
-    long blurSize = sqrt(texture->height() * texture->width() * side * side / totalArea) / 3 + 1;
+    long blurSize = 0;//sqrt(texture->height() * texture->width() * side * side / totalArea) / 3 + 1;
     long numOfCorrectPixels = 0;
     bool whitePixel = false;
 
