@@ -61,6 +61,12 @@ public:
 
     bool marked{false};
 
+    bool precomputed{false};
+
+    void attachStack(BeamTracer *other);
+
+    void updatePrecomputed();
+
     /// BeamTracer tracing rect - location of beam in camera coordinate system
     AlignedRect rect;
 
@@ -94,7 +100,7 @@ public:
     [[nodiscard]] TracingResult trace(double desiredSize = 0);
 
     /// Uses previous beam to find approximate result cube for the real trace
-    [[nodiscard]] TracingResult prepare(BeamTracer* baseTracer, double desiredSize = 0);
+    [[nodiscard]] TracingResult prepare(BeamTracer* baseTracer, double desiredSize = 0, bool lastLevel = false);
 
     [[nodiscard]] Polytope makeBoundingVolume() const;
 

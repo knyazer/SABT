@@ -26,6 +26,10 @@ std::ostream &operator<<(std::ostream &os, const Vec3i &val) {
     return os;
 }
 
+std::ostream &operator<<(std::ostream &os, const AlignedRect &val) {
+    os << "[Rect](" << val.min << ", " << val.max << ")";
+    return os;
+}
 
 std::ostream &operator<<(std::ostream &os, const Triplet &val) {
     os << "[Triplet](" << val.x() << ", " << val.y() << ", " << val.z() << ")";

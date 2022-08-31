@@ -51,6 +51,10 @@ public:
 
     [[nodiscard]] double height() const;
 
+    void squeeze();
+
+    friend std::ostream& operator<<(std::ostream& os, const AlignedRect& val);
+
     /// Access the vertices using Biplet
     Vec2f operator[](Biplet index);
 };

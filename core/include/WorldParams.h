@@ -10,11 +10,11 @@
 
 struct WorldParams {
     OctreeRoot *root{nullptr};
-    Camera *camera{nullptr};
+    Camera camera;
 
     WorldParams() = default;
 
-    WorldParams(OctreeRoot *newRoot, Camera *newCamera) {
+    WorldParams(OctreeRoot *newRoot, Camera newCamera) {
         root = newRoot;
         camera = newCamera;
     }

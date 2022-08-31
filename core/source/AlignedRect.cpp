@@ -99,3 +99,9 @@ double AlignedRect::width() const {
 double AlignedRect::height() const {
     return max.y - min.y;
 }
+
+void AlignedRect::squeeze() {
+    //return; // TODO: check that it is needed
+    min = min + Vec2f(1e-6, 1e-6);
+    max = max - Vec2f(1e-6, 1e-6);
+}

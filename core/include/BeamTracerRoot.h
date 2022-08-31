@@ -18,11 +18,13 @@
  */
 class BeamTracerRoot : public BeamTracer {
 public:
+    WorldParams paramsOrig;
+
     BeamTracerRoot();
 
     /// Has a specific function, which allows to attach itself directly to octree,
     /// not to another BeamTracer
-    void setup(WorldParams *params, BeamTracer *previousBeamRoot = nullptr);
+    void setup(WorldParams params, BeamTracer *previousBeamRoot = nullptr);
 };
 
 

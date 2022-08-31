@@ -5,8 +5,6 @@
 #include "include/BeamTracer.h"
 
 void BeamTracer::attach(BeamTracer &other) {
-    stack.connectToEnd(&other.stack);
-
     if (!other.quadStack.parentEmpty())
         quadStack.connectToEnd(&other.quadStack);
 
@@ -16,13 +14,16 @@ void BeamTracer::attach(BeamTracer &other) {
 }
 
 void BeamTracer::attach(BeamTracer *other) {
-    stack.connectToEnd(&other->stack);
     if (!other->quadStack.parentEmpty())
         quadStack.connectToEnd(&other->quadStack);
 
     parent = other;
 
     params = other->params;
+}
+
+void BeamTracer::attachStack(BeamTracer *other) {
+    stack.connectToEnd(&other->stack);
 }
 
 TracingResult BeamTracer::trace(double desiredSize) {
@@ -150,6 +151,7 @@ TracingResult BeamTracer::trace(double desiredSize) {
 }
 
 void BeamTracer::makeChildren() {
+    delete[] children;
     children = new BeamTracer[4];
     Vec2f center = rect.mid();
 
@@ -166,9 +168,9 @@ void BeamTracer::update() {
     Vec3f restored[4];
 
     for (size_t j = 0; j < 4; j++)
-        restored[j] = params->camera->restore(beamVertices[j]);
+        restored[j] = params->camera.restore(beamVertices[j]);
 
-    set(params->camera->getPosition(), restored);
+    set(params->camera.getPosition(), restored);
 
     if (children != nullptr)
         for (size_t i = 0; i < 4; i++)
@@ -178,7 +180,8 @@ void BeamTracer::update() {
 }
 
 void BeamTracer::construct(const AlignedRect &newRect) {
-    this->rect = newRect;
+    rect = newRect;
+    rect.squeeze();
 
     update();
 }
@@ -189,7 +192,7 @@ BeamTracer::~BeamTracer() {
 
 TracingResult BeamTracer::castRay(Vec2f point) {
     TracingResult result;
-    Ray ray(params->camera->getPosition(), params->camera->restore(point));
+    Ray ray(params->camera.getPosition(), params->camera.restore(point));
 
     // in case parent stack is empty, exit immediately
     if (stack.parentEmpty())
@@ -339,14 +342,14 @@ void BeamTracer::calculateMinMaxDistances() {
     }
 }
 
-TracingResult BeamTracer::prepare(BeamTracer* baseTracer, double desiredSize) {
+TracingResult BeamTracer::prepare(BeamTracer* baseTracer, double desiredSize, bool lastLevel) {
     TracingResult res;
 
     // make array for sorting
     using S_T = std::pair<BeamTracer*, double>;
     S_T *sorted = new S_T[4];
 
-    Vec2f beamOriginProjectedToOldBeamPlane = baseTracer->params->camera->project(origin);
+    Vec2f beamOriginProjectedToOldBeamPlane = baseTracer->params->camera.project(origin);
 
     marked = false;
     while (!quadStack.parentEmpty()) {
@@ -363,7 +366,7 @@ TracingResult BeamTracer::prepare(BeamTracer* baseTracer, double desiredSize) {
             continue;
         }
 
-        // Check for intersection
+        // Check for intersection // TODO: order of this and next check for the last node
         Polytope boundingVolume = node->makeBoundingVolume();
         if (!Shape3d::hasIntersection(this, &boundingVolume)) {
             quadStack.pop();
@@ -376,81 +379,17 @@ TracingResult BeamTracer::prepare(BeamTracer* baseTracer, double desiredSize) {
 
         // If node has no children while stack is not empty, then this node is the bottom-most leaf, which means we should return
         // the final stack node as the result for the tracing (kinda)
-        if (node->children == nullptr || node->rect.width() <= rect.width()) {
+        if (node->children == nullptr) {
 
-            //stack.printAll([](auto x){return x.cube;});
+            Cube cube = node->stack.front().cube;
+            /*if (!Shape3d::hasIntersection(this, &cube) && lastLevel) {
+                //quadStack.printAll([](auto x){return x->rect;});
+                break;
+            }*/
 
-            //std::cout << "---------" << std::endl;
-
-            if (stack.size() == 0) {
-                static auto isThisFamily = [](const Cube& old, const Cube& recent) {
-                    if (old.size < recent.size)
-                        return false;
-
-                    if (recent.pos.x < old.pos.x || recent.pos.y < old.pos.y || recent.pos.z < old.pos.z)
-                        return false;
-
-                    if (recent.pos.x >= old.pos.x + old.size || recent.pos.y >= old.pos.y + old.size || recent.pos.z >= old.pos.z + old.size)
-                        return false;
-
-                    return true;
-                };
-
-                ConnectedStack<OctreeAndCubePair> ptr;
-                ptr.connectToEnd(&stack);
-
-                while (!isThisFamily(ptr.front().cube, node->stack.front().cube)) {
-                    //std::cout << stack.front().cube << " " << node->stack.front().cube << std::endl;
-
-                    ptr.pop();
-
-                    if (ptr.parentEmpty())
-                        break;
-                }
-
-                if (ptr.parentEmpty()) {
-                    break;
-                }
-
-                while (!isThisFamily(stack.front().cube, node->stack.front().cube)) {
-                    //std::cout << stack.front().cube << " " << node->stack.front().cube << std::endl;
-
-                    stack.pop();
-                }
-
-                // now the root pointer of the stack points to some cube, which contains the last cube of the given node
-                std::vector<OctreeAndCubePair> path = params->root->constructDirectPathBetween(stack.front(), node->stack.front());
-
-                for (auto &v : path)
-                    stack.push(v);
-
-                stack.push(node->stack.front());
-            }
-            else {
-                // Should execute only with the root beam, just construct the path between root octree node and given
-                std::vector<OctreeAndCubePair> path = params->root->constructDirectPathBetween(stack.front(), node->stack.front());
-
-                for (auto &v : path)
-                    stack.push(v);
-
-                stack.push(node->stack.front());
-            }
-
-            //std::cout << "->" << std::endl;
-
-            //stack.printAll([](auto x){return x.cube;});
-
-            //stack.push(node->stack.front());
-
-            /*for (size_t i = 0; i < stack.size(); i++)
-                std::cout << stack.at(i).node << " " << node->stack.at(i).node << std::endl;
-*/
             marked = true;
             res.fill = true;
-            if (stack.empty())
-                res.color = Color::BLACK;
-            else
-                res.color = node->stack.front().node->getColor(0);
+            res.color = node->stack.front().node->getColor(0);
             break;
         }
 
@@ -463,7 +402,9 @@ TracingResult BeamTracer::prepare(BeamTracer* baseTracer, double desiredSize) {
             if (child->stack.parentEmpty())
                 continue;
 
-            double distance = (child->rect.mid() - beamOriginProjectedToOldBeamPlane).sizesq();
+            //Vec2f projected = params->camera.project(child->origin + child->params->camera.restore(child->rect.mid()));
+            Vec2f projected = params->camera.project(child->stack.front().cube.getCenter());
+            double distance = (projected - rect.mid()).sizesq();
 
             sorted[sortedSize] = {child, distance};
             sortedSize++;
@@ -475,6 +416,8 @@ TracingResult BeamTracer::prepare(BeamTracer* baseTracer, double desiredSize) {
         std::sort(sorted, sorted + sortedSize, [](const S_T &A, const S_T &B) {
             return A.second > B.second;
         });
+
+        //std::cout << sorted[0].second << " " <<sorted[1].second << std::endl;
 
         // TODO: Check if all the points lie strictly inside the beam, if so - skip all the intersection checks for all future nodes
 
@@ -505,4 +448,15 @@ Polytope BeamTracer::makeBoundingVolume() const {
     }
 
     return vertices;
+}
+
+void BeamTracer::updatePrecomputed() {
+    if (children != nullptr) {
+        precomputed = true;
+        for (size_t i = 0; i < 4; i++) {
+            children[i].updatePrecomputed();
+            if (!children[i].precomputed)
+                precomputed = false;
+        }
+    }
 }

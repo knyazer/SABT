@@ -30,11 +30,11 @@ public:
 
     BeamRenderer() = default;
 
-    BeamRenderer(OctreeRoot *world, Camera *camera) {
+    BeamRenderer(OctreeRoot *world, Camera camera) {
         setup(world, camera);
     }
 
-    void setup(OctreeRoot *world, Camera *camera) {
+    void setup(OctreeRoot *world, Camera camera) {
         params = WorldParams(world, camera);
 
         marked = new size_t *[resolution];
@@ -42,33 +42,8 @@ public:
             marked[i] = new size_t[resolution];
     }
 
-    void prepare() {
-        std::stack<BeamTracer *> beams;
-        beams.push(beamController);
-
-        double minBeamWidth = 2.0 / resolution, minBeamHeight = 2.0 / resolution;
-
-        while (!beams.empty()) {
-            BeamTracer *beam = beams.top();
-            beams.pop();
-
-            if (beam == nullptr)
-                throw std::runtime_error("Nullptr beam in stack encountered. Abort");
-
-            auto res = beam->prepare(previousBeamController, 0.8 * params.camera->getFOV().rad() / resolution);
-
-            size_t beamX = round((beam->rect.min.x + 1) / minBeamWidth), beamY = round(
-                    (beam->rect.min.y + 1) / minBeamHeight);
-
-            if (res.fill) {
-                marked[beamX][beamY] = beam->marked;
-            } else {
-                beam->makeChildren();
-
-                for (size_t i = 0; i < 4; i++)
-                    beams.push(&beam->children[i]);
-            }
-        }
+    void updateCamera(Camera camera) {
+        params.camera = camera;
     }
 
     Color **update(size_t raysPerBeam = 0) {
@@ -91,14 +66,53 @@ public:
         if (zeroIterationCounter > 2)
             delete beamController;
         beamController = new BeamTracerRoot();
-        beamController->setup(&params, previousBeamController);
+        beamController->setup(params, previousBeamController);
 
         if (zeroIterationCounter == 1)
             previousBeamController = beamController;
 #endif
+    double DQDFactor = 0.8 * params.camera.getFOV().rad() / resolution;
+    std::stack<BeamTracer *> beams;
+#if 1
+        if (zeroIterationCounter > 2) {
+            beams.push(beamController);
 
-        std::stack<BeamTracer *> beams;
+            // double minBeamWidth = 2.0 / resolution, minBeamHeight = 2.0 / resolution;
+
+            while (!beams.empty()) {
+                BeamTracer *beam = beams.top();
+                beams.pop();
+
+                if (beam == nullptr)
+                    throw std::runtime_error("Nullptr beam in stack encountered. Abort");
+
+                auto res = beam->prepare(previousBeamController, DQDFactor, beam->rect.width() <= minBeamWidth);
+
+                size_t beamX = round((beam->rect.min.x + 1) / minBeamWidth), beamY = round(
+                        (beam->rect.min.y + 1) / minBeamHeight);
+
+                if (res.fill) {
+                    if (beam->rect.width() <= minBeamWidth) {
+                        pixels[beamX][beamY] = res.color;
+                        beam->precomputed = true;
+                        marked[beamX][beamY] = 1;
+                    } else {
+                        if (beam->children == nullptr)
+                            beam->makeChildren();
+
+                        for (size_t i = 0; i < 4; i++)
+                            beams.push(&beam->children[i]);
+                    }
+                }
+            }
+        }
+
+        beamController->updatePrecomputed();
+#endif
+
+        // std::stack<BeamTracer *> beams;
         beams.push(beamController);
+        size_t skipped = 0;
 
         long long fullNodeReturns = 0, smallNodeReturns = 0, perfCounterTotal = 0;
         while (!beams.empty()) {
@@ -115,26 +129,18 @@ public:
             TracingResult res;
 
             if (zeroIterationCounter > 2) {
-                res = beam->prepare(previousBeamController, 0);
-                //beam->stack.printAll([](auto x){return x.cube; });
-                //std::cout << "------" << std::endl;
-                if (beamX == 1 && beamY == 1)
-                    int a = 1;
-
-                //res = beam->trace(0); // 0.8 * params.camera->getFOV().rad() / resolution);
+                if (beam->precomputed) {
+                    skipped++;
+                    continue;
+                }
+                else {
+                    res = beam->trace(DQDFactor);
+                }
             }
             else {
-                res = beam->trace(0); //0.8 * params.camera->getFOV().rad() / resolution);
-                /*if (beamX == 1 && beamY == 1) {
-                    beam->stack.printAll([](auto x){return x.cube; });
-                    throw std::runtime_error("a");
-                };*/
+                res = beam->trace(DQDFactor); //0.8 * params.camera->getFOV().rad() / resolution);
             }
 #endif
-
-            perfCounterTotal += res.iterations;
-            fullNodeReturns += res.fullNodeReturns;
-            smallNodeReturns += res.smallNodeReturns;
 
             // TODO: talk about colors and looking at the backside of cubes
             // TODO: use not quadtree but some sort of dynamic spatial structure, like k-d tree with parameters from previous iteration
@@ -161,20 +167,22 @@ public:
                         }
                     } else {
                         pixels[beamX][beamY] = res.color;
-                        marked[beamX][beamY] = (beam->marked ? 1 : 0) + ((res.prepareSuccess ? 1 : 0) * 2);
                     }
                 } else {
-                    beam->makeChildren();
+                    if (beam->children == nullptr)
+                        beam->makeChildren();
 
-                    for (size_t i = 0; i < 4; i++)
+                    for (size_t i = 0; i < 4; i++) {
+                        beam->children[i].attachStack(beam);
                         beams.push(&beam->children[i]);
+                    }
                 }
             }
         }
 
         beamController->calculateMinMaxDistances();
 
-        std::cout << "it " << perfCounterTotal << std::endl;
+        std::cout << "it " << perfCounterTotal << " sk " << skipped << std::endl;
 
         return pixels;
     }

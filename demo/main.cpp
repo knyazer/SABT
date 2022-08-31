@@ -49,7 +49,7 @@ int main(int argc, char *args[]) {
     world.fill({0, 0, 8}, 2, Color::GREEN);
     world.fill({3, 1, 2}, 1, Color::BLUE);
 */
-    BeamRenderer<NUMBER_OF_BEAMS> beamRenderer(&world, &cam);
+    BeamRenderer<NUMBER_OF_BEAMS> beamRenderer(&world, cam);
 
     // Main render cycle
     renderer.createWindow("SABT demo", Rect(500, 500, WIN_SIZE, WIN_SIZE));
@@ -60,6 +60,7 @@ int main(int argc, char *args[]) {
 
         // Render the scene into colors array
         auto res = beamRenderer.update(NUMBER_OF_RAYS_PER_BEAM);
+        beamRenderer.updateCamera(cam);
 
         uint64_t iterTime = std::chrono::duration_cast<std::chrono::microseconds>(
                 std::chrono::steady_clock::now() - timerBegin).count();
@@ -69,21 +70,11 @@ int main(int argc, char *args[]) {
         for (size_t x = 0; x < RESOLUTION; x++) {
             for (size_t y = 0; y < RESOLUTION; y++) {
                 renderer.fillRect({x * SCALE_FACTOR, y * SCALE_FACTOR, SCALE_FACTOR, SCALE_FACTOR}, res[x][y]);
-                /*if (beamRenderer.marked[x][y] == 1) {
-                    renderer.drawRect(
-                            {x * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, y * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, 1.0,
-                             1.0}, Color::GREEN);
+                if (beamRenderer.marked[x][y] == 1) {
+                    /*renderer.drawRect(
+                            {x * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, y * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, 2.0,
+                             2.0}, Color::RED);*/
                 }
-                else if (beamRenderer.marked[x][y] == 2) {
-                    renderer.drawRect(
-                            {x * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, y * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, 1.0,
-                             1.0}, Color::RED);
-                }
-                else if (beamRenderer.marked[x][y] == 3) {
-                    renderer.drawRect(
-                            {x * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, y * SCALE_FACTOR + SCALE_FACTOR / 2 - 1, 1.0,
-                             1.0}, Color::BLUE);
-                }*/
             }
 
             delete[] res[x];
