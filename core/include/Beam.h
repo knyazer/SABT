@@ -7,6 +7,7 @@
 
 #include "Vec3f.h"
 #include "Shape3d.h"
+#include "Polygon.h"
 
 #include <iostream>
 
@@ -33,6 +34,9 @@ public:
 
     /// Checks whether given point lies inside the beam
     [[nodiscard]] bool pointLiesInside(const Vec3f& point) const;
+
+    /// Forms a polygon from the intersection of beam rays with a given base plane (normal to Vec3f::Index), and a distance to it (signed)
+    [[nodiscard]] Polygon project(Vec3f::Index plane, double distance) const;
 };
 
 

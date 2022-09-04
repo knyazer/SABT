@@ -112,7 +112,9 @@ public:
 
         // std::stack<BeamTracer *> beams;
         beams.push(beamController);
-        size_t skipped = 0;
+        size_t skipped = 0, traced = 0;
+        size_t skippedArea = 0, tracedArea = 0;
+
 
         long long fullNodeReturns = 0, smallNodeReturns = 0, perfCounterTotal = 0;
         while (!beams.empty()) {
@@ -124,6 +126,7 @@ public:
 
             size_t beamX = round((beam->rect.min.x + 1) / minBeamWidth), beamY = round(
                     (beam->rect.min.y + 1) / minBeamHeight);
+            size_t beamW = round(beam->rect.width() / minBeamWidth), beamH = round(beam->rect.height() / minBeamHeight);
 
 #ifdef ZERO_ITERATION_BEAM
             TracingResult res;
@@ -131,10 +134,15 @@ public:
             if (zeroIterationCounter > 2) {
                 if (beam->precomputed) {
                     skipped++;
+                    skippedArea += beamW * beamH;
                     continue;
                 }
                 else {
                     res = beam->trace(DQDFactor);
+                    traced++;
+
+                    if (beamW * beamH == 1)
+                        tracedArea += beamW * beamH;
                 }
             }
             else {
@@ -182,7 +190,8 @@ public:
 
         beamController->calculateMinMaxDistances();
 
-        std::cout << "it " << perfCounterTotal << " sk " << skipped << std::endl;
+        std::cout << "it " << perfCounterTotal << " sk " << skipped << " (" << skippedArea << ")\t" << " tr " << traced <<
+                    " (" << tracedArea << ")" << std::endl;
 
         return pixels;
     }

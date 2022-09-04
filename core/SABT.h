@@ -37,5 +37,6 @@
 #include "include/Point3D.h"
 #include "include/BeamRenderer.h"
 #include "include/Polytope.h"
+#include "include/ExplicitIntersections.h"
 
 #endif //SABT_SABT_H

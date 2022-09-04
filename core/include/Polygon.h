@@ -7,6 +7,7 @@
 
 #include "Vec2f.h"
 #include "Shape2d.h"
+#include "AlignedRect.h"
 
 #include <vector>
 #include <cstdint>
@@ -30,6 +31,9 @@ public:
 
     /// GJK support function
     [[nodiscard]] Vec2f getFarthestPointInDirection(Vec2f direction) const override;
+
+    /// Produces bounding box for the polygon
+    [[nodiscard]] AlignedRect makeBB() const;
 };
 
 

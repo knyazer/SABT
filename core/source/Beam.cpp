@@ -50,3 +50,19 @@ bool Beam::pointLiesInside(const Vec3f &point) const {
 
     return true;
 }
+
+Polygon Beam::project(Vec3f::Index plane, double distance) const {
+    std::vector<Vec2f> result(4);
+
+    for (size_t i = 0; i < 4; i++) {
+        Vec3f diff = rays[i] - origin;
+        double factor = distance / diff[plane];
+
+        if (factor < 0)
+            return Polygon({{-100, 100}, {-100, -100}, {-100, -100}, {-100, 100}});
+
+        result[i] = (diff * factor + origin).buildNormalPlane(plane);
+    }
+
+    return Polygon(result);
+}

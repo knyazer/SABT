@@ -78,5 +78,46 @@ double Vec3f::sqsize() const {
     return x * x + y * y + z * z;
 }
 
+Vec3f::Index Vec3f::getMainDirection() const {
+    // Omitting useless else's
 
+    if (abs(x) >= abs(y)) {
+        if (abs(x) >= abs(z))
+            return X;
+        return Z;
+    }
 
+    if (abs(y) >= abs(z))
+        return Y;
+
+    return Z;
+}
+
+double &Vec3f::operator[](Vec3f::Index index) {
+    if (index == X)
+        return x;
+    if (index == Y)
+        return y;
+    return z;
+}
+
+Vec2f Vec3f::buildNormalPlane(Vec3f::Index index) const {
+    if (index == X)
+        return {y, z};
+    if (index == Y)
+        return {x, z};
+    return {x, y};
+}
+
+Vec3f::Vec3f(Vec3f::Index i) {
+    x = 0;
+    y = 0;
+    z = 0;
+
+    if (i == X)
+        x = 1;
+    if (i == Y)
+        y = 1;
+    if (i == Z)
+        z = 1;
+}

@@ -20,10 +20,10 @@ using std::cout, std::endl;
 
 // hyps
 #define NUMBER_OF_RAYS_PER_BEAM 0
-#define OCTREE_SIZE 10
+#define OCTREE_SIZE 8
 
 // params to edit
-constexpr size_t RESOLUTION = 256;
+constexpr size_t RESOLUTION = 512;
 
 // precalc
 constexpr size_t NUMBER_OF_BEAMS = NUMBER_OF_RAYS_PER_BEAM == 0 ? RESOLUTION : RESOLUTION / NUMBER_OF_RAYS_PER_BEAM;
@@ -36,13 +36,15 @@ int main(int argc, char *args[]) {
     Renderer renderer;
 
     Camera cam;
-    cam.setPosition({OCTREE_LINEAR_SIZE / 5, OCTREE_LINEAR_SIZE / 6, OCTREE_LINEAR_SIZE / 2});
-    cam.setRotationByX(Angle::deg(180));
+    //cam.setPosition({OCTREE_LINEAR_SIZE / 5 + 0.1134, OCTREE_LINEAR_SIZE / 6 - 0.42321, OCTREE_LINEAR_SIZE / 2 + 0.01});
+    cam.setPosition({0, 0, 0});
+
+    cam.setRotationByX(Angle::deg(210));
     cam.setRotationByY(Angle::deg(0));
-    cam.setRotationByZ(Angle::deg(0));
+    cam.setRotationByZ(Angle::deg(60));
     cam.setFOV(Angle::deg(80));
 
-    Mesh mesh(getPath() + "/models/sponza");
+    Mesh mesh(getPath() + "/models/dragon");
     OctreeRoot world;
     world.fitMesh(mesh, OCTREE_SIZE);
 /*

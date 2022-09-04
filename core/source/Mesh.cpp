@@ -23,7 +23,7 @@ Mesh::Mesh(const std::string& rootPath) {
     std::string err;
     bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, objFilePath.c_str(),
                                 rootPath.c_str(), true);
-    std::cout << "meow" << std::endl;
+    std::cout << "shapes size: " << shapes.size() << std::endl;
 
     // for each mesh
     for (size_t i = 0; i < shapes.size(); i++) {
@@ -32,17 +32,21 @@ Mesh::Mesh(const std::string& rootPath) {
         const auto& mesh = shapes[i].mesh;
 
         // load texture
-        std::string texturePath = materials[mesh.material_ids[i]].diffuse_texname.c_str();
+        std::string texturePath;
+        if (materials.size() != 0)
+            texturePath = materials[mesh.material_ids[i]].diffuse_texname.c_str();
 
         // ignore bump texture, because why not
 
+        bool noTexture = false;
         if (texturePath.empty()) {
             std::cout << "Fuck, empty texture. Continue anyways" << std::endl;
-            continue;
+            noTexture = true;
         }
 
         // Save the texture
-        textures.push_back(new CImg<unsigned char>((rootPath + "/" + texturePath).c_str()));
+        if (!noTexture)
+            textures.push_back(new CImg<unsigned char>((rootPath + "/" + texturePath).c_str()));
 
         // For each triangle extract colors and push complete triangle to the vector
         for (size_t j = 0; j < mesh.indices.size(); j += 3) {
@@ -52,11 +56,17 @@ Mesh::Mesh(const std::string& rootPath) {
 
             Triangle triangle(v1, v2, v3);
 
-            triangle.setTexture(textures[textures.size() - 1]);
+            if (!noTexture) {
+                triangle.setTexture(textures[textures.size() - 1]);
 
-            triangle.setTextureCoordinates({attrib.texcoords[mesh.indices[j].texcoord_index * 2], attrib.texcoords[mesh.indices[j].texcoord_index * 2 + 1]},
-                                           {attrib.texcoords[mesh.indices[j + 1].texcoord_index * 2], attrib.texcoords[mesh.indices[j + 1].texcoord_index * 2 + 1]},
-                                           {attrib.texcoords[mesh.indices[j + 2].texcoord_index * 2], attrib.texcoords[mesh.indices[j + 2].texcoord_index * 2 + 1]});
+                triangle.setTextureCoordinates({attrib.texcoords[mesh.indices[j].texcoord_index * 2],
+                                                attrib.texcoords[mesh.indices[j].texcoord_index * 2 + 1]},
+                                               {attrib.texcoords[mesh.indices[j + 1].texcoord_index * 2],
+                                                attrib.texcoords[mesh.indices[j + 1].texcoord_index * 2 + 1]},
+                                               {attrib.texcoords[mesh.indices[j + 2].texcoord_index * 2],
+                                                attrib.texcoords[mesh.indices[j + 2].texcoord_index * 2 + 1]});
+            }
+
             data.push_back(triangle);
         }
     }

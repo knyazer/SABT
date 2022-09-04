@@ -382,10 +382,10 @@ TracingResult BeamTracer::prepare(BeamTracer* baseTracer, double desiredSize, bo
         if (node->children == nullptr) {
 
             Cube cube = node->stack.front().cube;
-            /*if (!Shape3d::hasIntersection(this, &cube) && lastLevel) {
+            if (lastLevel && !Shape3d::hasIntersection(this, &cube)) {
                 //quadStack.printAll([](auto x){return x->rect;});
                 break;
-            }*/
+            }
 
             marked = true;
             res.fill = true;

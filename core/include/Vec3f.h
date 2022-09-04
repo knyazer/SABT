@@ -7,12 +7,21 @@
 
 #include "Vec3i.h"
 #include "BasicMath.h"
+#include "Vec2f.h"
 
 #include <cmath>
 #include <iostream>
 
+
 class Vec3f {
 public:
+
+    /// To access vertices by index
+    enum Index {
+        X = 0,
+        Y = 1,
+        Z = 2
+    };
 
     double x, y, z;
 
@@ -21,6 +30,8 @@ public:
     Vec3f(const Vec3f& other);
 
     explicit Vec3f(Vec3i vec3I);
+
+    explicit Vec3f(Index i);
 
     Vec3f(double x, double y, double z);
 
@@ -56,6 +67,15 @@ public:
 
     /// Elementwise max of two vectors
     static Vec3f max(const Vec3f& a, const Vec3f& b);
+
+    /// Gets the index of a maximum absolute axis value
+    [[nodiscard]] Index getMainDirection() const;
+
+    /// Gets the x/y/z value by a given index
+    double& operator[](Index index);
+
+    /// Constructs a normal plane vector (vector which lies in a normal plane)
+    [[nodiscard]] Vec2f buildNormalPlane(Index index) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Vec3f& val);
 };

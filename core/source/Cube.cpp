@@ -60,3 +60,19 @@ std::ostream& operator<<(std::ostream& os, const Cube& val)
     os << "[Cube](" << "pos: " << val.pos << ", size: " << val.size << ")";
     return os;
 }
+
+double Cube::getHalfSize() const {
+    return double(size) / 2.0;
+}
+
+AlignedRect Cube::getFaceInDirection(Vec3f::Index direction) const {
+    auto max = Vec3f(pos + size), min = Vec3f(pos);
+
+    return {min.buildNormalPlane(direction), max.buildNormalPlane(direction)};
+}
+
+bool Cube::contain(Vec3f point) const {
+    return  point.x > pos.x && point.x < pos.x + size &&
+            point.y > pos.y && point.y < pos.y + size &&
+            point.z > pos.z && point.z < pos.z + size;
+}

@@ -7,7 +7,6 @@
 
 #include "Vec2f.h"
 #include "Shape2d.h"
-#include "Polygon.h"
 #include "Biplet.h"
 
 #include <vector>

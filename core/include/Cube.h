@@ -7,9 +7,11 @@
 
 #include "Vec3i.h"
 #include "Shape3d.h"
+#include "Polygon.h"
+#include "Vec3f.h"
+#include "AlignedRect.h"
 
 #include <vector>
-
 
 using ll = long long;
 
@@ -27,6 +29,8 @@ struct Cube : public Shape3d {
     /// Checks whether a particular point contained in the Rect
     [[nodiscard]] bool contain(Vec3i point) const;
 
+    [[nodiscard]] bool contain(Vec3f point) const;
+
     /// Returns 8 vertices of the cube in arbitrary order
     [[nodiscard]] Vec3i *getVertices() const;
 
@@ -38,6 +42,10 @@ struct Cube : public Shape3d {
 
     /// Checks whether two cubes intersect each other
     [[nodiscard]] static bool cubeIntersectsCube(const Cube &A, const Cube &B);
+
+    [[nodiscard]] double getHalfSize() const;
+
+    [[nodiscard]] AlignedRect getFaceInDirection(Vec3f::Index direction) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Cube& val);
 };

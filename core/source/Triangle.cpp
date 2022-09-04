@@ -8,6 +8,8 @@ Triangle::Triangle(Vec3f firstVertex, Vec3f secondVertex, Vec3f thirdVertex) {
     v1 = firstVertex;
     v2 = secondVertex;
     v3 = thirdVertex;
+
+    texture = nullptr;
 }
 
 Vec3f Triangle::getCenter() const {
@@ -40,6 +42,9 @@ void Triangle::transform(const std::function<Vec3f(const Vec3f &)>& f) {
 }
 
 Color Triangle::getColor(Vec3f point, double side) const {
+    if (texture == nullptr)
+        return Color::WHITE;
+
     Vec3f normal = Vec3f::cross(v2 - v1, v3 - v1);
 
     long r = 0, g = 0, b = 0;

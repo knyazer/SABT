@@ -29,3 +29,7 @@ Polygon::Polygon(Vec2f *arr, size_t size) {
     for (size_t i = 0; i < size; i++)
         vertices[i] = arr[i];
 }
+
+AlignedRect Polygon::makeBB() const {
+    return {vertices};
+}

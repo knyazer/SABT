@@ -17,6 +17,7 @@
 #include "Biplet.h"
 #include "Ray.h"
 #include "Polytope.h"
+#include "ExplicitIntersections.h"
 
 #include <cmath>
 
