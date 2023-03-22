@@ -9,7 +9,7 @@ add_library(core STATIC ${SOURCES})
 
 target_include_directories(core PUBLIC .)
 
-target_link_libraries(core PUBLIC ccd)
+target_link_libraries(core PUBLIC ccd X11 m pthread)
 
 if ($<CONFIG:DEBUG>)
     find_package(OpenMP)
